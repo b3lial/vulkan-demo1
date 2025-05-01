@@ -233,6 +233,11 @@ private:
     }
 
     void cleanup() {
+        LOG_DEBUG("Cleaning up");
+        for (VkImageView view : swapchainImageViews) {
+            vkDestroyImageView(device, view, nullptr);
+        }
+        vkDestroyRenderPass(device, renderPass, nullptr);
         vkDestroySwapchainKHR(device, swapchain, nullptr);
         vkDestroyDevice(device, nullptr);
         vkDestroySurfaceKHR(instance, surface, nullptr);
