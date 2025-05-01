@@ -27,6 +27,10 @@ private:
     VkQueue graphicsQueue;
     uint32_t queueFamilyIndex;
     VkSwapchainKHR swapchain;
+    
+    std::vector<VkImage> swapchainImages;
+    std::vector<VkImageView> swapchainImageViews;
+    VkFormat swapchainImageFormat;
 
     void initWindow() {
         glfwInit();
@@ -130,6 +134,39 @@ private:
 
         if (vkCreateSwapchainKHR(device, &swapInfo, nullptr, &swapchain) != VK_SUCCESS)
             throw std::runtime_error("Failed to create swapchain");
+
+        // Bilder aus der Swapchain holen
+        uint32_t imageCount = 0;
+        vkGetSwapchainImagesKHR(device, swapchain, &imageCount, nullptr);
+        swapchainImages.resize(imageCount);
+        vkGetSwapchainImagesKHR(device, swapchain, &imageCount, swapchainImages.data());
+
+        // Format merken (wird für Renderpass und ImageViews gebraucht)
+        swapchainImageFormat = format.format;
+
+        // Image Views erstellen
+        swapchainImageViews.resize(imageCount);
+        for (size_t i = 0; i < imageCount; i++) {
+            VkImageViewCreateInfo viewInfo{};
+            viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+            viewInfo.image = swapchainImages[i];
+            viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+            viewInfo.format = swapchainImageFormat;
+            viewInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+            viewInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+            viewInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+            viewInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
+            viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+            viewInfo.subresourceRange.baseMipLevel = 0;
+            viewInfo.subresourceRange.levelCount = 1;
+            viewInfo.subresourceRange.baseArrayLayer = 0;
+            viewInfo.subresourceRange.layerCount = 1;
+
+            if (vkCreateImageView(device, &viewInfo, nullptr, &swapchainImageViews[i]) != VK_SUCCESS) {
+                throw std::runtime_error("Failed to create image views!");
+            }
+
+        }
 
         // Dummy frame to show window
         uint32_t imgIndex;

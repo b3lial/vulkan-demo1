@@ -1,5 +1,6 @@
 triangle
 build
+.cache
 
 .kdev4
 *.kdev4
