@@ -15,7 +15,7 @@ const uint32_t WIDTH = 800;
 const uint32_t HEIGHT = 600;
 
 class HelloTriangleApplication {
-public:
+ public:
     void run() {
         initWindow();
         initVulkan();
@@ -23,7 +23,7 @@ public:
         cleanup();
     }
 
-private:
+ private:
     GLFWwindow* window;
     VkInstance instance;
     VkSurfaceKHR surface;
@@ -108,8 +108,8 @@ private:
         VkViewport viewport{};
         viewport.x = 0.0f;
         viewport.y = 0.0f;
-        viewport.width = (float)WIDTH;
-        viewport.height = (float)HEIGHT;
+        viewport.width = static_cast<float>(WIDTH);
+        viewport.height = static_cast<float>(HEIGHT);
         viewport.minDepth = 0.0f;
         viewport.maxDepth = 1.0f;
 
@@ -167,7 +167,8 @@ private:
         pipelineInfo.renderPass = renderPass;
         pipelineInfo.subpass = 0;
 
-        if (vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &graphicsPipeline) != VK_SUCCESS)
+        if (vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1,
+                &pipelineInfo, nullptr, &graphicsPipeline) != VK_SUCCESS)
             throw std::runtime_error("Failed to create graphics pipeline!");
 
         vkDestroyShaderModule(device, vertModule, nullptr);
@@ -305,14 +306,14 @@ private:
 
         // Now we create the render pass
         VkAttachmentDescription colorAttachment{};
-        colorAttachment.format = swapchainImageFormat; // Format aus ImageView
+        colorAttachment.format = swapchainImageFormat;  // Format aus ImageView
         colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
-        colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR; // Bild löschen
-        colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE; // Bild speichern
+        colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;  // Bild löschen
+        colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;  // Bild speichern
         colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
         colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
         colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-        colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR; // Präsentierbereit
+        colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;  // Präsentierbereit
 
         // Attachment Referenz – wird im Subpass benutzt
         VkAttachmentReference colorAttachmentRef{};
