@@ -39,6 +39,8 @@ private:
     VkPipelineLayout pipelineLayout;
     VkPipeline graphicsPipeline;
     std::vector<VkFramebuffer> swapchainFramebuffers;
+    VkCommandPool commandPool;
+    std::vector<VkCommandBuffer> commandBuffers;
 
     void initWindow() {
         glfwInit();
@@ -309,18 +311,18 @@ private:
         colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
         colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
         colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR; // Präsentierbereit
-        
+
         // Attachment Referenz – wird im Subpass benutzt
         VkAttachmentReference colorAttachmentRef{};
         colorAttachmentRef.attachment = 0;
         colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-        
+
         // Subpass – beschreibt, wie gezeichnet wird
         VkSubpassDescription subpass{};
         subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
         subpass.colorAttachmentCount = 1;
         subpass.pColorAttachments = &colorAttachmentRef;
-        
+
         // Subpass Dependency – Synchronisation (wichtig für Swapchain!)
         VkSubpassDependency dependency{};
         dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
@@ -329,7 +331,7 @@ private:
         dependency.srcAccessMask = 0;
         dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
         dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-        
+
         // Renderpass erstellen
         VkRenderPassCreateInfo renderPassInfo{};
         renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
@@ -339,7 +341,7 @@ private:
         renderPassInfo.pSubpasses = &subpass;
         renderPassInfo.dependencyCount = 1;
         renderPassInfo.pDependencies = &dependency;
-        
+
         if (vkCreateRenderPass(device, &renderPassInfo, nullptr, &renderPass) != VK_SUCCESS) {
             throw std::runtime_error("Failed to create render pass!");
         }
@@ -367,6 +369,56 @@ private:
             }
         }
 
+        // create command pool
+        VkCommandPoolCreateInfo poolInfo{};
+        poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+        poolInfo.queueFamilyIndex = queueFamilyIndex;  // dieselbe Queue wie beim Zeichnen
+        poolInfo.flags = 0;
+        if (vkCreateCommandPool(device, &poolInfo, nullptr, &commandPool) != VK_SUCCESS) {
+            throw std::runtime_error("Failed to create command pool!");
+        }
+
+        // allocate command buffers
+        commandBuffers.resize(swapchainFramebuffers.size());
+        VkCommandBufferAllocateInfo allocInfo{};
+        allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+        allocInfo.commandPool = commandPool;
+        allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+        allocInfo.commandBufferCount = static_cast<uint32_t>(commandBuffers.size());
+        if (vkAllocateCommandBuffers(device, &allocInfo, commandBuffers.data()) != VK_SUCCESS) {
+            throw std::runtime_error("Failed to allocate command buffers!");
+        }
+
+        // command buffer recording
+        for (size_t i = 0; i < commandBuffers.size(); i++) {
+            VkCommandBufferBeginInfo beginInfo{};
+            beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+
+            if (vkBeginCommandBuffer(commandBuffers[i], &beginInfo) != VK_SUCCESS) {
+                throw std::runtime_error("Failed to begin recording command buffer!");
+            }
+
+            VkClearValue clearColor = { {{0.0f, 0.0f, 0.0f, 1.0f}} };
+
+            VkRenderPassBeginInfo renderPassInfo{};
+            renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+            renderPassInfo.renderPass = renderPass;
+            renderPassInfo.framebuffer = swapchainFramebuffers[i];
+            renderPassInfo.renderArea.offset = {0, 0};
+            renderPassInfo.renderArea.extent = { WIDTH, HEIGHT };
+            renderPassInfo.clearValueCount = 1;
+            renderPassInfo.pClearValues = &clearColor;
+
+            vkCmdBeginRenderPass(commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+            vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
+            vkCmdDraw(commandBuffers[i], 3, 1, 0, 0);  // 3 Vertices für ein Dreieck
+            vkCmdEndRenderPass(commandBuffers[i]);
+
+            if (vkEndCommandBuffer(commandBuffers[i]) != VK_SUCCESS) {
+                throw std::runtime_error("Failed to record command buffer!");
+            }
+        }
+
         // Dummy frame to show window
         uint32_t imgIndex;
         vkAcquireNextImageKHR(device, swapchain, UINT64_MAX, VK_NULL_HANDLE, VK_NULL_HANDLE, &imgIndex);
@@ -385,6 +437,7 @@ private:
 
     void cleanup() {
         LOG_DEBUG("Cleaning up");
+        vkDestroyCommandPool(device, commandPool, nullptr);
         for (VkFramebuffer fb : swapchainFramebuffers) {
             vkDestroyFramebuffer(device, fb, nullptr);
         }
