@@ -1,3 +1,4 @@
+#include <string>
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
@@ -5,6 +6,8 @@
 #include <stdexcept>
 #include <cstdlib>
 #include <vector>
+
+#include "logger.hpp"
 
 const uint32_t WIDTH = 800;
 const uint32_t HEIGHT = 600;
@@ -140,6 +143,7 @@ private:
         vkGetSwapchainImagesKHR(device, swapchain, &imageCount, nullptr);
         swapchainImages.resize(imageCount);
         vkGetSwapchainImagesKHR(device, swapchain, &imageCount, swapchainImages.data());
+        LOG_DEBUG("Swap Chain Images: " + std::to_string(imageCount));
 
         // Format merken (wird für Renderpass und ImageViews gebraucht)
         swapchainImageFormat = format.format;
@@ -165,7 +169,6 @@ private:
             if (vkCreateImageView(device, &viewInfo, nullptr, &swapchainImageViews[i]) != VK_SUCCESS) {
                 throw std::runtime_error("Failed to create image views!");
             }
-
         }
 
         // Dummy frame to show window

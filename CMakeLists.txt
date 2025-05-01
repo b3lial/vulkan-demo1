@@ -21,3 +21,6 @@ target_link_libraries (vulkan_demo1
         vulkan
 )
 
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    add_definitions(-DDEBUG)
+endif()
