@@ -4,6 +4,7 @@ cmake_minimum_required(VERSION 3.22)
 INCLUDE(FindPkgConfig)
 
 find_package(glfw3 REQUIRED)
+find_package (Vulkan REQUIRED)
 find_package(Eigen3 REQUIRED)
 include_directories(${GLFW3_INCLUDE_DIRS})
 link_directories(${GLFW3_INCLUDE_DIRS})
@@ -12,6 +13,9 @@ add_library(cpp20 INTERFACE)
 target_compile_features(cpp20 INTERFACE cxx_std_20)
 
 
+add_executable (glslang::validator IMPORTED)
+find_program (GLSLANG_VALIDATOR "glslangValidator" HINTS $ENV{VULKAN_SDK}/bin REQUIRED)
+set_property (TARGET glslang::validator PROPERTY IMPORTED_LOCATION "${GLSLANG_VALIDATOR}")
 
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Os")
 
@@ -51,7 +55,10 @@ foreach(SHADER ${SHADERS})
 
     add_custom_command(
         OUTPUT ${SPIRV}
-        COMMAND glslc ${SRC} -o ${SPIRV}
+        COMMAND glslang::validator
+        ARGS --target-env vulkan1.0 ${SRC} --quiet -o ${SPIRV}
+        #WORKING_DIRECTORY ${SHADERS_DIR}
+        #COMMAND glslc ${SRC} -o ${SPIRV}
         DEPENDS ${SRC}
         COMMENT "Compiling ${SHADER} to SPIR-V"
         VERBATIM
