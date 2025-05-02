@@ -1,5 +1,3 @@
-
-
 PROJECT(vulkan_demo1)
 SET(PROJECT_VERSION 1.0)
 cmake_minimum_required(VERSION 3.22)
@@ -10,17 +8,25 @@ find_package(Eigen3 REQUIRED)
 include_directories(${GLFW3_INCLUDE_DIRS})
 link_directories(${GLFW3_INCLUDE_DIRS})
 
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -ggdb")
+add_library(cpp20 INTERFACE)
+target_compile_features(cpp20 INTERFACE cxx_std_20)
+
+
+
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Os")
 
 ADD_EXECUTABLE(vulkan_demo1
     src/main.cpp
-    src/vulkandemoapplication.cpp)
-
-target_link_libraries(vulkan_demo1
+    src/Sphere.cpp
+    src/WorldCube.cpp
+    src/vulkandemoapplication.cpp
+)
+target_link_libraries (vulkan_demo1
     PUBLIC
         Eigen3::Eigen
         glfw
         vulkan
+        cpp20
 )
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
@@ -36,6 +42,8 @@ set(SHADERS
     shader.vert
     shader.frag
 )
+
+
 
 foreach(SHADER ${SHADERS})
     set(SRC ${SHADER_DIR}/${SHADER})
