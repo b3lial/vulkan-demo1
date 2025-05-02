@@ -611,11 +611,11 @@ void VulkanDemoApplication::mainLoop()
 
 void VulkanDemoApplication::cleanup()
 {
+    LOG_DEBUG("Cleaning up");
     vkDestroyBuffer(device, indexBuffer, nullptr);
     vkFreeMemory(device, indexBufferMemory, nullptr);
     vkDestroyBuffer(device, vertexBuffer, nullptr);
     vkFreeMemory(device, vertexBufferMemory, nullptr);
-    LOG_DEBUG("Cleaning up");
     vkDestroySemaphore(device, renderFinishedSemaphore, nullptr);
     vkDestroySemaphore(device, imageAvailableSemaphore, nullptr);
     vkDestroyCommandPool(device, commandPool, nullptr);
