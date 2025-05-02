@@ -1,25 +1,60 @@
 #include "SphereTools.hpp"
 #include <cmath>
 
-std::vector<Vertex> generateSphereVertices(float radius, int sectors, int stacks) {
+std::vector<Vertex> generateSphereVertices(float radius, int sectors,
+                                           int stacks)
+{
     std::vector<Vertex> vertices;
 
     const float PI = 3.14159265359f;
 
-    for (int i = 0; i <= stacks; ++i) {
+    for (int i = 0; i <= stacks; ++i)
+    {
         float stackAngle = PI / 2 - i * PI / stacks; // von +π/2 bis -π/2
         float xy = radius * cosf(stackAngle);
         float z = radius * sinf(stackAngle);
 
-        for (int j = 0; j <= sectors; ++j) {
+        for (int j = 0; j <= sectors; ++j)
+        {
             float sectorAngle = j * 2 * PI / sectors;
 
             float x = xy * cosf(sectorAngle);
             float y = xy * sinf(sectorAngle);
 
-            vertices.push_back({{ glm::vec3(x, y, z) }, {1.0f, 0.0f, 0.0f}});
+            vertices.push_back({{glm::vec3(x, y, z)}, {1.0f, 0.0f, 0.0f}});
         }
     }
 
     return vertices;
+}
+
+std::vector<uint32_t> generateSphereIndices(int sectors, int stacks)
+{
+    std::vector<uint32_t> indices;
+
+    for (int i = 0; i < stacks; ++i)
+    {
+        int stackStart = i * (sectors + 1);
+        int nextStackStart = (i + 1) * (sectors + 1);
+
+        for (int j = 0; j < sectors; ++j)
+        {
+            uint32_t topLeft = stackStart + j;
+            uint32_t bottomLeft = nextStackStart + j;
+            uint32_t topRight = stackStart + j + 1;
+            uint32_t bottomRight = nextStackStart + j + 1;
+
+            // Dreieck 1
+            indices.push_back(topLeft);
+            indices.push_back(bottomLeft);
+            indices.push_back(topRight);
+
+            // Dreieck 2
+            indices.push_back(topRight);
+            indices.push_back(bottomLeft);
+            indices.push_back(bottomRight);
+        }
+    }
+
+    return indices;
 }
