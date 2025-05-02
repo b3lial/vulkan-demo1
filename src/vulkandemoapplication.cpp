@@ -4,6 +4,17 @@
 #include "logger.hpp"
 #include "vulkandemoapplication.hpp"
 
+void VulkanDemoApplication::setVertices(std::vector<Vertex> &v)
+{
+    vertices = v;
+}
+
+
+void VulkanDemoApplication::setIndices(std::vector<uint32_t> &i)
+{
+    indices = i;
+}
+
 void VulkanDemoApplication::run()
 {
     initWindow();
@@ -229,6 +240,21 @@ void VulkanDemoApplication::createVertexBuffer()
     vkMapMemory(device, vertexBufferMemory, 0, bufferSize, 0, &data);
     memcpy(data, vertices.data(), static_cast<size_t>(bufferSize));
     vkUnmapMemory(device, vertexBufferMemory);
+}
+
+void VulkanDemoApplication::createIndexBuffer()
+{
+    VkDeviceSize bufferSize = sizeof(indices[0]) * indices.size();
+
+    createBuffer(bufferSize, VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
+                 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+                     VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                 indexBuffer, indexBufferMemory);
+
+    void *data;
+    vkMapMemory(device, indexBufferMemory, 0, bufferSize, 0, &data);
+    memcpy(data, indices.data(), static_cast<size_t>(bufferSize));
+    vkUnmapMemory(device, indexBufferMemory);
 }
 
 void VulkanDemoApplication::initVulkan()
@@ -507,8 +533,10 @@ void VulkanDemoApplication::initVulkan()
         VkDeviceSize offsets[] = {0};
         vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertexBuffers, offsets);
 
-        vkCmdDraw(commandBuffers[i], static_cast<uint32_t>(vertices.size()), 1,
-                  0, 0);
+        vkCmdBindIndexBuffer(commandBuffers[i], indexBuffer, 0, VK_INDEX_TYPE_UINT32);
+
+        vkCmdDrawIndexed(commandBuffers[i], static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
+
         vkCmdEndRenderPass(commandBuffers[i]);
 
         if (vkEndCommandBuffer(commandBuffers[i]) != VK_SUCCESS)
@@ -583,6 +611,8 @@ void VulkanDemoApplication::mainLoop()
 
 void VulkanDemoApplication::cleanup()
 {
+    vkDestroyBuffer(device, indexBuffer, nullptr);
+    vkFreeMemory(device, indexBufferMemory, nullptr);
     vkDestroyBuffer(device, vertexBuffer, nullptr);
     vkFreeMemory(device, vertexBufferMemory, nullptr);
     LOG_DEBUG("Cleaning up");

@@ -46,6 +46,8 @@ struct Vertex
 class VulkanDemoApplication
 {
   public:
+    void setVertices(std::vector<Vertex> &v);
+    void setIndices(std::vector<uint32_t> &i);
     void run();
 
   private:
@@ -62,7 +64,9 @@ class VulkanDemoApplication
     uint32_t findMemoryType(uint32_t typeFilter,
                             VkMemoryPropertyFlags properties);
     void createVertexBuffer();
+    void createIndexBuffer();
 
+    // vulkan boilerplate init stuff
     GLFWwindow *window;
     VkInstance instance;
     VkSurfaceKHR surface;
@@ -83,8 +87,13 @@ class VulkanDemoApplication
     VkSemaphore imageAvailableSemaphore;
     VkSemaphore renderFinishedSemaphore;
 
-    const std::vector<Vertex> vertices;
+    // vertex and index section
+    std::vector<Vertex> vertices;
 
     VkBuffer vertexBuffer;
     VkDeviceMemory vertexBufferMemory;
+
+    VkBuffer indexBuffer;
+    VkDeviceMemory indexBufferMemory;
+    std::vector<uint32_t> indices;
 };
