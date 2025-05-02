@@ -13,7 +13,8 @@ link_directories(${GLFW3_INCLUDE_DIRS})
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -ggdb")
 
 ADD_EXECUTABLE(vulkan_demo1
-    src/main.cpp)
+    src/main.cpp
+    src/vulkandemoapplication.cpp)
 
 target_link_libraries(vulkan_demo1
     PUBLIC
