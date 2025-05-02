@@ -1,5 +1,6 @@
 #include <fstream>
 #include <memory.h>
+#include <string>
 
 #include "logger.hpp"
 #include "vulkandemoapplication.hpp"
@@ -259,6 +260,9 @@ void VulkanDemoApplication::createIndexBuffer()
 
 void VulkanDemoApplication::initVulkan()
 {
+    LOG_DEBUG("Vertices: " + std::to_string(vertices.size()));
+    LOG_DEBUG("Indices: " + std::to_string(indices.size()));
+
     // Create instance
     VkApplicationInfo appInfo{VK_STRUCTURE_TYPE_APPLICATION_INFO};
     appInfo.pApplicationName = "Hello Triangle";
@@ -453,6 +457,8 @@ void VulkanDemoApplication::initVulkan()
     createGraphicsPipeline();
 
     createVertexBuffer();
+
+    createIndexBuffer();
 
     // create framebuffers
     swapchainFramebuffers.resize(swapchainImageViews.size());
