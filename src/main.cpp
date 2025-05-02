@@ -8,7 +8,7 @@ int main()
     VulkanDemoApplication app;
 
     // add a sphere
-    auto vertices = generateSphereVertices(1, 48, 32);
+    auto vertices = generateSphereVertices(0.5, 48, 32);
     app.setVertices(vertices);
     auto indices = generateSphereIndices(48, 32);
     app.setIndices(indices);
