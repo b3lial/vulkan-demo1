@@ -2,10 +2,10 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 
+#include <array>
 #include <cstdlib>
 #include <string>
 #include <vector>
-#include <array>
 
 const uint32_t WIDTH = 800;
 const uint32_t HEIGHT = 600;
@@ -54,6 +54,12 @@ class VulkanDemoApplication
     void initVulkan();
     void mainLoop();
     void cleanup();
+    void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage,
+                      VkMemoryPropertyFlags properties, VkBuffer &buffer,
+                      VkDeviceMemory &bufferMemory);
+    uint32_t findMemoryType(uint32_t typeFilter,
+                            VkMemoryPropertyFlags properties);
+    void createVertexBuffer();
 
     GLFWwindow *window;
     VkInstance instance;
@@ -74,4 +80,10 @@ class VulkanDemoApplication
     std::vector<VkCommandBuffer> commandBuffers;
     VkSemaphore imageAvailableSemaphore;
     VkSemaphore renderFinishedSemaphore;
+
+    const std::vector<Vertex> vertices = {{{0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}},
+                                          {{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
+                                          {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}};
+    VkBuffer vertexBuffer;
+    VkDeviceMemory vertexBufferMemory;
 };
