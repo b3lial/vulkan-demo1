@@ -11,8 +11,9 @@ struct CollisionInfo
 
 class Sphere
 {
-public:
-    Sphere(const Eigen::Vector3d &initialPosition, const Eigen::Vector3d &initialVelocity, double size);
+  public:
+    Sphere(const Eigen::Vector3d &initialPosition,
+           const Eigen::Vector3d &initialVelocity, double size);
 
     /**
      * Checks for intersection.
@@ -21,43 +22,20 @@ public:
      */
     std::optional<CollisionInfo> computeExitDir(const Sphere &other);
 
-    void setPos(const Eigen::Vector3d &newPos)
-    {
-        pos = newPos;
-    }
-    const Eigen::Vector3d &getPos() const
-    {
-        return pos;
-    }
-    void setLastPos()
-    {
-        lastPos = pos;
-    }
-    const Eigen::Vector3d &getLastPos() const
-    {
-        return lastPos;
-    }
+    void setPos(const Eigen::Vector3d &newPos) { pos = newPos; }
+    const Eigen::Vector3d &getPos() const { return pos; }
+    void setLastPos() { lastPos = pos; }
+    const Eigen::Vector3d &getLastPos() const { return lastPos; }
 
-    const Eigen::Vector3d &getVel() const
-    {
-        return vel;
-    }
-    void setVel(const Eigen::Vector3d &newVel)
-    {
-        vel = newVel;
-    }
+    const Eigen::Vector3d &getVel() const { return vel; }
+    void setVel(const Eigen::Vector3d &newVel) { vel = newVel; }
 
-    double getSize() const
-    {
-        return size;
-    }
+    double getSize() const { return size; }
 
-private:
+  private:
     Eigen::Vector3d pos;
     Eigen::Vector3d lastPos;
     Eigen::Vector3d vel;
 
     double size;
-
-
 };

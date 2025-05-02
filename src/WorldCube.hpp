@@ -5,18 +5,13 @@
 
 class WorldCube
 {
-public:
+  public:
     WorldCube();
-
 
     void stepWorld();
 
-private:
-
+  private:
     double sideSize;
 
     std::vector<Sphere> spheres;
-
-
-
 };

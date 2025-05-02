@@ -2,26 +2,27 @@
 #include <GLFW/glfw3.h>
 
 #include <cstdlib>
-#include <vector>
 #include <string>
+#include <vector>
 
 const uint32_t WIDTH = 800;
 const uint32_t HEIGHT = 600;
 
-class VulkanDemoApplication {
- public:
+class VulkanDemoApplication
+{
+  public:
     void run();
 
- private:
+  private:
     void initWindow();
-    VkShaderModule createShaderModule(const std::vector<char>& code);
-    std::vector<char> readFile(const std::string& filename);
+    VkShaderModule createShaderModule(const std::vector<char> &code);
+    std::vector<char> readFile(const std::string &filename);
     void createGraphicsPipeline();
     void initVulkan();
     void mainLoop();
     void cleanup();
 
-    GLFWwindow* window;
+    GLFWwindow *window;
     VkInstance instance;
     VkSurfaceKHR surface;
     VkPhysicalDevice physicalDevice;
