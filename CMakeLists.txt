@@ -6,6 +6,7 @@ INCLUDE(FindPkgConfig)
 find_package(glfw3 REQUIRED)
 find_package (Vulkan REQUIRED)
 find_package(Eigen3 REQUIRED)
+find_package(glm REQUIRED)
 include_directories(${GLFW3_INCLUDE_DIRS})
 link_directories(${GLFW3_INCLUDE_DIRS})
 
@@ -31,6 +32,7 @@ target_link_libraries (vulkan_demo1
         glfw
         vulkan
         cpp20
+        glm::glm
 )
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
