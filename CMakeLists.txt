@@ -25,6 +25,7 @@ ADD_EXECUTABLE(vulkan_demo1
     src/Sphere.cpp
     src/WorldCube.cpp
     src/vulkandemoapplication.cpp
+    src/SphereTools.cpp
 )
 target_link_libraries (vulkan_demo1
     PUBLIC
