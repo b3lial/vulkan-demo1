@@ -155,4 +155,9 @@ class VulkanDemoApplication
     // camera matrix
     glm::mat4 view;
     glm::mat4 proj;
+
+    // camera orbit
+    float orbitRadius = 5.0f;
+    float orbitHeight = 2.0f;     // Y-Position bleibt konstant
+    float orbitSpeed = 0.2f;      // Umdrehungen pro Sekunde
 };

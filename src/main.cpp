@@ -27,9 +27,6 @@ int main()
     lights.push_back(l3);
     app.setLights(lights);
 
-    // set position of eye
-    app.setView(glm::vec3(2.0f, 2.0f, 2.0f));
-
     try
     {
         app.run();

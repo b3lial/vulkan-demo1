@@ -729,6 +729,8 @@ void VulkanDemoApplication::mainLoop()
 
     while (!glfwWindowShouldClose(window))
     {
+        float time = static_cast<float>(glfwGetTime());
+
         for(int i=0;i<10;i++)
         {
             world.stepWorld();
@@ -741,9 +743,18 @@ void VulkanDemoApplication::mainLoop()
                               imageAvailableSemaphore, VK_NULL_HANDLE,
                               &imageIndex);
 
+        // spheres
         const std::vector<Sphere> &s = world.getSpheres();
         setSpheres(s);
-        float time = static_cast<float>(glfwGetTime());
+
+        // view
+        float angle = glm::two_pi<float>() * orbitSpeed * time;
+        float x = orbitRadius * std::cos(angle);
+        float z = orbitRadius * std::sin(angle);
+        glm::vec3 eye = glm::vec3(x, orbitHeight, z);
+        // LOG_DEBUG("exe: " + std::to_string(x) + ", " + std::to_string(z));
+        setView(eye);
+
         recordCommandBuffer(imageIndex, time);
 
         // 2. Infos zum Senden an die Queue
