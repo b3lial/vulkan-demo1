@@ -1,22 +1,33 @@
 #version 450
 
-layout(location = 0) in vec3 fragColor;
-layout(location = 1) in vec3 fragNormal;
-layout(location = 2) in vec3 fragPos;
+// Eingänge vom Vertex Shader
+layout(location = 0) in vec3 fragPos;
+layout(location = 1) in vec3 fragColor;
+layout(location = 2) in vec3 fragNormal;
 
+// Ausgabe an den Framebuffer
 layout(location = 0) out vec4 outColor;
 
-// Lichtparameter (Hardcoded für den Anfang)
-const vec3 lightPos = vec3(2.0, 2.0, 2.0);
-const vec3 lightColor = vec3(1.0, 1.0, 1.0);
+// Uniform Buffer für Lichtdaten (std140 Layout!)
+layout(binding = 0, std140) uniform Lights {
+    vec4 lightPos[2];    // .xyz = Position, .w ungenutzt
+    vec4 lightColor[2];  // .xyz = Farbe, .w ungenutzt
+};
 
 void main() {
-    // Richtung von Punkt zur Lichtquelle
-    vec3 lightDir = normalize(lightPos - fragPos);
+    vec3 normal = normalize(fragNormal);  // Normale interpoliert von Vertices
+    vec3 result = vec3(0.0);              // Startfarbe schwarz
 
-    // Beleuchtung nach Lambert (diffuse)
-    float diff = max(dot(normalize(fragNormal), lightDir), 0.0);
-    vec3 litColor = fragColor * lightColor * diff;
+    for (int i = 0; i < 2; i++) {
+        // Richtung von Fragment zur Lichtquelle
+        vec3 lightDir = normalize(lightPos[i].xyz - fragPos);
 
-    outColor = vec4(litColor, 1.0);
+        // Lambert-Beleuchtung: wie "schräg" trifft das Licht?
+        float diff = max(dot(normal, lightDir), 0.0);
+
+        // Farbe = Materialfarbe * Lichtfarbe * Intensität
+        result += fragColor * lightColor[i].xyz * diff;
+    }
+
+    outColor = vec4(result, 1.0); // finaler RGBA-Ausgabewert
 }

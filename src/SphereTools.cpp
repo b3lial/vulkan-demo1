@@ -22,8 +22,8 @@ std::vector<Vertex> generateSphereVertices(float radius, int sectors,
             float y = xy * sinf(sectorAngle);
 
             glm::vec3 position = glm::vec3(x, y, z);
-            glm::vec3 color = glm::vec3(1.0f, 0.0f, 0.0f);
-            glm::vec3 normal = glm::normalize(position);
+            glm::vec3 color = glm::vec3(1.0f, 1.0f, 1.0f);
+            glm::vec3 normal = glm::normalize(glm::vec3(x, y, z));
 
             vertices.push_back({position, color, normal});
         }

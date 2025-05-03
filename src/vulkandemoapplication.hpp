@@ -12,6 +12,17 @@
 const uint32_t WIDTH = 800;
 const uint32_t HEIGHT = 600;
 
+struct Light {
+    alignas(16) glm::vec3 position;
+    float _pad1; // Padding → damit der nächste vec3 richtig aligned ist
+    alignas(16) glm::vec3 color;
+    float _pad2;
+};
+
+struct UniformBufferObject {
+    Light lights[2];
+};
+
 struct Vertex
 {
     glm::vec3 pos;
@@ -72,6 +83,11 @@ class VulkanDemoApplication
                             VkMemoryPropertyFlags properties);
     void createVertexBuffer();
     void createIndexBuffer();
+    void createUniformBuffer();
+    void updateUniformBuffer();
+    void createDescriptorSetLayout();
+    void createDescriptorPool();
+    void createDescriptorSet();
 
     // vulkan boilerplate init stuff
     GLFWwindow *window;
@@ -103,4 +119,12 @@ class VulkanDemoApplication
     VkBuffer indexBuffer;
     VkDeviceMemory indexBufferMemory;
     std::vector<uint32_t> indices;
+
+    // uniform buffer
+    VkBuffer uniformBuffer;
+    VkDeviceMemory uniformBufferMemory;
+
+    VkDescriptorSetLayout descriptorSetLayout;
+    VkDescriptorPool descriptorPool;
+    VkDescriptorSet descriptorSet;
 };
