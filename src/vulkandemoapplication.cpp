@@ -1,6 +1,7 @@
 #include <fstream>
 #include <memory.h>
 #include <string>
+#include <random>
 
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -38,6 +39,13 @@ void VulkanDemoApplication::setView(glm::vec3 eye)
 
 void VulkanDemoApplication::run()
 {
+    // init random number generator
+    std::random_device rd;
+    gen = std::mt19937(rd());
+    radiusDist = std::uniform_real_distribution<float>(2.0f, 6.0f);   // Radius 2–6
+    heightDist = std::uniform_real_distribution<float> (1.0f, 3.0f);   // Höhe 1–3
+    speedDist = std::uniform_real_distribution<float> (0.02f, 0.1f);   // Umdrehungsgeschwindigkeit
+
     initWindow();
     initVulkan();
     mainLoop();
@@ -976,6 +984,21 @@ void VulkanDemoApplication::mainLoop()
     while (!glfwWindowShouldClose(window))
     {
         float time = static_cast<float>(glfwGetTime());
+
+        // change view every 5 seconds for more dynamic
+        if (lastSwitchTime == 0)
+        {
+            lastSwitchTime = time;
+        }
+        else if (time - lastSwitchTime > 5)
+        {
+            lastSwitchTime = time;
+
+            //change view
+            orbitRadius = radiusDist(gen);
+            orbitHeight = heightDist(gen);
+            orbitSpeed  = speedDist(gen);
+        }
 
         for (int i = 0; i < 10; i++)
         {

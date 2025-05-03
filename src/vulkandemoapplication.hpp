@@ -7,6 +7,7 @@
 #include <cstdlib>
 #include <string>
 #include <vector>
+#include <random>
 
 #include "Sphere.hpp"
 
@@ -175,4 +176,11 @@ class VulkanDemoApplication
     float orbitRadius = 3.0f;
     float orbitHeight = 2.0f;     // Y-Position bleibt konstant
     float orbitSpeed = 0.05f;      // Umdrehungen pro Sekunde
+
+    // animation
+    float lastSwitchTime = 0;
+    std::mt19937 gen;
+    std::uniform_real_distribution<float> radiusDist;   // Radius 2–6
+    std::uniform_real_distribution<float> heightDist;   // Höhe 1–3
+    std::uniform_real_distribution<float> speedDist;   // Umdrehungsgeschwindigkeit
 };
