@@ -15,6 +15,11 @@
 constexpr uint32_t WIDTH = 1200;
 constexpr uint32_t HEIGHT = 1200;
 
+struct GridPushConstants {
+    glm::mat4 view;
+    glm::mat4 proj;
+};
+
 struct PushConstants {
     glm::mat4 model;
     glm::mat4 view;
@@ -90,22 +95,26 @@ class VulkanDemoApplication
     VkShaderModule createShaderModule(const std::vector<char> &code);
     std::vector<char> readFile(const std::string &filename);
     void createGraphicsPipeline();
+    void createGridPipeline();
     void initVulkan();
     void mainLoop();
     void recordCommandBuffer(uint32_t imageIndex, float time);
     void cleanup();
+    void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
     void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage,
                       VkMemoryPropertyFlags properties, VkBuffer &buffer,
                       VkDeviceMemory &bufferMemory);
     uint32_t findMemoryType(uint32_t typeFilter,
                             VkMemoryPropertyFlags properties);
     void createVertexBuffer();
+    void createGridVertexBuffer();
     void createIndexBuffer();
     void createUniformBuffer();
     void updateUniformBuffer();
     void createDescriptorSetLayout();
     void createDescriptorPool();
     void createDescriptorSet();
+    std::vector<glm::vec3> generateGridLines(int halfExtent = 10, float spacing = 1.0f);
 
     // vulkan boilerplate init stuff
     GLFWwindow *window;
@@ -122,6 +131,8 @@ class VulkanDemoApplication
     VkRenderPass renderPass;
     VkPipelineLayout pipelineLayout;
     VkPipeline graphicsPipeline;
+    VkPipelineLayout gridPipelineLayout;
+    VkPipeline gridPipeline;
     std::vector<VkFramebuffer> swapchainFramebuffers;
     VkCommandPool commandPool;
     std::vector<VkCommandBuffer> commandBuffers;
@@ -133,6 +144,10 @@ class VulkanDemoApplication
 
     VkBuffer vertexBuffer;
     VkDeviceMemory vertexBufferMemory;
+
+    VkBuffer gridVertexBuffer;
+    VkDeviceMemory gridVertexBufferMemory;
+    uint32_t gridVertexCount;
 
     VkBuffer indexBuffer;
     VkDeviceMemory indexBufferMemory;

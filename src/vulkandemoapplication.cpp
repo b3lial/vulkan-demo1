@@ -89,6 +89,136 @@ std::vector<char> VulkanDemoApplication::readFile(const std::string &filename)
     return buffer;
 }
 
+void VulkanDemoApplication::createGridPipeline()
+{
+    auto vertShaderCode = readFile("shaders/grid.vert.spv");
+    auto fragShaderCode = readFile("shaders/grid.frag.spv");
+
+    VkShaderModule vertModule = createShaderModule(vertShaderCode);
+    VkShaderModule fragModule = createShaderModule(fragShaderCode);
+
+    VkPipelineShaderStageCreateInfo vertStageInfo{};
+    vertStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+    vertStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
+    vertStageInfo.module = vertModule;
+    vertStageInfo.pName = "main";
+
+    VkPipelineShaderStageCreateInfo fragStageInfo{};
+    fragStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+    fragStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
+    fragStageInfo.module = fragModule;
+    fragStageInfo.pName = "main";
+
+    VkPipelineShaderStageCreateInfo shaderStages[] = {vertStageInfo,
+                                                      fragStageInfo};
+
+    // Position only: binding = 0, location = 0
+    VkVertexInputBindingDescription bindingDescription{};
+    bindingDescription.binding = 0;
+    bindingDescription.stride = sizeof(glm::vec3);
+    bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+
+    VkVertexInputAttributeDescription attributeDescription{};
+    attributeDescription.binding = 0;
+    attributeDescription.location = 0;
+    attributeDescription.format = VK_FORMAT_R32G32B32_SFLOAT;
+    attributeDescription.offset = 0;
+
+    VkPipelineVertexInputStateCreateInfo vertexInput{};
+    vertexInput.sType =
+        VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+    vertexInput.vertexBindingDescriptionCount = 1;
+    vertexInput.pVertexBindingDescriptions = &bindingDescription;
+    vertexInput.vertexAttributeDescriptionCount = 1;
+    vertexInput.pVertexAttributeDescriptions = &attributeDescription;
+
+    VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
+    inputAssembly.sType =
+        VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
+    inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
+    inputAssembly.primitiveRestartEnable = VK_FALSE;
+
+    VkViewport viewport{};
+    viewport.x = 0.0f;
+    viewport.y = 0.0f;
+    viewport.width = static_cast<float>(WIDTH);
+    viewport.height = static_cast<float>(HEIGHT);
+    viewport.minDepth = 0.0f;
+    viewport.maxDepth = 1.0f;
+
+    VkRect2D scissor{};
+    scissor.offset = {0, 0};
+    scissor.extent = {WIDTH, HEIGHT};
+
+    VkPipelineViewportStateCreateInfo viewportState{};
+    viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+    viewportState.viewportCount = 1;
+    viewportState.pViewports = &viewport;
+    viewportState.scissorCount = 1;
+    viewportState.pScissors = &scissor;
+
+    VkPipelineRasterizationStateCreateInfo rasterizer{};
+    rasterizer.sType =
+        VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
+    rasterizer.polygonMode = VK_POLYGON_MODE_LINE;
+    rasterizer.lineWidth = 1.0f;
+    rasterizer.cullMode = VK_CULL_MODE_NONE;
+    rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
+
+    VkPipelineMultisampleStateCreateInfo multisampling{};
+    multisampling.sType =
+        VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
+    multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
+
+    VkPipelineColorBlendAttachmentState colorBlendAttachment{};
+    colorBlendAttachment.colorWriteMask =
+        VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT |
+        VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+    colorBlendAttachment.blendEnable = VK_FALSE;
+
+    VkPipelineColorBlendStateCreateInfo colorBlending{};
+    colorBlending.sType =
+        VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
+    colorBlending.attachmentCount = 1;
+    colorBlending.pAttachments = &colorBlendAttachment;
+
+    // Push Constants: view + proj
+    VkPushConstantRange pushConstantRange{};
+    pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+    pushConstantRange.offset = 0;
+    pushConstantRange.size = sizeof(glm::mat4) * 2;
+
+    VkPipelineLayoutCreateInfo layoutInfo{};
+    layoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+    layoutInfo.pushConstantRangeCount = 1;
+    layoutInfo.pPushConstantRanges = &pushConstantRange;
+
+    if (vkCreatePipelineLayout(device, &layoutInfo, nullptr,
+                               &gridPipelineLayout) != VK_SUCCESS)
+        throw std::runtime_error("Failed to create grid pipeline layout!");
+
+    VkGraphicsPipelineCreateInfo pipelineInfo{};
+    pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+    pipelineInfo.stageCount = 2;
+    pipelineInfo.pStages = shaderStages;
+    pipelineInfo.pVertexInputState = &vertexInput;
+    pipelineInfo.pInputAssemblyState = &inputAssembly;
+    pipelineInfo.pViewportState = &viewportState;
+    pipelineInfo.pRasterizationState = &rasterizer;
+    pipelineInfo.pMultisampleState = &multisampling;
+    pipelineInfo.pColorBlendState = &colorBlending;
+    pipelineInfo.layout = gridPipelineLayout;
+    pipelineInfo.renderPass = renderPass;
+    pipelineInfo.subpass = 0;
+
+    if (vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo,
+                                  nullptr, &gridPipeline) != VK_SUCCESS)
+        throw std::runtime_error("Failed to create grid pipeline!");
+
+    vkDestroyShaderModule(device, vertModule, nullptr);
+    vkDestroyShaderModule(device, fragModule, nullptr);
+}
+
 void VulkanDemoApplication::createGraphicsPipeline()
 {
     auto vertShaderCode = readFile("shaders/shader.vert.spv");
@@ -213,6 +343,40 @@ void VulkanDemoApplication::createGraphicsPipeline()
     vkDestroyShaderModule(device, fragModule, nullptr);
 }
 
+void VulkanDemoApplication::copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer,
+                                       VkDeviceSize size)
+{
+    VkCommandBufferAllocateInfo allocInfo{};
+    allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+    allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    allocInfo.commandPool = commandPool;
+    allocInfo.commandBufferCount = 1;
+
+    VkCommandBuffer commandBuffer;
+    vkAllocateCommandBuffers(device, &allocInfo, &commandBuffer);
+
+    VkCommandBufferBeginInfo beginInfo{};
+    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+    beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+    vkBeginCommandBuffer(commandBuffer, &beginInfo);
+
+    VkBufferCopy copyRegion{};
+    copyRegion.size = size;
+    vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
+
+    vkEndCommandBuffer(commandBuffer);
+
+    VkSubmitInfo submitInfo{};
+    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    submitInfo.commandBufferCount = 1;
+    submitInfo.pCommandBuffers = &commandBuffer;
+
+    vkQueueSubmit(graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
+    vkQueueWaitIdle(graphicsQueue);
+
+    vkFreeCommandBuffers(device, commandPool, 1, &commandBuffer);
+}
+
 void VulkanDemoApplication::createBuffer(VkDeviceSize size,
                                          VkBufferUsageFlags usage,
                                          VkMemoryPropertyFlags properties,
@@ -277,6 +441,43 @@ void VulkanDemoApplication::createVertexBuffer()
     vkMapMemory(device, vertexBufferMemory, 0, bufferSize, 0, &data);
     memcpy(data, vertices.data(), static_cast<size_t>(bufferSize));
     vkUnmapMemory(device, vertexBufferMemory);
+}
+
+void VulkanDemoApplication::createGridVertexBuffer()
+{
+    std::vector<glm::vec3> gridVertices =
+        generateGridLines(10, 1.0f); // Erzeuge Linien von -10 bis +10
+    gridVertexCount = static_cast<uint32_t>(gridVertices.size());
+
+    VkDeviceSize bufferSize = sizeof(glm::vec3) * gridVertices.size();
+
+    // Create staging buffer
+    VkBuffer stagingBuffer;
+    VkDeviceMemory stagingBufferMemory;
+    createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+                     VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                 stagingBuffer, stagingBufferMemory);
+
+    // Daten reinkopieren
+    void *data;
+    vkMapMemory(device, stagingBufferMemory, 0, bufferSize, 0, &data);
+    memcpy(data, gridVertices.data(), (size_t)bufferSize);
+    vkUnmapMemory(device, stagingBufferMemory);
+
+    // Create final vertex buffer
+    createBuffer(bufferSize,
+                 VK_BUFFER_USAGE_VERTEX_BUFFER_BIT |
+                     VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+                 VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, gridVertexBuffer,
+                 gridVertexBufferMemory);
+
+    // Kopiere von staging -> device-local
+    copyBuffer(stagingBuffer, gridVertexBuffer, bufferSize);
+
+    // Aufräumen
+    vkDestroyBuffer(device, stagingBuffer, nullptr);
+    vkFreeMemory(device, stagingBufferMemory, nullptr);
 }
 
 void VulkanDemoApplication::createIndexBuffer()
@@ -389,6 +590,27 @@ void VulkanDemoApplication::createDescriptorSet()
     descriptorWrite.pBufferInfo = &bufferInfo;
 
     vkUpdateDescriptorSets(device, 1, &descriptorWrite, 0, nullptr);
+}
+
+std::vector<glm::vec3> VulkanDemoApplication::generateGridLines(int halfExtent,
+                                                                float spacing)
+{
+    std::vector<glm::vec3> lines;
+
+    for (int i = -halfExtent; i <= halfExtent; ++i)
+    {
+        float v = i * spacing;
+
+        // Linie entlang X
+        lines.push_back(glm::vec3(-halfExtent * spacing, 0.0f, v));
+        lines.push_back(glm::vec3(halfExtent * spacing, 0.0f, v));
+
+        // Linie entlang Z
+        lines.push_back(glm::vec3(v, 0.0f, -halfExtent * spacing));
+        lines.push_back(glm::vec3(v, 0.0f, halfExtent * spacing));
+    }
+
+    return lines;
 }
 
 void VulkanDemoApplication::initVulkan()
@@ -594,6 +816,7 @@ void VulkanDemoApplication::initVulkan()
     updateUniformBuffer(); // ← jetzt kann er korrekt beschrieben werden
 
     createGraphicsPipeline(); // nutzt descriptorSetLayout
+    createGridPipeline();
     createVertexBuffer();
     createIndexBuffer();
 
@@ -630,6 +853,8 @@ void VulkanDemoApplication::initVulkan()
     {
         throw std::runtime_error("Failed to create command pool!");
     }
+
+    createGridVertexBuffer();
 
     // allocate command buffers
     commandBuffers.resize(swapchainFramebuffers.size());
@@ -683,6 +908,27 @@ void VulkanDemoApplication::recordCommandBuffer(uint32_t imageIndex, float time)
 
     vkCmdBeginRenderPass(commandBuffers[i], &renderPassInfo,
                          VK_SUBPASS_CONTENTS_INLINE);
+
+    // === GRID ZEICHNEN ===
+    GridPushConstants gpc{view, proj};
+
+    vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS,
+                      gridPipeline);
+
+    vkCmdPushConstants(commandBuffers[i], gridPipelineLayout,
+                       VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(GridPushConstants),
+                       &gpc);
+
+    VkBuffer gridBuffers[] = {gridVertexBuffer};
+    VkDeviceSize gridOffsets[] = {0};
+    vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, gridBuffers, gridOffsets);
+
+    vkCmdDraw(commandBuffers[i],
+              static_cast<uint32_t>(
+                  gridVertexCount), // Achtung: zählst du beim Erzeugen
+              1, 0, 0);
+
+    // === KUGELN ZEICHNEN ===
     vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS,
                       graphicsPipeline);
 
@@ -731,7 +977,7 @@ void VulkanDemoApplication::mainLoop()
     {
         float time = static_cast<float>(glfwGetTime());
 
-        for(int i=0;i<10;i++)
+        for (int i = 0; i < 10; i++)
         {
             world.stepWorld();
         }
@@ -806,6 +1052,8 @@ void VulkanDemoApplication::cleanup()
     vkFreeMemory(device, indexBufferMemory, nullptr);
     vkDestroyBuffer(device, vertexBuffer, nullptr);
     vkFreeMemory(device, vertexBufferMemory, nullptr);
+    vkDestroyBuffer(device, gridVertexBuffer, nullptr);
+    vkFreeMemory(device, gridVertexBufferMemory, nullptr);
     vkDestroySemaphore(device, renderFinishedSemaphore, nullptr);
     vkDestroySemaphore(device, imageAvailableSemaphore, nullptr);
     vkDestroyCommandPool(device, commandPool, nullptr);
@@ -815,6 +1063,8 @@ void VulkanDemoApplication::cleanup()
     }
     vkDestroyPipeline(device, graphicsPipeline, nullptr);
     vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
+    vkDestroyPipeline(device, gridPipeline, nullptr);
+    vkDestroyPipelineLayout(device, gridPipelineLayout, nullptr);
     for (VkImageView view : swapchainImageViews)
     {
         vkDestroyImageView(device, view, nullptr);

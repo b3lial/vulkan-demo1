@@ -60,6 +60,8 @@ file(MAKE_DIRECTORY ${SPIRV_DIR})
 set(SHADERS
     shader.vert
     shader.frag
+    grid.vert
+    grid.frag
 )
 
 
