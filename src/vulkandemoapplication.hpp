@@ -8,6 +8,8 @@
 #include <string>
 #include <vector>
 
+#include "Sphere.hpp"
+
 #pragma once
 
 constexpr uint32_t WIDTH = 1200;
@@ -76,7 +78,7 @@ struct Vertex
 class VulkanDemoApplication
 {
   public:
-    void setSpheres(std::vector<AnimatedBody> &spheres);
+    void setSpheres(const std::vector<Sphere> &s);
     void setVertices(std::vector<Vertex> &v);
     void setIndices(std::vector<uint32_t> &i);
     void setLights(std::vector<Light> l);
@@ -148,7 +150,7 @@ class VulkanDemoApplication
     std::vector<Light> lights;
 
     // spheres we want to display
-    std::vector<AnimatedBody> animatedBodies;
+    std::vector<Sphere> spheres;
 
     // camera matrix
     glm::mat4 view;

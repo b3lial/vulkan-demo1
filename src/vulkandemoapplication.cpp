@@ -44,9 +44,9 @@ void VulkanDemoApplication::run()
     cleanup();
 }
 
-void VulkanDemoApplication::setSpheres(std::vector<AnimatedBody> &spheres)
+void VulkanDemoApplication::setSpheres(const std::vector<Sphere> &s)
 {
-    animatedBodies = spheres;
+    spheres = s;
 }
 
 // --------------- private functions ---------------------
@@ -695,22 +695,21 @@ void VulkanDemoApplication::recordCommandBuffer(uint32_t imageIndex, float time)
                          VK_INDEX_TYPE_UINT32);
 
     // calculate positions of spheres
-    for (const auto &body : animatedBodies)
+    for (const Sphere &sphere : spheres)
     {
-        float angle = time * glm::two_pi<float>() * body.speed + body.phase;
-
         glm::mat4 model =
-            glm::translate(glm::mat4(1.0f), body.basePosition) *
-            glm::rotate(glm::mat4(1.0f), angle, glm::vec3(0, 1, 0)) *
-            glm::translate(glm::mat4(1.0f), glm::vec3(body.radius, 0, 0));
+            glm::translate(glm::mat4(1.0f),
+                           glm::vec3(sphere.getPos().x(), sphere.getPos().y(),
+                                     sphere.getPos().z())) *
+            glm::scale(glm::mat4(1.0f), glm::vec3(sphere.getSize()));
 
         PushConstants pc{model, view, proj};
 
-        vkCmdPushConstants(commandBuffers[imageIndex], pipelineLayout,
+        vkCmdPushConstants(commandBuffers[i], pipelineLayout,
                            VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(PushConstants),
                            &pc);
 
-        vkCmdDrawIndexed(commandBuffers[imageIndex],
+        vkCmdDrawIndexed(commandBuffers[i],
                          static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
     }
 
@@ -724,11 +723,14 @@ void VulkanDemoApplication::recordCommandBuffer(uint32_t imageIndex, float time)
 
 void VulkanDemoApplication::mainLoop()
 {
-    WorldCube world;
+    static WorldCube world;
 
     while (!glfwWindowShouldClose(window))
     {
-        world.stepWorld();
+        for(int i=0;i<10;i++)
+        {
+            world.stepWorld();
+        }
         glfwPollEvents();
 
         // 1. Bild aus der Swapchain holen
@@ -737,6 +739,8 @@ void VulkanDemoApplication::mainLoop()
                               imageAvailableSemaphore, VK_NULL_HANDLE,
                               &imageIndex);
 
+        const std::vector<Sphere> &s = world.getSpheres();
+        setSpheres(s);
         float time = static_cast<float>(glfwGetTime());
         recordCommandBuffer(imageIndex, time);
 
