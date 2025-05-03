@@ -97,7 +97,7 @@ void VulkanDemoApplication::createGraphicsPipeline()
     VkPushConstantRange pushConstantRange{};
     pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT; // Shader-Stufe
     pushConstantRange.offset = 0;
-    pushConstantRange.size = sizeof(glm::mat4); // 64 Byte
+    pushConstantRange.size = sizeof(glm::mat4) * 3; // model + view + proj
 
     // Erzeuge Vertexdaten
     auto bindingDescription = Vertex::getBindingDescription();
@@ -675,18 +675,31 @@ void VulkanDemoApplication::recordCommandBuffer(uint32_t imageIndex, float time)
     vkCmdBindIndexBuffer(commandBuffers[i], indexBuffer, 0,
                          VK_INDEX_TYPE_UINT32);
 
+    // camera matrix
+    glm::mat4 view = glm::lookAt(glm::vec3(5.0f, 5.0f, 5.0f), // Eye
+                                 glm::vec3(0.0f),             // Center
+                                 glm::vec3(0.0f, 1.0f, 0.0f)  // Up
+    );
+
+    glm::mat4 proj = glm::perspective(glm::radians(45.0f),
+                                      WIDTH / (float)HEIGHT, 0.1f, 100.0f);
+    proj[1][1] *= -1; // Vulkan Y-Korrektur
+
+    // calculate positions of spheres
     for (const auto &body : animatedBodies)
     {
         float angle = time * glm::two_pi<float>() * body.speed + body.phase;
 
         glm::mat4 model =
             glm::translate(glm::mat4(1.0f), body.basePosition) *
-            glm::rotate(glm::mat4(1.0f), angle, glm::vec3(0.0f, 1.0f, 0.0f)) *
-            glm::translate(glm::mat4(1.0f), glm::vec3(body.radius, 0.0f, 0.0f));
+            glm::rotate(glm::mat4(1.0f), angle, glm::vec3(0, 1, 0)) *
+            glm::translate(glm::mat4(1.0f), glm::vec3(body.radius, 0, 0));
+
+        PushConstants pc{model, view, proj};
 
         vkCmdPushConstants(commandBuffers[imageIndex], pipelineLayout,
-                           VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(glm::mat4),
-                           &model);
+                           VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(PushConstants),
+                           &pc);
 
         vkCmdDrawIndexed(commandBuffers[imageIndex],
                          static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);

@@ -10,8 +10,14 @@
 
 #pragma once
 
-constexpr uint32_t WIDTH = 800;
-constexpr uint32_t HEIGHT = 800;
+constexpr uint32_t WIDTH = 1200;
+constexpr uint32_t HEIGHT = 1200;
+
+struct PushConstants {
+    glm::mat4 model;
+    glm::mat4 view;
+    glm::mat4 proj;
+};
 
 struct AnimatedBody {
     glm::vec3 basePosition; // Start-Offset
