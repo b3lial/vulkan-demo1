@@ -2,7 +2,9 @@
 
 Sphere::Sphere(const Eigen::Vector3d &initialPosition,
                const Eigen::Vector3d &initialVelocity, double size)
-    : pos(initialPosition), vel(initialVelocity), size(size)
+    : pos(initialPosition),
+    lastPos(initialPosition - initialVelocity * 0.1),
+    vel(initialVelocity), size(size)
 {
 }
 

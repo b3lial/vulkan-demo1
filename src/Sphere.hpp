@@ -25,6 +25,7 @@ class Sphere
     void setPos(const Eigen::Vector3d &newPos) { pos = newPos; }
     const Eigen::Vector3d &getPos() const { return pos; }
     void setLastPos() { lastPos = pos; }
+    void setLastPos(const Eigen::Vector3d &newPos) { lastPos = newPos; }
     const Eigen::Vector3d &getLastPos() const { return lastPos; }
 
     const Eigen::Vector3d &getVel() const { return vel; }
