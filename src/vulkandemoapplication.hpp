@@ -141,8 +141,8 @@ class VulkanDemoApplication
 
     // spheres we want to display
     std::vector<AnimatedBody> animatedBodies = {
-        {{0.0f, 0.0f, 0.0f}, 2.0f, 0.2f, 0.0f},
-        {{-1.0f, 0.0f, -0.4f}, 2.5f, 0.3f, glm::pi<float>()},
-        {{ 1.0f, 0.0f, -0.3f}, 3.0f, 0.15f, glm::pi<float>() / 2.0f}
+        {{0.0f, 0.0f, 0.0f}, 0.5f, 0.2f, 0},
+        {{-1.0f, 0.0f, -0.4f}, 0.5f, 0.3f, 0},
+        {{ 1.0f, 0.0f, -0.3f}, 0.3f, 0.15f, 0}
     };
 };
