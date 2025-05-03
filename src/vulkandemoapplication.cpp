@@ -1,7 +1,7 @@
 #include <fstream>
 #include <memory.h>
-#include <string>
 #include <random>
+#include <string>
 
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -42,9 +42,12 @@ void VulkanDemoApplication::run()
     // init random number generator
     std::random_device rd;
     gen = std::mt19937(rd());
-    radiusDist = std::uniform_real_distribution<float>(2.0f, 6.0f);   // Radius 2–6
-    heightDist = std::uniform_real_distribution<float> (1.0f, 3.0f);   // Höhe 1–3
-    speedDist = std::uniform_real_distribution<float> (0.02f, 0.1f);   // Umdrehungsgeschwindigkeit
+    radiusDist =
+        std::uniform_real_distribution<float>(2.0f, 6.0f); // Radius 2–6
+    heightDist = std::uniform_real_distribution<float>(1.0f, 3.0f); // Höhe 1–3
+    speedDist = std::uniform_real_distribution<float>(
+        0.02f, 0.1f); // Umdrehungsgeschwindigkeit
+    directionDist = std::uniform_int_distribution<int>(0, 1);
 
     initWindow();
     initVulkan();
@@ -994,10 +997,14 @@ void VulkanDemoApplication::mainLoop()
         {
             lastSwitchTime = time;
 
-            //change view
+            // change view
             orbitRadius = radiusDist(gen);
             orbitHeight = heightDist(gen);
-            orbitSpeed  = speedDist(gen);
+            orbitSpeed = speedDist(gen);
+            if (directionDist(gen) == 1)
+            {
+                orbitSpeed *= -1.0f;
+            }
         }
 
         for (int i = 0; i < 10; i++)

@@ -183,4 +183,5 @@ class VulkanDemoApplication
     std::uniform_real_distribution<float> radiusDist;   // Radius 2–6
     std::uniform_real_distribution<float> heightDist;   // Höhe 1–3
     std::uniform_real_distribution<float> speedDist;   // Umdrehungsgeschwindigkeit
+    std::uniform_int_distribution<int> directionDist;   // Umdrehungsgeschwindigkeit
 };
