@@ -675,16 +675,20 @@ void VulkanDemoApplication::recordCommandBuffer(uint32_t imageIndex, float time)
     vkCmdBindIndexBuffer(commandBuffers[i], indexBuffer, 0,
                          VK_INDEX_TYPE_UINT32);
 
-    // iterate over spheres and upload their positions to the GPU
-    for (const auto &pos : modelPositions)
+    for (const auto &body : animatedBodies)
     {
-        glm::mat4 model = glm::translate(glm::mat4(1.0f), pos);
+        float angle = time * glm::two_pi<float>() * body.speed + body.phase;
 
-        vkCmdPushConstants(commandBuffers[i], pipelineLayout,
+        glm::mat4 model =
+            glm::translate(glm::mat4(1.0f), body.basePosition) *
+            glm::rotate(glm::mat4(1.0f), angle, glm::vec3(0.0f, 1.0f, 0.0f)) *
+            glm::translate(glm::mat4(1.0f), glm::vec3(body.radius, 0.0f, 0.0f));
+
+        vkCmdPushConstants(commandBuffers[imageIndex], pipelineLayout,
                            VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(glm::mat4),
                            &model);
 
-        vkCmdDrawIndexed(commandBuffers[i],
+        vkCmdDrawIndexed(commandBuffers[imageIndex],
                          static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
     }
 

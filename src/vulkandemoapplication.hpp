@@ -1,6 +1,7 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
+#include <glm/gtc/constants.hpp>
 
 #include <array>
 #include <cstdlib>
@@ -11,6 +12,13 @@
 
 constexpr uint32_t WIDTH = 800;
 constexpr uint32_t HEIGHT = 800;
+
+struct AnimatedBody {
+    glm::vec3 basePosition; // Start-Offset
+    float radius;           // Abstand zum Mittelpunkt
+    float speed;            // Umdrehungen pro Sekunde
+    float phase;            // Startwinkel
+};
 
 struct Light {
     alignas(16) glm::vec3 position;
@@ -132,9 +140,9 @@ class VulkanDemoApplication
     std::vector<Light> lights;
 
     // spheres we want to display
-    std::vector<glm::vec3> modelPositions = {
-        { 0.0f,  0.0f, 0.0f},
-        {-1.0f,  0.0f, -0.4},
-        { 1.0f,  0.0f, -0.3}
+    std::vector<AnimatedBody> animatedBodies = {
+        {{0.0f, 0.0f, 0.0f}, 2.0f, 0.2f, 0.0f},
+        {{-1.0f, 0.0f, -0.4f}, 2.5f, 0.3f, glm::pi<float>()},
+        {{ 1.0f, 0.0f, -0.3f}, 3.0f, 0.15f, glm::pi<float>() / 2.0f}
     };
 };
