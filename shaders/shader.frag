@@ -15,7 +15,7 @@ struct Light {
 };
 
 layout(binding = 0, std140) uniform Lights {
-    Light lights[2];
+    Light lights[3];
 };
 
 void main() {
@@ -26,7 +26,7 @@ void main() {
     vec3 ambient = 0.2 * fragColor;
     result += ambient;
 
-    for (int i = 0; i < 2; i++) {
+    for (int i = 0; i < 3; i++) {
         // Richtung von Fragment zur Lichtquelle
         vec3 lightDir = normalize(lights[i].position.xyz - fragPos);
         vec3 lightColor = lights[i].color.xyz;

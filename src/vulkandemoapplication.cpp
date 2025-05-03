@@ -317,6 +317,8 @@ void VulkanDemoApplication::updateUniformBuffer()
     ubo.lights[0].color = lights[0].color;
     ubo.lights[1].position = lights[1].position;
     ubo.lights[1].color = lights[1].color;
+    ubo.lights[2].position = lights[2].position;
+    ubo.lights[2].color = lights[2].color;
 
     void *data;
     vkMapMemory(device, uniformBufferMemory, 0, sizeof(ubo), 0, &data);

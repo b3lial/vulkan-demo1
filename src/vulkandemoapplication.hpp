@@ -34,7 +34,7 @@ struct Light {
 };
 
 struct UniformBufferObject {
-    Light lights[2];
+    Light lights[3];
 };
 
 struct Vertex
