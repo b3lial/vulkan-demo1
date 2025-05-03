@@ -2,9 +2,11 @@
 #include <memory.h>
 #include <string>
 
+#include <glm/gtc/matrix_transform.hpp>
+
+#include "WorldCube.hpp"
 #include "logger.hpp"
 #include "vulkandemoapplication.hpp"
-#include "WorldCube.hpp"
 
 void VulkanDemoApplication::setVertices(std::vector<Vertex> &v)
 {
@@ -91,6 +93,12 @@ void VulkanDemoApplication::createGraphicsPipeline()
     VkPipelineShaderStageCreateInfo shaderStages[] = {vertStageInfo,
                                                       fragStageInfo};
 
+    // configure push constants
+    VkPushConstantRange pushConstantRange{};
+    pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT; // Shader-Stufe
+    pushConstantRange.offset = 0;
+    pushConstantRange.size = sizeof(glm::mat4); // 64 Byte
+
     // Erzeuge Vertexdaten
     auto bindingDescription = Vertex::getBindingDescription();
     auto attributeDescriptions = Vertex::getAttributeDescriptions();
@@ -157,6 +165,8 @@ void VulkanDemoApplication::createGraphicsPipeline()
     pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
     pipelineLayoutInfo.setLayoutCount = 1;
     pipelineLayoutInfo.pSetLayouts = &descriptorSetLayout;
+    pipelineLayoutInfo.pushConstantRangeCount = 1;
+    pipelineLayoutInfo.pPushConstantRanges = &pushConstantRange;
 
     if (vkCreatePipelineLayout(device, &pipelineLayoutInfo, nullptr,
                                &pipelineLayout) != VK_SUCCESS)
@@ -277,7 +287,7 @@ void VulkanDemoApplication::createUniformBuffer()
 
 void VulkanDemoApplication::updateUniformBuffer()
 {
-    if(lights.size() < 2)
+    if (lights.size() < 2)
     {
         LOG_DEBUG("add two light sources, otherwise you wont see anything");
         return;
@@ -652,8 +662,18 @@ void VulkanDemoApplication::initVulkan()
         vkCmdBindIndexBuffer(commandBuffers[i], indexBuffer, 0,
                              VK_INDEX_TYPE_UINT32);
 
-        vkCmdDrawIndexed(commandBuffers[i],
-                         static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
+        // iterate over spheres and upload their positions to the GPU
+        for (const auto &pos : modelPositions)
+        {
+            glm::mat4 model = glm::translate(glm::mat4(1.0f), pos);
+
+            vkCmdPushConstants(commandBuffers[i], pipelineLayout,
+                               VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(glm::mat4),
+                               &model);
+
+            vkCmdDrawIndexed(commandBuffers[i],
+                             static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
+        }
 
         vkCmdEndRenderPass(commandBuffers[i]);
 

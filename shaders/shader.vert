@@ -8,8 +8,13 @@ layout(location = 0) out vec3 fragPos;
 layout(location = 1) out vec3 fragColor;
 layout(location = 2) out vec3 fragNormal;
 
+// Push Constant für Model-Matrix
+layout(push_constant) uniform PushConstants {
+    mat4 model;
+} pc;
+
 void main() {
-    gl_Position = vec4(inPosition, 1.0);
+    gl_Position = pc.model * vec4(inPosition, 1.0);
     fragColor = inColor;
     fragNormal = inNormal;
     fragPos = inPosition;

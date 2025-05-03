@@ -129,4 +129,11 @@ class VulkanDemoApplication
 
     // lights for the scenery
     std::vector<Light> lights;
+
+    // spheres we want to display
+    std::vector<glm::vec3> modelPositions = {
+        { 0.0f,  0.0f, 0.0f},
+        {-1.0f,  0.0f, -0.4},
+        { 1.0f,  0.0f, -0.3}
+    };
 };
