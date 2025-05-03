@@ -623,65 +623,7 @@ void VulkanDemoApplication::initVulkan()
         throw std::runtime_error("Failed to allocate command buffers!");
     }
 
-    // command buffer recording
-    for (size_t i = 0; i < commandBuffers.size(); i++)
-    {
-        VkCommandBufferBeginInfo beginInfo{};
-        beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-
-        if (vkBeginCommandBuffer(commandBuffers[i], &beginInfo) != VK_SUCCESS)
-        {
-            throw std::runtime_error(
-                "Failed to begin recording command buffer!");
-        }
-
-        VkClearValue clearColor = {{{0.0f, 0.0f, 0.0f, 1.0f}}};
-
-        VkRenderPassBeginInfo renderPassInfo{};
-        renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-        renderPassInfo.renderPass = renderPass;
-        renderPassInfo.framebuffer = swapchainFramebuffers[i];
-        renderPassInfo.renderArea.offset = {0, 0};
-        renderPassInfo.renderArea.extent = {WIDTH, HEIGHT};
-        renderPassInfo.clearValueCount = 1;
-        renderPassInfo.pClearValues = &clearColor;
-
-        vkCmdBeginRenderPass(commandBuffers[i], &renderPassInfo,
-                             VK_SUBPASS_CONTENTS_INLINE);
-        vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS,
-                          graphicsPipeline);
-
-        vkCmdBindDescriptorSets(commandBuffers[i],
-                                VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
-                                0, 1, &descriptorSet, 0, nullptr);
-
-        VkBuffer vertexBuffers[] = {vertexBuffer}; // dein VkBuffer-Handle
-        VkDeviceSize offsets[] = {0};
-        vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertexBuffers, offsets);
-
-        vkCmdBindIndexBuffer(commandBuffers[i], indexBuffer, 0,
-                             VK_INDEX_TYPE_UINT32);
-
-        // iterate over spheres and upload their positions to the GPU
-        for (const auto &pos : modelPositions)
-        {
-            glm::mat4 model = glm::translate(glm::mat4(1.0f), pos);
-
-            vkCmdPushConstants(commandBuffers[i], pipelineLayout,
-                               VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(glm::mat4),
-                               &model);
-
-            vkCmdDrawIndexed(commandBuffers[i],
-                             static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
-        }
-
-        vkCmdEndRenderPass(commandBuffers[i]);
-
-        if (vkEndCommandBuffer(commandBuffers[i]) != VK_SUCCESS)
-        {
-            throw std::runtime_error("Failed to record command buffer!");
-        }
-    }
+    LOG_DEBUG("Command Buffers: " + std::to_string(commandBuffers.size()));
 
     // create semaphores
     VkSemaphoreCreateInfo semaphoreInfo{};
@@ -692,6 +634,65 @@ void VulkanDemoApplication::initVulkan()
                           &renderFinishedSemaphore) != VK_SUCCESS)
     {
         throw std::runtime_error("Failed to create semaphores!");
+    }
+}
+
+void VulkanDemoApplication::recordCommandBuffer(uint32_t imageIndex, float time)
+{
+    int i = imageIndex;
+
+    VkCommandBufferBeginInfo beginInfo{};
+    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+
+    if (vkBeginCommandBuffer(commandBuffers[i], &beginInfo) != VK_SUCCESS)
+    {
+        throw std::runtime_error("Failed to begin recording command buffer!");
+    }
+
+    VkClearValue clearColor = {{{0.0f, 0.0f, 0.0f, 1.0f}}};
+
+    VkRenderPassBeginInfo renderPassInfo{};
+    renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+    renderPassInfo.renderPass = renderPass;
+    renderPassInfo.framebuffer = swapchainFramebuffers[i];
+    renderPassInfo.renderArea.offset = {0, 0};
+    renderPassInfo.renderArea.extent = {WIDTH, HEIGHT};
+    renderPassInfo.clearValueCount = 1;
+    renderPassInfo.pClearValues = &clearColor;
+
+    vkCmdBeginRenderPass(commandBuffers[i], &renderPassInfo,
+                         VK_SUBPASS_CONTENTS_INLINE);
+    vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS,
+                      graphicsPipeline);
+
+    vkCmdBindDescriptorSets(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS,
+                            pipelineLayout, 0, 1, &descriptorSet, 0, nullptr);
+
+    VkBuffer vertexBuffers[] = {vertexBuffer}; // dein VkBuffer-Handle
+    VkDeviceSize offsets[] = {0};
+    vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertexBuffers, offsets);
+
+    vkCmdBindIndexBuffer(commandBuffers[i], indexBuffer, 0,
+                         VK_INDEX_TYPE_UINT32);
+
+    // iterate over spheres and upload their positions to the GPU
+    for (const auto &pos : modelPositions)
+    {
+        glm::mat4 model = glm::translate(glm::mat4(1.0f), pos);
+
+        vkCmdPushConstants(commandBuffers[i], pipelineLayout,
+                           VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(glm::mat4),
+                           &model);
+
+        vkCmdDrawIndexed(commandBuffers[i],
+                         static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
+    }
+
+    vkCmdEndRenderPass(commandBuffers[i]);
+
+    if (vkEndCommandBuffer(commandBuffers[i]) != VK_SUCCESS)
+    {
+        throw std::runtime_error("Failed to record command buffer!");
     }
 }
 
@@ -709,6 +710,9 @@ void VulkanDemoApplication::mainLoop()
         vkAcquireNextImageKHR(device, swapchain, UINT64_MAX,
                               imageAvailableSemaphore, VK_NULL_HANDLE,
                               &imageIndex);
+
+        float time = static_cast<float>(glfwGetTime());
+        recordCommandBuffer(imageIndex, time);
 
         // 2. Infos zum Senden an die Queue
         VkSubmitInfo submitInfo{};

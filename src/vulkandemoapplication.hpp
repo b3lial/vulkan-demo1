@@ -74,6 +74,7 @@ class VulkanDemoApplication
     void createGraphicsPipeline();
     void initVulkan();
     void mainLoop();
+    void recordCommandBuffer(uint32_t imageIndex, float time);
     void cleanup();
     void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage,
                       VkMemoryPropertyFlags properties, VkBuffer &buffer,
