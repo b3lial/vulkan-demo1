@@ -676,7 +676,7 @@ void VulkanDemoApplication::recordCommandBuffer(uint32_t imageIndex, float time)
                          VK_INDEX_TYPE_UINT32);
 
     // camera matrix
-    glm::mat4 view = glm::lookAt(glm::vec3(5.0f, 5.0f, 5.0f), // Eye
+    glm::mat4 view = glm::lookAt(glm::vec3(4.0f, 4.0f, 4.0f), // Eye
                                  glm::vec3(0.0f),             // Center
                                  glm::vec3(0.0f, 1.0f, 0.0f)  // Up
     );
