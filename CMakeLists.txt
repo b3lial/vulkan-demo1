@@ -13,6 +13,17 @@ link_directories(${GLFW3_INCLUDE_DIRS})
 add_library(cpp20 INTERFACE)
 target_compile_features(cpp20 INTERFACE cxx_std_20)
 
+include(CheckIPOSupported)
+check_ipo_supported(RESULT ipoSupported)
+
+function(add_lto)
+    set_property(TARGET ${ARGV} PROPERTY INTERPROCEDURAL_OPTIMIZATION ${ipoSupported})
+    if(${ipoSupported})
+        foreach(target ${ARGV})
+            target_compile_options(${target} PRIVATE -flto=auto)
+        endforeach()
+    endif()
+endfunction()
 
 add_executable (glslang::validator IMPORTED)
 find_program (GLSLANG_VALIDATOR "glslangValidator" HINTS $ENV{VULKAN_SDK}/bin REQUIRED)
@@ -36,6 +47,7 @@ target_link_libraries (vulkan_demo1
         glm::glm
 )
 
+add_lto(vulkan_demo1)
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_definitions(-DDEBUG)
 endif()
