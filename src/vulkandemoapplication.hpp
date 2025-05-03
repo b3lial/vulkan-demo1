@@ -79,6 +79,7 @@ class VulkanDemoApplication
     void setVertices(std::vector<Vertex> &v);
     void setIndices(std::vector<uint32_t> &i);
     void setLights(std::vector<Light> l);
+    void setView(glm::vec3 eye);
     void run();
 
   private:
@@ -151,4 +152,8 @@ class VulkanDemoApplication
         {{-1.0f, 0.0f, -0.4f}, 0.5f, 0.5f, 0},
         {{ 1.0f, 0.0f, -0.3f}, 0.3f, 0.4f, 0}
     };
+
+    // camera matrix
+    glm::mat4 view;
+    glm::mat4 proj;
 };

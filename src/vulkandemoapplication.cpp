@@ -8,6 +8,8 @@
 #include "logger.hpp"
 #include "vulkandemoapplication.hpp"
 
+// ------------------------------------ public functions
+// ------------------------------------
 void VulkanDemoApplication::setVertices(std::vector<Vertex> &v)
 {
     vertices = v;
@@ -23,6 +25,18 @@ void VulkanDemoApplication::setLights(std::vector<Light> l)
     lights = l;
 }
 
+void VulkanDemoApplication::setView(glm::vec3 eye)
+{
+    view = glm::lookAt(eye,                        // Eye
+                       glm::vec3(0.0f),            // Center
+                       glm::vec3(0.0f, 1.0f, 0.0f) // Up
+    );
+
+    proj = glm::perspective(glm::radians(45.0f), WIDTH / (float)HEIGHT, 0.1f,
+                            100.0f);
+    proj[1][1] *= -1; // Vulkan Y-Korrektur
+}
+
 void VulkanDemoApplication::run()
 {
     initWindow();
@@ -31,6 +45,8 @@ void VulkanDemoApplication::run()
     cleanup();
 }
 
+// ------------------------------------ private functions
+// -----------------------------------
 void VulkanDemoApplication::initWindow()
 {
     glfwInit();
@@ -674,16 +690,6 @@ void VulkanDemoApplication::recordCommandBuffer(uint32_t imageIndex, float time)
 
     vkCmdBindIndexBuffer(commandBuffers[i], indexBuffer, 0,
                          VK_INDEX_TYPE_UINT32);
-
-    // camera matrix
-    glm::mat4 view = glm::lookAt(glm::vec3(4.0f, 4.0f, 4.0f), // Eye
-                                 glm::vec3(0.0f),             // Center
-                                 glm::vec3(0.0f, 1.0f, 0.0f)  // Up
-    );
-
-    glm::mat4 proj = glm::perspective(glm::radians(45.0f),
-                                      WIDTH / (float)HEIGHT, 0.1f, 100.0f);
-    proj[1][1] *= -1; // Vulkan Y-Korrektur
 
     // calculate positions of spheres
     for (const auto &body : animatedBodies)
