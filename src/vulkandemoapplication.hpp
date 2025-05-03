@@ -14,9 +14,7 @@ const uint32_t HEIGHT = 600;
 
 struct Light {
     alignas(16) glm::vec3 position;
-    alignas(4)  float _pad1 = 0.0f;
     alignas(16) glm::vec3 color;
-    alignas(4)  float _pad2 = 0.0f;
 };
 
 struct UniformBufferObject {
