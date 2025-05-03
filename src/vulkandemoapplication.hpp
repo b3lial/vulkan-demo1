@@ -176,6 +176,7 @@ class VulkanDemoApplication
     float orbitRadius = 3.0f;
     float orbitHeight = 2.0f;     // Y-Position bleibt konstant
     float orbitSpeed = 0.05f;      // Umdrehungen pro Sekunde
+    glm::vec3 orbitAxis = glm::normalize(glm::vec3(0.1, 1.0f, 0.1));
 
     // animation
     float lastSwitchTime = 0;
@@ -184,4 +185,5 @@ class VulkanDemoApplication
     std::uniform_real_distribution<float> heightDist;   // Höhe 1–3
     std::uniform_real_distribution<float> speedDist;   // Umdrehungsgeschwindigkeit
     std::uniform_int_distribution<int> directionDist;   // Umdrehungsgeschwindigkeit
+    std::uniform_real_distribution<float> axisDist;
 };

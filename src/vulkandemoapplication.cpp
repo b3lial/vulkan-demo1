@@ -43,11 +43,12 @@ void VulkanDemoApplication::run()
     std::random_device rd;
     gen = std::mt19937(rd());
     radiusDist =
-        std::uniform_real_distribution<float>(2.0f, 6.0f); // Radius 2–6
+        std::uniform_real_distribution<float>(2.0f, 4.0f); // Radius 2–6
     heightDist = std::uniform_real_distribution<float>(1.0f, 3.0f); // Höhe 1–3
     speedDist = std::uniform_real_distribution<float>(
-        0.02f, 0.1f); // Umdrehungsgeschwindigkeit
+        0.02f, 0.05f); // Umdrehungsgeschwindigkeit
     directionDist = std::uniform_int_distribution<int>(0, 1);
+    axisDist = std::uniform_real_distribution<float>(-0.3f, 0.3f);
 
     initWindow();
     initVulkan();
@@ -1001,6 +1002,8 @@ void VulkanDemoApplication::mainLoop()
             orbitRadius = radiusDist(gen);
             orbitHeight = heightDist(gen);
             orbitSpeed = speedDist(gen);
+            orbitAxis =
+                glm::normalize(glm::vec3(axisDist(gen), 1.0f, axisDist(gen)));
             if (directionDist(gen) == 1)
             {
                 orbitSpeed *= -1.0f;
@@ -1025,10 +1028,9 @@ void VulkanDemoApplication::mainLoop()
 
         // view
         float angle = glm::two_pi<float>() * orbitSpeed * time;
-        float x = orbitRadius * std::cos(angle);
-        float z = orbitRadius * std::sin(angle);
-        glm::vec3 eye = glm::vec3(x, orbitHeight, z);
-        // LOG_DEBUG("exe: " + std::to_string(x) + ", " + std::to_string(z));
+        glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), angle, orbitAxis);
+        glm::vec3 eye = glm::vec3(
+            rotation * glm::vec4(orbitRadius, orbitHeight, 0.0f, 1.0f));
         setView(eye);
 
         recordCommandBuffer(imageIndex, time);
