@@ -9,8 +9,8 @@
 
 #pragma once
 
-const uint32_t WIDTH = 800;
-const uint32_t HEIGHT = 600;
+constexpr uint32_t WIDTH = 800;
+constexpr uint32_t HEIGHT = 600;
 
 struct Light {
     alignas(16) glm::vec3 position;
