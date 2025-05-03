@@ -15,6 +15,11 @@ void VulkanDemoApplication::setIndices(std::vector<uint32_t> &i)
     indices = i;
 }
 
+void VulkanDemoApplication::setLights(std::vector<Light> l)
+{
+    lights = l;
+}
+
 void VulkanDemoApplication::run()
 {
     initWindow();
@@ -271,13 +276,17 @@ void VulkanDemoApplication::createUniformBuffer()
 
 void VulkanDemoApplication::updateUniformBuffer()
 {
-    UniformBufferObject ubo{};
+    if(lights.size() < 2)
+    {
+        LOG_DEBUG("add two light sources, otherwise you wont see anything");
+        return;
+    }
 
-    ubo.lights[0].position = glm::vec3(1.0f, 0, 0); 
-    ubo.lights[0].color    = glm::vec3(1, 0, 0); 
-    
-    ubo.lights[1].position = glm::vec3(-1.0f, 0.0f, 0); 
-    ubo.lights[1].color    = glm::vec3(0, 1, 0); 
+    UniformBufferObject ubo{};
+    ubo.lights[0].position = lights[0].position;
+    ubo.lights[0].color = lights[0].color;
+    ubo.lights[1].position = lights[1].position;
+    ubo.lights[1].color = lights[1].color;
 
     void *data;
     vkMapMemory(device, uniformBufferMemory, 0, sizeof(ubo), 0, &data);

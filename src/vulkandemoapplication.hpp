@@ -66,6 +66,7 @@ class VulkanDemoApplication
   public:
     void setVertices(std::vector<Vertex> &v);
     void setIndices(std::vector<uint32_t> &i);
+    void setLights(std::vector<Light> l);
     void run();
 
   private:
@@ -127,4 +128,7 @@ class VulkanDemoApplication
     VkDescriptorSetLayout descriptorSetLayout;
     VkDescriptorPool descriptorPool;
     VkDescriptorSet descriptorSet;
+
+    // lights for the scenery
+    std::vector<Light> lights;
 };

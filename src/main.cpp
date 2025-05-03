@@ -1,12 +1,14 @@
-#include "vulkandemoapplication.hpp"
 #include "SphereTools.hpp"
+#include "vulkandemoapplication.hpp"
 
 #include <iostream>
 
 int main()
 {
+    // verify whether aligning works correctly
     static_assert(sizeof(Light) == 32, "Light must be exactly 32 bytes");
-    
+
+    // our renderer and window creation
     VulkanDemoApplication app;
 
     // add a sphere
@@ -14,6 +16,14 @@ int main()
     app.setVertices(vertices);
     auto indices = generateSphereIndices(48, 32);
     app.setIndices(indices);
+
+    // add lights
+    std::vector<Light> lights;
+    Light l1 = {glm::vec3(1.0f, 0, 0), 0, glm::vec3(1, 0, 0), 0};
+    Light l2 = {glm::vec3(-1.0f, 0.0f, 0), 0, glm::vec3(0, 1, 0), 0};
+    lights.push_back(l1);
+    lights.push_back(l2);
+    app.setLights(lights);
 
     try
     {
