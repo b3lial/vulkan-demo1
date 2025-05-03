@@ -22,6 +22,10 @@ void main() {
     vec3 normal = normalize(fragNormal);  // Normale interpoliert von Vertices
     vec3 result = vec3(0.0);              // Startfarbe schwarz
 
+    // 🔆 Ambient Light: 20 % der Materialfarbe immer aktiv
+    vec3 ambient = 0.2 * fragColor;
+    result += ambient;
+
     for (int i = 0; i < 2; i++) {
         // Richtung von Fragment zur Lichtquelle
         vec3 lightDir = normalize(lights[i].position.xyz - fragPos);
