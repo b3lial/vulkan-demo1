@@ -76,6 +76,7 @@ struct Vertex
 class VulkanDemoApplication
 {
   public:
+    void setSpheres(std::vector<AnimatedBody> &spheres);
     void setVertices(std::vector<Vertex> &v);
     void setIndices(std::vector<uint32_t> &i);
     void setLights(std::vector<Light> l);
@@ -147,11 +148,7 @@ class VulkanDemoApplication
     std::vector<Light> lights;
 
     // spheres we want to display
-    std::vector<AnimatedBody> animatedBodies = {
-        {{0.0f, 0.0f, 0.0f}, 0.5f, 0.4f, 0},
-        {{-1.0f, 0.0f, -0.4f}, 0.5f, 0.5f, 0},
-        {{ 1.0f, 0.0f, -0.3f}, 0.3f, 0.4f, 0}
-    };
+    std::vector<AnimatedBody> animatedBodies;
 
     // camera matrix
     glm::mat4 view;

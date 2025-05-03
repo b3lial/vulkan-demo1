@@ -8,8 +8,7 @@
 #include "logger.hpp"
 #include "vulkandemoapplication.hpp"
 
-// ------------------------------------ public functions
-// ------------------------------------
+// --------------- public functions ---------------------
 void VulkanDemoApplication::setVertices(std::vector<Vertex> &v)
 {
     vertices = v;
@@ -45,8 +44,12 @@ void VulkanDemoApplication::run()
     cleanup();
 }
 
-// ------------------------------------ private functions
-// -----------------------------------
+void VulkanDemoApplication::setSpheres(std::vector<AnimatedBody> &spheres)
+{
+    animatedBodies = spheres;
+}
+
+// --------------- private functions ---------------------
 void VulkanDemoApplication::initWindow()
 {
     glfwInit();

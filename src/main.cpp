@@ -11,11 +11,15 @@ int main()
     // our renderer and window creation
     VulkanDemoApplication app;
 
-    // add a sphere
+    // add spheres
     auto vertices = generateSphereVertices(0.5, 48, 32);
     app.setVertices(vertices);
     auto indices = generateSphereIndices(48, 32);
     app.setIndices(indices);
+    std::vector<AnimatedBody> spheres = {{{0.0f, 0.0f, 0.0f}, 0.5f, 0.4f, 0},
+                                         {{-1.0f, 0.0f, -0.4f}, 0.5f, 0.5f, 0},
+                                         {{1.0f, 0.0f, -0.3f}, 0.3f, 0.4f, 0}};
+    app.setSpheres(spheres);
 
     // add lights
     std::vector<Light> lights;
