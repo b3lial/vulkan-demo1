@@ -4,6 +4,7 @@
 
 #include "logger.hpp"
 #include "vulkandemoapplication.hpp"
+#include "WorldCube.hpp"
 
 void VulkanDemoApplication::setVertices(std::vector<Vertex> &v)
 {
@@ -676,8 +677,11 @@ void VulkanDemoApplication::initVulkan()
 
 void VulkanDemoApplication::mainLoop()
 {
+    WorldCube world;
+
     while (!glfwWindowShouldClose(window))
     {
+        world.stepWorld();
         glfwPollEvents();
 
         // 1. Bild aus der Swapchain holen
