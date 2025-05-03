@@ -5,6 +5,8 @@
 
 int main()
 {
+    static_assert(sizeof(Light) == 32, "Light must be exactly 32 bytes");
+    
     VulkanDemoApplication app;
 
     // add a sphere

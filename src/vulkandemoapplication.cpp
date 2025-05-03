@@ -273,11 +273,11 @@ void VulkanDemoApplication::updateUniformBuffer()
 {
     UniformBufferObject ubo{};
 
-    ubo.lights[0].position = glm::vec3(0.0f, 0.0f, 1.0f); // direkt vor der Kugel
-    ubo.lights[0].color    = glm::vec3(1, 0, 0); // sehr hell
+    ubo.lights[0].position = glm::vec3(1.0f, 0, 0); 
+    ubo.lights[0].color    = glm::vec3(1, 0, 0); 
     
-    ubo.lights[1].position = glm::vec3(1.0f, 1.0f, 0); // etwas seitlich
-    ubo.lights[1].color    = glm::vec3(1, 0, 0); // hell, aber weniger als #0
+    ubo.lights[1].position = glm::vec3(-1.0f, 0.0f, 0); 
+    ubo.lights[1].color    = glm::vec3(0, 1, 0); 
 
     void *data;
     vkMapMemory(device, uniformBufferMemory, 0, sizeof(ubo), 0, &data);

@@ -14,9 +14,9 @@ const uint32_t HEIGHT = 600;
 
 struct Light {
     alignas(16) glm::vec3 position;
-    float _pad1; // Padding → damit der nächste vec3 richtig aligned ist
+    alignas(4)  float _pad1 = 0.0f;
     alignas(16) glm::vec3 color;
-    float _pad2;
+    alignas(4)  float _pad2 = 0.0f;
 };
 
 struct UniformBufferObject {
