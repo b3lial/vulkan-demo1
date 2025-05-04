@@ -41,7 +41,7 @@ WorldCube::WorldCube()
                                      Eigen::Vector3d(0.05, 0.05, 0.1),
                                      sphereSize);
 
-                std::cout << spheres.back().getPos().transpose() << std::endl;
+//                 std::cout << spheres.back().getPos().transpose() << std::endl;
 
                 if (spheres.size() > numSpheres)
                 {
