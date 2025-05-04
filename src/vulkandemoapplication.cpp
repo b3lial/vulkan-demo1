@@ -33,7 +33,7 @@ void VulkanDemoApplication::setView(glm::vec3 eye)
     );
 
     proj = glm::perspective(glm::radians(45.0f), WIDTH / (float)HEIGHT, 0.1f,
-                            100.0f);
+                            3000.0f);
     proj[1][1] *= -1; // Vulkan Y-Korrektur
 }
 
@@ -43,7 +43,7 @@ void VulkanDemoApplication::run()
     std::random_device rd;
     gen = std::mt19937(rd());
     radiusDist =
-        std::uniform_real_distribution<float>(2.0f, 4.0f); // Radius 2–6
+        std::uniform_real_distribution<float>(2.5f, 6.0f); // Radius 2–6
     heightDist = std::uniform_real_distribution<float>(1.0f, 3.0f); // Höhe 1–3
     speedDist = std::uniform_real_distribution<float>(
         0.02f, 0.05f); // Umdrehungsgeschwindigkeit
@@ -994,7 +994,7 @@ void VulkanDemoApplication::mainLoop()
         {
             lastSwitchTime = time;
         }
-        else if (time - lastSwitchTime > 5)
+        else if (time - lastSwitchTime > 8)
         {
             lastSwitchTime = time;
 
