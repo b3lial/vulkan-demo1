@@ -5,9 +5,9 @@
 
 #include <array>
 #include <cstdlib>
+#include <random>
 #include <string>
 #include <vector>
-#include <random>
 
 #include "Sphere.hpp"
 
@@ -16,30 +16,35 @@
 constexpr uint32_t WIDTH = 1200;
 constexpr uint32_t HEIGHT = 1200;
 
-struct GridPushConstants {
+struct GridPushConstants
+{
     glm::mat4 view;
     glm::mat4 proj;
 };
 
-struct PushConstants {
+struct PushConstants
+{
     glm::mat4 model;
     glm::mat4 view;
     glm::mat4 proj;
 };
 
-struct AnimatedBody {
+struct AnimatedBody
+{
     glm::vec3 basePosition; // Start-Offset
     float radius;           // Abstand zum Mittelpunkt
     float speed;            // Umdrehungen pro Sekunde
     float phase;            // Startwinkel
 };
 
-struct Light {
+struct Light
+{
     alignas(16) glm::vec3 position;
     alignas(16) glm::vec3 color;
 };
 
-struct UniformBufferObject {
+struct UniformBufferObject
+{
     Light lights[3];
 };
 
@@ -115,7 +120,8 @@ class VulkanDemoApplication
     void createDescriptorSetLayout();
     void createDescriptorPool();
     void createDescriptorSet();
-    std::vector<glm::vec3> generateGridLines(int halfExtent = 10, float spacing = 1.0f);
+    std::vector<glm::vec3> generateGridLines(int halfExtent = 10,
+                                             float spacing = 1.0f);
 
     // vulkan boilerplate init stuff
     GLFWwindow *window;
@@ -174,16 +180,18 @@ class VulkanDemoApplication
 
     // camera orbit
     float orbitRadius = 3.0f;
-    float orbitHeight = 2.0f;     // Y-Position bleibt konstant
-    float orbitSpeed = 0.05f;      // Umdrehungen pro Sekunde
+    float orbitHeight = 2.0f; // Y-Position bleibt konstant
+    float orbitSpeed = 0.05f; // Umdrehungen pro Sekunde
     glm::vec3 orbitAxis = glm::normalize(glm::vec3(0.1, 1.0f, 0.1));
 
     // animation
     float lastSwitchTime = 0;
     std::mt19937 gen;
-    std::uniform_real_distribution<float> radiusDist;   // Radius 2–6
-    std::uniform_real_distribution<float> heightDist;   // Höhe 1–3
-    std::uniform_real_distribution<float> speedDist;   // Umdrehungsgeschwindigkeit
-    std::uniform_int_distribution<int> directionDist;   // Umdrehungsgeschwindigkeit
+    std::uniform_real_distribution<float> radiusDist; // Radius 2–6
+    std::uniform_real_distribution<float> heightDist; // Höhe 1–3
+    std::uniform_real_distribution<float>
+        speedDist; // Umdrehungsgeschwindigkeit
+    std::uniform_int_distribution<int>
+        directionDist; // Umdrehungsgeschwindigkeit
     std::uniform_real_distribution<float> axisDist;
 };

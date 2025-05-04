@@ -13,7 +13,7 @@ class Sphere
 {
   public:
     Sphere(const Eigen::Vector3d &initialPosition,
-           const Eigen::Vector3d &initialVelocity, double size);
+           const Eigen::Vector3d &initialVelocity, double diameter);
 
     /**
      * Checks for intersection.
@@ -31,12 +31,13 @@ class Sphere
     const Eigen::Vector3d &getVel() const { return vel; }
     void setVel(const Eigen::Vector3d &newVel) { vel = newVel; }
 
-    double getSize() const { return size; }
+    double getDiameter() const { return radius * 2.0; }
+    double getRadius() const { return radius; }
 
   private:
     Eigen::Vector3d pos;
     Eigen::Vector3d lastPos;
     Eigen::Vector3d vel;
 
-    double size;
+    double radius;
 };
