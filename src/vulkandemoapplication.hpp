@@ -13,8 +13,8 @@
 
 #pragma once
 
-constexpr uint32_t WIDTH = 1200;
-constexpr uint32_t HEIGHT = 1200;
+constexpr uint32_t WIDTH = 800;
+constexpr uint32_t HEIGHT = 800;
 
 struct GridPushConstants
 {
