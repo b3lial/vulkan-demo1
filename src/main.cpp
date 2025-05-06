@@ -1,6 +1,5 @@
 #include "SphereTools.hpp"
 #include "vulkandemoapplication.hpp"
-#include "logger.hpp"
 
 int main()
 {
