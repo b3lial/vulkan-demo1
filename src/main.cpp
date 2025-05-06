@@ -1,7 +1,6 @@
 #include "SphereTools.hpp"
 #include "vulkandemoapplication.hpp"
-
-#include <iostream>
+#include "logger.hpp"
 
 int main()
 {
@@ -33,7 +32,7 @@ int main()
     }
     catch (const std::exception &e)
     {
-        std::cerr << e.what() << std::endl;
+        LOG_DEBUG(e.what());
         return EXIT_FAILURE;
     }
     return EXIT_SUCCESS;

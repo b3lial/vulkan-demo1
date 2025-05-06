@@ -1,7 +1,6 @@
 #include <fstream>
 #include <memory.h>
 #include <random>
-#include <string>
 
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -87,7 +86,7 @@ VulkanDemoApplication::createShaderModule(const std::vector<char> &code)
     return shaderModule;
 }
 
-std::vector<char> VulkanDemoApplication::readFile(const std::string &filename)
+std::vector<char> VulkanDemoApplication::readFile(const char* filename)
 {
     LOG_DEBUG("trying to open: " + filename);
     std::ifstream file(filename, std::ios::ate | std::ios::binary);

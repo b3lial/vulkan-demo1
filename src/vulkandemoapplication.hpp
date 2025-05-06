@@ -6,7 +6,6 @@
 #include <array>
 #include <cstdlib>
 #include <random>
-#include <string>
 #include <vector>
 
 #include "Sphere.hpp"
@@ -99,7 +98,7 @@ class VulkanDemoApplication
   private:
     void initWindow();
     VkShaderModule createShaderModule(const std::vector<char> &code);
-    std::vector<char> readFile(const std::string &filename);
+    std::vector<char> readFile(const char* filename);
     void createGraphicsPipeline();
     void createGridPipeline();
     void initVulkan();
