@@ -81,17 +81,21 @@ VulkanDemoApplication::createShaderModule(const std::vector<char> &code)
     if (vkCreateShaderModule(device, &createInfo, nullptr, &shaderModule) !=
         VK_SUCCESS)
     {
-        throw std::runtime_error("Failed to create shader module!");
+        LOG_DEBUG("Failed to create shader module!");
+        exit(EXIT_FAILURE);
     }
     return shaderModule;
 }
 
-std::vector<char> VulkanDemoApplication::readFile(const char* filename)
+std::vector<char> VulkanDemoApplication::readFile(const char *filename)
 {
     LOG_DEBUG("trying to open: " + filename);
     std::ifstream file(filename, std::ios::ate | std::ios::binary);
     if (!file.is_open())
-        throw std::runtime_error("failed to open file!");
+    {
+        LOG_DEBUG("failed to open file!");
+        exit(EXIT_FAILURE);
+    }
     size_t size = file.tellg();
     std::vector<char> buffer(size);
     file.seekg(0);
@@ -206,7 +210,10 @@ void VulkanDemoApplication::createGridPipeline()
 
     if (vkCreatePipelineLayout(device, &layoutInfo, nullptr,
                                &gridPipelineLayout) != VK_SUCCESS)
-        throw std::runtime_error("Failed to create grid pipeline layout!");
+    {
+        LOG_DEBUG("Failed to create grid pipeline layout!");
+        exit(EXIT_FAILURE);
+    }
 
     VkGraphicsPipelineCreateInfo pipelineInfo{};
     pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
@@ -224,7 +231,10 @@ void VulkanDemoApplication::createGridPipeline()
 
     if (vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo,
                                   nullptr, &gridPipeline) != VK_SUCCESS)
-        throw std::runtime_error("Failed to create grid pipeline!");
+    {
+        LOG_DEBUG("Failed to create grid pipeline layout!");
+        exit(EXIT_FAILURE);
+    }
 
     vkDestroyShaderModule(device, vertModule, nullptr);
     vkDestroyShaderModule(device, fragModule, nullptr);
@@ -330,7 +340,10 @@ void VulkanDemoApplication::createGraphicsPipeline()
 
     if (vkCreatePipelineLayout(device, &pipelineLayoutInfo, nullptr,
                                &pipelineLayout) != VK_SUCCESS)
-        throw std::runtime_error("Failed to create pipeline layout!");
+    {
+        LOG_DEBUG("Failed to create pipeline layout!");
+        exit(EXIT_FAILURE);
+    }
 
     VkGraphicsPipelineCreateInfo pipelineInfo{};
     pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
@@ -348,7 +361,10 @@ void VulkanDemoApplication::createGraphicsPipeline()
 
     if (vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo,
                                   nullptr, &graphicsPipeline) != VK_SUCCESS)
-        throw std::runtime_error("Failed to create graphics pipeline!");
+    {
+        LOG_DEBUG("Failed to create graphics pipeline!");
+        exit(EXIT_FAILURE);
+    }
 
     vkDestroyShaderModule(device, vertModule, nullptr);
     vkDestroyShaderModule(device, fragModule, nullptr);
@@ -401,7 +417,10 @@ void VulkanDemoApplication::createBuffer(VkDeviceSize size,
     bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
     if (vkCreateBuffer(device, &bufferInfo, nullptr, &buffer) != VK_SUCCESS)
-        throw std::runtime_error("Failed to create buffer");
+    {
+        LOG_DEBUG("Failed to create buffer");
+        exit(EXIT_FAILURE);
+    }
 
     VkMemoryRequirements memRequirements;
     vkGetBufferMemoryRequirements(device, buffer, &memRequirements);
@@ -414,7 +433,10 @@ void VulkanDemoApplication::createBuffer(VkDeviceSize size,
 
     if (vkAllocateMemory(device, &allocInfo, nullptr, &bufferMemory) !=
         VK_SUCCESS)
-        throw std::runtime_error("Failed to allocate buffer memory");
+    {
+        LOG_DEBUG("Failed to allocate buffer memory");
+        exit(EXIT_FAILURE);
+    }
 
     vkBindBufferMemory(device, buffer, bufferMemory, 0);
 }
@@ -435,7 +457,8 @@ uint32_t VulkanDemoApplication::findMemoryType(uint32_t typeFilter,
         }
     }
 
-    throw std::runtime_error("Failed to find suitable memory type");
+    LOG_DEBUG("Failed to find suitable memory type");
+    exit(EXIT_FAILURE);
 }
 
 void VulkanDemoApplication::createVertexBuffer()
@@ -554,7 +577,10 @@ void VulkanDemoApplication::createDescriptorSetLayout()
 
     if (vkCreateDescriptorSetLayout(device, &layoutInfo, nullptr,
                                     &descriptorSetLayout) != VK_SUCCESS)
-        throw std::runtime_error("Failed to create descriptor set layout");
+    {
+        LOG_DEBUG("Failed to create descriptor set layout");
+        exit(EXIT_FAILURE);
+    }
 }
 
 void VulkanDemoApplication::createDescriptorPool()
@@ -571,7 +597,10 @@ void VulkanDemoApplication::createDescriptorPool()
 
     if (vkCreateDescriptorPool(device, &poolInfo, nullptr, &descriptorPool) !=
         VK_SUCCESS)
-        throw std::runtime_error("Failed to create descriptor pool");
+    {
+        LOG_DEBUG("Failed to create descriptor pool");
+        exit(EXIT_FAILURE);
+    }
 }
 
 void VulkanDemoApplication::createDescriptorSet()
@@ -584,7 +613,10 @@ void VulkanDemoApplication::createDescriptorSet()
 
     if (vkAllocateDescriptorSets(device, &allocInfo, &descriptorSet) !=
         VK_SUCCESS)
-        throw std::runtime_error("Failed to allocate descriptor set");
+    {
+        LOG_DEBUG("Failed to allocate descriptor set");
+        exit(EXIT_FAILURE);
+    }
 
     VkDescriptorBufferInfo bufferInfo{};
     bufferInfo.buffer = uniformBuffer;
@@ -643,12 +675,18 @@ void VulkanDemoApplication::initVulkan()
     createInfo.ppEnabledExtensionNames = extensions;
 
     if (vkCreateInstance(&createInfo, nullptr, &instance) != VK_SUCCESS)
-        throw std::runtime_error("Failed to create instance");
+    {
+        LOG_DEBUG("Failed to create instance");
+        exit(EXIT_FAILURE);
+    }
 
     // Surface
     if (glfwCreateWindowSurface(instance, window, nullptr, &surface) !=
         VK_SUCCESS)
-        throw std::runtime_error("Failed to create window surface");
+    {
+        LOG_DEBUG("Failed to create window surface");
+        exit(EXIT_FAILURE);
+    }
 
     // Physical device
     uint32_t deviceCount = 0;
@@ -692,7 +730,10 @@ void VulkanDemoApplication::initVulkan()
     dinfo.ppEnabledExtensionNames = deviceExtensions;
 
     if (vkCreateDevice(physicalDevice, &dinfo, nullptr, &device) != VK_SUCCESS)
-        throw std::runtime_error("Failed to create device");
+    {
+        LOG_DEBUG("Failed to create device");
+        exit(EXIT_FAILURE);
+    }
 
     vkGetDeviceQueue(device, queueFamilyIndex, 0, &graphicsQueue);
 
@@ -733,7 +774,10 @@ void VulkanDemoApplication::initVulkan()
 
     if (vkCreateSwapchainKHR(device, &swapInfo, nullptr, &swapchain) !=
         VK_SUCCESS)
-        throw std::runtime_error("Failed to create swapchain");
+    {
+        LOG_DEBUG("Failed to create swapchain");
+        exit(EXIT_FAILURE);
+    }
 
     // Bilder aus der Swapchain holen
     uint32_t imageCount = 0;
@@ -768,7 +812,8 @@ void VulkanDemoApplication::initVulkan()
         if (vkCreateImageView(device, &viewInfo, nullptr,
                               &swapchainImageViews[i]) != VK_SUCCESS)
         {
-            throw std::runtime_error("Failed to create image views!");
+            LOG_DEBUG("Failed to create image views!");
+            exit(EXIT_FAILURE);
         }
     }
 
@@ -817,7 +862,8 @@ void VulkanDemoApplication::initVulkan()
     if (vkCreateRenderPass(device, &renderPassInfo, nullptr, &renderPass) !=
         VK_SUCCESS)
     {
-        throw std::runtime_error("Failed to create render pass!");
+        LOG_DEBUG("Failed to create render pass!");
+        exit(EXIT_FAILURE);
     }
 
     createDescriptorSetLayout();
@@ -849,7 +895,8 @@ void VulkanDemoApplication::initVulkan()
         if (vkCreateFramebuffer(device, &framebufferInfo, nullptr,
                                 &swapchainFramebuffers[i]) != VK_SUCCESS)
         {
-            throw std::runtime_error("Failed to create framebuffer!");
+            LOG_DEBUG("Failed to create framebuffer!");
+            exit(EXIT_FAILURE);
         }
     }
 
@@ -862,7 +909,8 @@ void VulkanDemoApplication::initVulkan()
     if (vkCreateCommandPool(device, &poolInfo, nullptr, &commandPool) !=
         VK_SUCCESS)
     {
-        throw std::runtime_error("Failed to create command pool!");
+        LOG_DEBUG("Failed to create command pool!");
+        exit(EXIT_FAILURE);
     }
 
     createGridVertexBuffer();
@@ -877,7 +925,8 @@ void VulkanDemoApplication::initVulkan()
     if (vkAllocateCommandBuffers(device, &allocInfo, commandBuffers.data()) !=
         VK_SUCCESS)
     {
-        throw std::runtime_error("Failed to allocate command buffers!");
+        LOG_DEBUG("Failed to allocate command buffers!");
+        exit(EXIT_FAILURE);
     }
 
     LOG_DEBUG("Command Buffers: " + std::to_string(commandBuffers.size()));
@@ -890,7 +939,8 @@ void VulkanDemoApplication::initVulkan()
         vkCreateSemaphore(device, &semaphoreInfo, nullptr,
                           &renderFinishedSemaphore) != VK_SUCCESS)
     {
-        throw std::runtime_error("Failed to create semaphores!");
+        LOG_DEBUG("Failed to create semaphores!");
+        exit(EXIT_FAILURE);
     }
 }
 
@@ -903,7 +953,8 @@ void VulkanDemoApplication::recordCommandBuffer(uint32_t imageIndex, float time)
 
     if (vkBeginCommandBuffer(commandBuffers[i], &beginInfo) != VK_SUCCESS)
     {
-        throw std::runtime_error("Failed to begin recording command buffer!");
+        LOG_DEBUG("Failed to begin recording command buffer!");
+        exit(EXIT_FAILURE);
     }
 
     VkClearValue clearColor = {{{0.0f, 0.0f, 0.0f, 1.0f}}};
@@ -976,7 +1027,8 @@ void VulkanDemoApplication::recordCommandBuffer(uint32_t imageIndex, float time)
 
     if (vkEndCommandBuffer(commandBuffers[i]) != VK_SUCCESS)
     {
-        throw std::runtime_error("Failed to record command buffer!");
+        LOG_DEBUG("Failed to record command buffer!");
+        exit(EXIT_FAILURE);
     }
 }
 
@@ -1055,7 +1107,8 @@ void VulkanDemoApplication::mainLoop()
         if (vkQueueSubmit(graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE) !=
             VK_SUCCESS)
         {
-            throw std::runtime_error("Failed to submit draw command buffer!");
+            LOG_DEBUG("Failed to submit draw command buffer!");
+            exit(EXIT_FAILURE);
         }
 
         // 3. Bild präsentieren

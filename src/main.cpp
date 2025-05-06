@@ -26,14 +26,8 @@ int main()
     lights.push_back(l3);
     app.setLights(lights);
 
-    try
-    {
-        app.run();
-    }
-    catch (const std::exception &e)
-    {
-        LOG_DEBUG(e.what());
-        return EXIT_FAILURE;
-    }
+    // start the application
+    app.run();
+
     return EXIT_SUCCESS;
 }
