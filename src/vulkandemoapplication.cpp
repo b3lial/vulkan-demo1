@@ -89,7 +89,7 @@ VulkanDemoApplication::createShaderModule(const std::vector<char> &code)
 
 std::vector<char> VulkanDemoApplication::readFile(const char *filename)
 {
-    LOG_DEBUG("trying to open: " + filename);
+    LOG_DEBUG(filename);
     std::ifstream file(filename, std::ios::ate | std::ios::binary);
     if (!file.is_open())
     {
