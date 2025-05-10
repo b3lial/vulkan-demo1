@@ -73,12 +73,12 @@ void VulkanDemoApplication::initWindow()
 }
 
 VkShaderModule
-VulkanDemoApplication::createShaderModule(const std::vector<char> &code)
+VulkanDemoApplication::createShaderModule(const char *code, size_t size)
 {
     VkShaderModuleCreateInfo createInfo{};
     createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-    createInfo.codeSize = code.size();
-    createInfo.pCode = reinterpret_cast<const uint32_t *>(code.data());
+    createInfo.codeSize = size;
+    createInfo.pCode = reinterpret_cast<const uint32_t *>(code);
 
     VkShaderModule shaderModule;
     if (vkCreateShaderModule(device, &createInfo, nullptr, &shaderModule) !=
@@ -90,7 +90,23 @@ VulkanDemoApplication::createShaderModule(const std::vector<char> &code)
     return shaderModule;
 }
 
-std::vector<char> VulkanDemoApplication::readFile(const char *filename)
+char* VulkanDemoApplication::readFile(const char *filename, size_t size)
+{
+    LOG_DEBUG(filename);
+    std::ifstream file(filename, std::ios::ate | std::ios::binary);
+    if (!file.is_open())
+    {
+        LOG_DEBUG("failed to open file!");
+        exit(EXIT_FAILURE);
+    }
+    char* buffer = new char[size];
+    file.seekg(0);
+    file.read(buffer, size);
+    file.close();
+    return buffer;
+}
+
+size_t VulkanDemoApplication::getFileSize(const char *filename)
 {
     LOG_DEBUG(filename);
     std::ifstream file(filename, std::ios::ate | std::ios::binary);
@@ -100,20 +116,21 @@ std::vector<char> VulkanDemoApplication::readFile(const char *filename)
         exit(EXIT_FAILURE);
     }
     size_t size = file.tellg();
-    std::vector<char> buffer(size);
-    file.seekg(0);
-    file.read(buffer.data(), size);
     file.close();
-    return buffer;
+    return size;
 }
 
 void VulkanDemoApplication::createGridPipeline()
 {
-    auto vertShaderCode = readFile("shaders/grid.vert.spv");
-    auto fragShaderCode = readFile("shaders/grid.frag.spv");
+    size_t vertShaderCodeSize = getFileSize("shaders/grid.vert.spv");
+    char* vertShaderCode = readFile("shaders/grid.vert.spv", vertShaderCodeSize);
+    size_t fragShaderCodeSize = getFileSize("shaders/grid.frag.spv");
+    char* fragShaderCode = readFile("shaders/grid.frag.spv", fragShaderCodeSize);
 
-    VkShaderModule vertModule = createShaderModule(vertShaderCode);
-    VkShaderModule fragModule = createShaderModule(fragShaderCode);
+    VkShaderModule vertModule = createShaderModule(vertShaderCode, vertShaderCodeSize);
+    delete[] vertShaderCode;
+    VkShaderModule fragModule = createShaderModule(fragShaderCode, fragShaderCodeSize);
+    delete[] fragShaderCode;
 
     VkPipelineShaderStageCreateInfo vertStageInfo{};
     vertStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -245,11 +262,15 @@ void VulkanDemoApplication::createGridPipeline()
 
 void VulkanDemoApplication::createGraphicsPipeline()
 {
-    auto vertShaderCode = readFile("shaders/shader.vert.spv");
-    auto fragShaderCode = readFile("shaders/shader.frag.spv");
+    size_t vertShaderCodeSize = getFileSize("shaders/shader.vert.spv");
+    char* vertShaderCode = readFile("shaders/shader.vert.spv", vertShaderCodeSize);
+    size_t fragShaderCodeSize = getFileSize("shaders/shader.frag.spv");
+    char* fragShaderCode = readFile("shaders/shader.frag.spv", fragShaderCodeSize);
 
-    VkShaderModule vertModule = createShaderModule(vertShaderCode);
-    VkShaderModule fragModule = createShaderModule(fragShaderCode);
+    VkShaderModule vertModule = createShaderModule(vertShaderCode, vertShaderCodeSize);
+    delete[] vertShaderCode;
+    VkShaderModule fragModule = createShaderModule(fragShaderCode, fragShaderCodeSize);
+    delete[] fragShaderCode;
 
     VkPipelineShaderStageCreateInfo vertStageInfo{};
     vertStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;

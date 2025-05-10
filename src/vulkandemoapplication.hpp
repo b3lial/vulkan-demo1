@@ -101,9 +101,11 @@ class VulkanDemoApplication
     void run();
 
   private:
+    VkShaderModule createShaderModule(const char *code, size_t size);
+    char* readFile(const char* filename, size_t size);
+    size_t getFileSize(const char *filename);
+
     void initWindow();
-    VkShaderModule createShaderModule(const std::vector<char> &code);
-    std::vector<char> readFile(const char* filename);
     void createGraphicsPipeline();
     void createGridPipeline();
     void initVulkan();
