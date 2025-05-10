@@ -18,14 +18,11 @@ int main()
     app.setIndices(indices, indicesSize);
 
     // add lights
-    std::vector<Light> lights;
-    Light l1 = {glm::vec3(0.0f, 1.0, -1.0), glm::vec3(1, 0, 0)};
-    Light l2 = {glm::vec3(-1.0f, 0.0f, 0.5), glm::vec3(0, 1, 0)};
-    Light l3 = {glm::vec3(-1.0f, -1.0f, -0.5), glm::vec3(0, 0, 1)};
-    lights.push_back(l1);
-    lights.push_back(l2);
-    lights.push_back(l3);
-    app.setLights(lights);
+    Light lights[LIGHTS_AMOUNT];
+    lights[0] = {glm::vec3(0.0f, 1.0, -1.0), glm::vec3(1, 0, 0)};
+    lights[1] = {glm::vec3(-1.0f, 0.0f, 0.5), glm::vec3(0, 1, 0)};
+    lights[2] = {glm::vec3(-1.0f, -1.0f, -0.5), glm::vec3(0, 0, 1)};
+    app.setLights(lights, LIGHTS_AMOUNT);
 
     // start the application
     app.run();

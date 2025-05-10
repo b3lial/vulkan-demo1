@@ -18,6 +18,8 @@ constexpr uint32_t SPHERE_VERTICE_STACKS = 32;
 constexpr uint32_t SPHERE_VERTICES = (SPHERE_VERTICE_SECTORS+1) * (SPHERE_VERTICE_STACKS+1);
 constexpr uint32_t SPHERE_INDICES = SPHERE_VERTICE_SECTORS * SPHERE_VERTICE_STACKS * 6;
 
+constexpr uint32_t LIGHTS_AMOUNT = 3;
+
 struct GridPushConstants
 {
     glm::mat4 view;
@@ -94,7 +96,7 @@ class VulkanDemoApplication
     void setSpheres(const std::vector<Sphere> &s);
     void setVertices(Vertex v[], int size);
     void setIndices(uint32_t i[], int size);
-    void setLights(std::vector<Light> l);
+    void setLights(Light l[], int size);
     void setView(glm::vec3 eye);
     void run();
 
@@ -174,7 +176,8 @@ class VulkanDemoApplication
     VkDescriptorSet descriptorSet;
 
     // lights for the scenery
-    std::vector<Light> lights;
+    Light *lights;
+    int lightsSize;
 
     // spheres we want to display
     std::vector<Sphere> spheres;

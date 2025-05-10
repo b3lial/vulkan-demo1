@@ -21,9 +21,10 @@ void VulkanDemoApplication::setIndices(uint32_t i[], int size)
     indicesSize = size;
 }
 
-void VulkanDemoApplication::setLights(std::vector<Light> l)
+void VulkanDemoApplication::setLights(Light l[], int size)
 {
     lights = l;
+    lightsSize = size;
 }
 
 void VulkanDemoApplication::setView(glm::vec3 eye)
@@ -543,7 +544,7 @@ void VulkanDemoApplication::createUniformBuffer()
 
 void VulkanDemoApplication::updateUniformBuffer()
 {
-    if (lights.size() < 2)
+    if (lightsSize < 3)
     {
         LOG_DEBUG("add two light sources, otherwise you wont see anything");
         return;
