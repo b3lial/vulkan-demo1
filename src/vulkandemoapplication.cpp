@@ -9,14 +9,16 @@
 #include "vulkandemoapplication.hpp"
 
 // --------------- public functions ---------------------
-void VulkanDemoApplication::setVertices(std::vector<Vertex> &v)
+void VulkanDemoApplication::setVertices(Vertex v[], int size)
 {
     vertices = v;
+    verticesSize = size;
 }
 
-void VulkanDemoApplication::setIndices(std::vector<uint32_t> &i)
+void VulkanDemoApplication::setIndices(uint32_t i[], int size)
 {
     indices = i;
+    indicesSize = size;
 }
 
 void VulkanDemoApplication::setLights(std::vector<Light> l)
@@ -463,7 +465,7 @@ uint32_t VulkanDemoApplication::findMemoryType(uint32_t typeFilter,
 
 void VulkanDemoApplication::createVertexBuffer()
 {
-    VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
+    VkDeviceSize bufferSize = sizeof(vertices[0]) * verticesSize;
 
     createBuffer(bufferSize, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
                  VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
@@ -473,7 +475,7 @@ void VulkanDemoApplication::createVertexBuffer()
     // Daten kopieren
     void *data;
     vkMapMemory(device, vertexBufferMemory, 0, bufferSize, 0, &data);
-    memcpy(data, vertices.data(), static_cast<size_t>(bufferSize));
+    memcpy(data, vertices, static_cast<size_t>(bufferSize));
     vkUnmapMemory(device, vertexBufferMemory);
 }
 
@@ -516,7 +518,7 @@ void VulkanDemoApplication::createGridVertexBuffer()
 
 void VulkanDemoApplication::createIndexBuffer()
 {
-    VkDeviceSize bufferSize = sizeof(indices[0]) * indices.size();
+    VkDeviceSize bufferSize = sizeof(indices[0]) * indicesSize;
 
     createBuffer(bufferSize, VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
                  VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
@@ -525,7 +527,7 @@ void VulkanDemoApplication::createIndexBuffer()
 
     void *data;
     vkMapMemory(device, indexBufferMemory, 0, bufferSize, 0, &data);
-    memcpy(data, indices.data(), static_cast<size_t>(bufferSize));
+    memcpy(data, indices, static_cast<size_t>(bufferSize));
     vkUnmapMemory(device, indexBufferMemory);
 }
 
@@ -1020,7 +1022,7 @@ void VulkanDemoApplication::recordCommandBuffer(uint32_t imageIndex, float time)
                            &pc);
 
         vkCmdDrawIndexed(commandBuffers[i],
-                         static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
+                         static_cast<uint32_t>(indicesSize), 1, 0, 0, 0);
     }
 
     vkCmdEndRenderPass(commandBuffers[i]);

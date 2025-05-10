@@ -3,7 +3,6 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/constants.hpp>
 
-//#include <array>
 #include <random>
 #include <vector>
 
@@ -13,6 +12,11 @@
 
 constexpr uint32_t WIDTH = 800;
 constexpr uint32_t HEIGHT = 800;
+
+constexpr uint32_t SPHERE_VERTICE_SECTORS = 48;
+constexpr uint32_t SPHERE_VERTICE_STACKS = 32;
+constexpr uint32_t SPHERE_VERTICES = (SPHERE_VERTICE_SECTORS+1) * (SPHERE_VERTICE_STACKS+1);
+constexpr uint32_t SPHERE_INDICES = SPHERE_VERTICE_SECTORS * SPHERE_VERTICE_STACKS * 6;
 
 struct GridPushConstants
 {
@@ -88,8 +92,8 @@ class VulkanDemoApplication
 {
   public:
     void setSpheres(const std::vector<Sphere> &s);
-    void setVertices(std::vector<Vertex> &v);
-    void setIndices(std::vector<uint32_t> &i);
+    void setVertices(Vertex v[], int size);
+    void setIndices(uint32_t i[], int size);
     void setLights(std::vector<Light> l);
     void setView(glm::vec3 eye);
     void run();
@@ -144,8 +148,9 @@ class VulkanDemoApplication
     VkSemaphore imageAvailableSemaphore;
     VkSemaphore renderFinishedSemaphore;
 
-    // vertex and index section
-    std::vector<Vertex> vertices;
+    // vertex and indices section
+    Vertex *vertices;
+    int verticesSize;
 
     VkBuffer vertexBuffer;
     VkDeviceMemory vertexBufferMemory;
@@ -156,7 +161,9 @@ class VulkanDemoApplication
 
     VkBuffer indexBuffer;
     VkDeviceMemory indexBufferMemory;
-    std::vector<uint32_t> indices;
+
+    uint32_t*  indices;
+    int indicesSize;
 
     // uniform buffer
     VkBuffer uniformBuffer;

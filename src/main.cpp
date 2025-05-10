@@ -10,10 +10,12 @@ int main()
     VulkanDemoApplication app;
 
     // add sphere vertex
-    auto vertices = generateSphereVertices(0.5, 48, 32);
-    app.setVertices(vertices);
-    auto indices = generateSphereIndices(48, 32);
-    app.setIndices(indices);
+    Vertex vertices[SPHERE_VERTICES];
+    int verticesSize = generateSphereVertices(0.5, SPHERE_VERTICE_SECTORS, SPHERE_VERTICE_STACKS, vertices);
+    app.setVertices(vertices, verticesSize);
+    uint32_t indices[SPHERE_INDICES];
+    int indicesSize = generateSphereIndices(SPHERE_VERTICE_SECTORS, SPHERE_VERTICE_STACKS, indices);
+    app.setIndices(indices, indicesSize);
 
     // add lights
     std::vector<Light> lights;

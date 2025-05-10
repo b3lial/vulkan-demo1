@@ -1,6 +1,6 @@
 #include "vulkandemoapplication.hpp"
 #include <vector>
 
-std::vector<Vertex> generateSphereVertices(float radius, int sectors,
-                                           int stacks);
-std::vector<uint32_t> generateSphereIndices(int sectors, int stacks);
+int generateSphereVertices(float radius, int sectors,
+                                           int stacks, Vertex vertices[]);
+int generateSphereIndices(int sectors, int stacks, uint32_t indices[]);
