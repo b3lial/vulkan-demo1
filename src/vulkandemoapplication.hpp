@@ -15,10 +15,15 @@ constexpr uint32_t HEIGHT = 800;
 
 constexpr uint32_t SPHERE_VERTICE_SECTORS = 48;
 constexpr uint32_t SPHERE_VERTICE_STACKS = 32;
-constexpr uint32_t SPHERE_VERTICES = (SPHERE_VERTICE_SECTORS+1) * (SPHERE_VERTICE_STACKS+1);
-constexpr uint32_t SPHERE_INDICES = SPHERE_VERTICE_SECTORS * SPHERE_VERTICE_STACKS * 6;
+constexpr uint32_t SPHERE_VERTICES =
+    (SPHERE_VERTICE_SECTORS + 1) * (SPHERE_VERTICE_STACKS + 1);
+constexpr uint32_t SPHERE_INDICES =
+    SPHERE_VERTICE_SECTORS * SPHERE_VERTICE_STACKS * 6;
 
 constexpr uint32_t LIGHTS_AMOUNT = 3;
+
+constexpr uint32_t GRID_HALF_EXTEND = 10;
+constexpr uint32_t GRID_VERTEX_COUNT = (GRID_HALF_EXTEND * 2 + 1) * 4;
 
 struct GridPushConstants
 {
@@ -102,7 +107,7 @@ class VulkanDemoApplication
 
   private:
     VkShaderModule createShaderModule(const char *code, size_t size);
-    char* readFile(const char* filename, size_t size);
+    char *readFile(const char *filename, size_t size);
     size_t getFileSize(const char *filename);
 
     void initWindow();
@@ -126,8 +131,7 @@ class VulkanDemoApplication
     void createDescriptorSetLayout();
     void createDescriptorPool();
     void createDescriptorSet();
-    std::vector<glm::vec3> generateGridLines(int halfExtent = 10,
-                                             float spacing = 1.0f);
+    int generateGridLines(int halfExtent, float spacing, glm::vec3 lines[]);
 
     // vulkan boilerplate init stuff
     GLFWwindow *window;
@@ -166,7 +170,7 @@ class VulkanDemoApplication
     VkBuffer indexBuffer;
     VkDeviceMemory indexBufferMemory;
 
-    uint32_t*  indices;
+    uint32_t *indices;
     int indicesSize;
 
     // uniform buffer

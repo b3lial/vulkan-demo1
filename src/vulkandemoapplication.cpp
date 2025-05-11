@@ -72,8 +72,8 @@ void VulkanDemoApplication::initWindow()
     window = glfwCreateWindow(WIDTH, HEIGHT, "Vulkan", nullptr, nullptr);
 }
 
-VkShaderModule
-VulkanDemoApplication::createShaderModule(const char *code, size_t size)
+VkShaderModule VulkanDemoApplication::createShaderModule(const char *code,
+                                                         size_t size)
 {
     VkShaderModuleCreateInfo createInfo{};
     createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
@@ -90,7 +90,7 @@ VulkanDemoApplication::createShaderModule(const char *code, size_t size)
     return shaderModule;
 }
 
-char* VulkanDemoApplication::readFile(const char *filename, size_t size)
+char *VulkanDemoApplication::readFile(const char *filename, size_t size)
 {
     LOG_DEBUG(filename);
     std::ifstream file(filename, std::ios::ate | std::ios::binary);
@@ -99,7 +99,7 @@ char* VulkanDemoApplication::readFile(const char *filename, size_t size)
         LOG_DEBUG("failed to open file!");
         exit(EXIT_FAILURE);
     }
-    char* buffer = new char[size];
+    char *buffer = new char[size];
     file.seekg(0);
     file.read(buffer, size);
     file.close();
@@ -123,13 +123,17 @@ size_t VulkanDemoApplication::getFileSize(const char *filename)
 void VulkanDemoApplication::createGridPipeline()
 {
     size_t vertShaderCodeSize = getFileSize("shaders/grid.vert.spv");
-    char* vertShaderCode = readFile("shaders/grid.vert.spv", vertShaderCodeSize);
+    char *vertShaderCode =
+        readFile("shaders/grid.vert.spv", vertShaderCodeSize);
     size_t fragShaderCodeSize = getFileSize("shaders/grid.frag.spv");
-    char* fragShaderCode = readFile("shaders/grid.frag.spv", fragShaderCodeSize);
+    char *fragShaderCode =
+        readFile("shaders/grid.frag.spv", fragShaderCodeSize);
 
-    VkShaderModule vertModule = createShaderModule(vertShaderCode, vertShaderCodeSize);
+    VkShaderModule vertModule =
+        createShaderModule(vertShaderCode, vertShaderCodeSize);
     delete[] vertShaderCode;
-    VkShaderModule fragModule = createShaderModule(fragShaderCode, fragShaderCodeSize);
+    VkShaderModule fragModule =
+        createShaderModule(fragShaderCode, fragShaderCodeSize);
     delete[] fragShaderCode;
 
     VkPipelineShaderStageCreateInfo vertStageInfo{};
@@ -263,13 +267,17 @@ void VulkanDemoApplication::createGridPipeline()
 void VulkanDemoApplication::createGraphicsPipeline()
 {
     size_t vertShaderCodeSize = getFileSize("shaders/shader.vert.spv");
-    char* vertShaderCode = readFile("shaders/shader.vert.spv", vertShaderCodeSize);
+    char *vertShaderCode =
+        readFile("shaders/shader.vert.spv", vertShaderCodeSize);
     size_t fragShaderCodeSize = getFileSize("shaders/shader.frag.spv");
-    char* fragShaderCode = readFile("shaders/shader.frag.spv", fragShaderCodeSize);
+    char *fragShaderCode =
+        readFile("shaders/shader.frag.spv", fragShaderCodeSize);
 
-    VkShaderModule vertModule = createShaderModule(vertShaderCode, vertShaderCodeSize);
+    VkShaderModule vertModule =
+        createShaderModule(vertShaderCode, vertShaderCodeSize);
     delete[] vertShaderCode;
-    VkShaderModule fragModule = createShaderModule(fragShaderCode, fragShaderCodeSize);
+    VkShaderModule fragModule =
+        createShaderModule(fragShaderCode, fragShaderCodeSize);
     delete[] fragShaderCode;
 
     VkPipelineShaderStageCreateInfo vertStageInfo{};
@@ -503,11 +511,11 @@ void VulkanDemoApplication::createVertexBuffer()
 
 void VulkanDemoApplication::createGridVertexBuffer()
 {
-    std::vector<glm::vec3> gridVertices =
-        generateGridLines(10, 1.0f); // Erzeuge Linien von -10 bis +10
-    gridVertexCount = static_cast<uint32_t>(gridVertices.size());
+    glm::vec3 gridVertices[GRID_VERTEX_COUNT];
+    gridVertexCount = generateGridLines(GRID_HALF_EXTEND, 1.0f, gridVertices); // Erzeuge Linien von -10 bis +10
+    LOG_DEBUG("Grid Vertices: " + std::to_string(gridVertexCount));
 
-    VkDeviceSize bufferSize = sizeof(glm::vec3) * gridVertices.size();
+    VkDeviceSize bufferSize = sizeof(glm::vec3) * gridVertexCount;
 
     // Create staging buffer
     VkBuffer stagingBuffer;
@@ -520,7 +528,7 @@ void VulkanDemoApplication::createGridVertexBuffer()
     // Daten reinkopieren
     void *data;
     vkMapMemory(device, stagingBufferMemory, 0, bufferSize, 0, &data);
-    memcpy(data, gridVertices.data(), (size_t)bufferSize);
+    memcpy(data, gridVertices, (size_t)bufferSize);
     vkUnmapMemory(device, stagingBufferMemory);
 
     // Create final vertex buffer
@@ -659,31 +667,35 @@ void VulkanDemoApplication::createDescriptorSet()
     vkUpdateDescriptorSets(device, 1, &descriptorWrite, 0, nullptr);
 }
 
-std::vector<glm::vec3> VulkanDemoApplication::generateGridLines(int halfExtent,
-                                                                float spacing)
+int VulkanDemoApplication::generateGridLines(int halfExtent, float spacing,
+                                             glm::vec3 lines[])
 {
-    std::vector<glm::vec3> lines;
+    int index = 0;
 
     for (int i = -halfExtent; i <= halfExtent; ++i)
     {
         float v = i * spacing;
 
         // Linie entlang X
-        lines.push_back(glm::vec3(-halfExtent * spacing, 0.0f, v));
-        lines.push_back(glm::vec3(halfExtent * spacing, 0.0f, v));
+        lines[index] = glm::vec3(-halfExtent * spacing, 0.0f, v);
+        index++;
+        lines[index] = glm::vec3(halfExtent * spacing, 0.0f, v);
+        index++;
 
         // Linie entlang Z
-        lines.push_back(glm::vec3(v, 0.0f, -halfExtent * spacing));
-        lines.push_back(glm::vec3(v, 0.0f, halfExtent * spacing));
+        lines[index] = glm::vec3(v, 0.0f, -halfExtent * spacing);
+        index++;
+        lines[index] = glm::vec3(v, 0.0f, halfExtent * spacing);
+        index++;
     }
 
-    return lines;
+    return index;
 }
 
 void VulkanDemoApplication::initVulkan()
 {
-    LOG_DEBUG("Vertices: " + std::to_string(vertices.size()));
-    LOG_DEBUG("Indices: " + std::to_string(indices.size()));
+    LOG_DEBUG("Vertices: " + std::to_string(verticesSize));
+    LOG_DEBUG("Indices: " + std::to_string(indicesSize));
 
     // Create instance
     VkApplicationInfo appInfo{VK_STRUCTURE_TYPE_APPLICATION_INFO};
@@ -1043,8 +1055,8 @@ void VulkanDemoApplication::recordCommandBuffer(uint32_t imageIndex, float time)
                            VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(PushConstants),
                            &pc);
 
-        vkCmdDrawIndexed(commandBuffers[i],
-                         static_cast<uint32_t>(indicesSize), 1, 0, 0, 0);
+        vkCmdDrawIndexed(commandBuffers[i], static_cast<uint32_t>(indicesSize),
+                         1, 0, 0, 0);
     }
 
     vkCmdEndRenderPass(commandBuffers[i]);
