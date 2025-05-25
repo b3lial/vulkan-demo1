@@ -727,9 +727,10 @@ void VulkanDemoApplication::initVulkan()
     // Physical device
     uint32_t deviceCount = 0;
     vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
-    std::vector<VkPhysicalDevice> devices(deviceCount);
-    vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
+    VkPhysicalDevice* devices = new VkPhysicalDevice[deviceCount];
+    vkEnumeratePhysicalDevices(instance, &deviceCount, devices);
     physicalDevice = devices[0];
+    delete[] devices;
 
     // Find queue
     uint32_t queueCount = 0;
