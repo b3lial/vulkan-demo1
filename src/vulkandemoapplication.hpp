@@ -4,7 +4,6 @@
 #include <glm/gtc/constants.hpp>
 
 #include <random>
-#include <vector>
 
 #include "Sphere.hpp"
 
@@ -98,7 +97,7 @@ struct Vertex
 class VulkanDemoApplication
 {
   public:
-    void setSpheres(const std::vector<Sphere> &s);
+    void setSpheres(const Sphere s[], unsigned int size);
     void setVertices(Vertex v[], int size);
     void setIndices(uint32_t i[], int size);
     void setLights(Light l[], int size);
@@ -186,7 +185,8 @@ class VulkanDemoApplication
     int lightsSize;
 
     // spheres we want to display
-    std::vector<Sphere> spheres;
+    const Sphere *spheres;
+    unsigned int spheresSize = 0;
 
     // camera matrix
     glm::mat4 view;

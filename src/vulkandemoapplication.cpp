@@ -58,9 +58,10 @@ void VulkanDemoApplication::run()
     cleanup();
 }
 
-void VulkanDemoApplication::setSpheres(const std::vector<Sphere> &s)
+void VulkanDemoApplication::setSpheres(const Sphere s[], unsigned int size)
 {
     spheres = s;
+    spheresSize = size;
 }
 
 // --------------- private functions ---------------------
@@ -1044,8 +1045,9 @@ void VulkanDemoApplication::recordCommandBuffer(uint32_t imageIndex, float time)
                          VK_INDEX_TYPE_UINT32);
 
     // calculate positions of spheres
-    for (const Sphere &sphere : spheres)
+    for(unsigned int j=0; j<spheresSize; j++)
     {
+        Sphere sphere = spheres[j];
         glm::mat4 model =
             glm::translate(glm::mat4(1.0f),
                            glm::vec3(sphere.getPos().x(), sphere.getPos().y(),
@@ -1113,8 +1115,7 @@ void VulkanDemoApplication::mainLoop()
                               &imageIndex);
 
         // spheres
-        const std::vector<Sphere> &s = world.getSpheres();
-        setSpheres(s);
+        setSpheres(world.getSpheres(), world.getSpheresSize());
 
         // view
         float angle = glm::two_pi<float>() * orbitSpeed * time;

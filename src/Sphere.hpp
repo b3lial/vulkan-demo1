@@ -12,6 +12,7 @@ struct CollisionInfo
 class Sphere
 {
   public:
+    Sphere() = default;
     Sphere(const Eigen::Vector3d &initialPosition,
            const Eigen::Vector3d &initialVelocity, double diameter);
 
