@@ -783,10 +783,11 @@ void VulkanDemoApplication::initVulkan()
     uint32_t formatCount;
     vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatCount,
                                          nullptr);
-    std::vector<VkSurfaceFormatKHR> formats(formatCount);
+    VkSurfaceFormatKHR* formats = new VkSurfaceFormatKHR[formatCount];
     vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatCount,
-                                         formats.data());
+                                         formats);
     format = formats[0];
+    delete[] formats;
 
     VkSwapchainCreateInfoKHR swapInfo{
         VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR};
