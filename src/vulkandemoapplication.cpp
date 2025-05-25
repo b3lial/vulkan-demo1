@@ -736,9 +736,9 @@ void VulkanDemoApplication::initVulkan()
     uint32_t queueCount = 0;
     vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueCount,
                                              nullptr);
-    std::vector<VkQueueFamilyProperties> queueProps(queueCount);
+    VkQueueFamilyProperties* queueProps = new VkQueueFamilyProperties[queueCount];
     vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueCount,
-                                             queueProps.data());
+                                             queueProps);
     for (uint32_t i = 0; i < queueCount; ++i)
     {
         VkBool32 supported = false;
@@ -750,6 +750,7 @@ void VulkanDemoApplication::initVulkan()
             break;
         }
     }
+    delete[] queueProps;
 
     // Create logical device
     float priority = 1.0f;
