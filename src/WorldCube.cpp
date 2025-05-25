@@ -15,11 +15,6 @@ WorldCube::WorldCube()
                            Side(Eigen::Vector3d::UnitZ() * -sideSize / 2.0,
                                 Eigen::Vector3d::UnitZ())}
 {
-    const size_t numSpheres = 40;
-    const double sphereSize = 0.2;
-
-    const double initialDist = 0.02;
-
     const size_t steps = sideSize / (sphereSize + initialDist) - 1;
 
     spheres.reserve(numSpheres);
