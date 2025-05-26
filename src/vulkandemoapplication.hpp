@@ -149,7 +149,8 @@ class VulkanDemoApplication
     VkPipeline graphicsPipeline;
     VkPipelineLayout gridPipelineLayout;
     VkPipeline gridPipeline;
-    std::vector<VkFramebuffer> swapchainFramebuffers;
+    VkFramebuffer* swapchainFramebuffers;
+    unsigned int swapchainFramebuffersSize;
     VkCommandPool commandPool;
     std::vector<VkCommandBuffer> commandBuffers;
     VkSemaphore imageAvailableSemaphore;

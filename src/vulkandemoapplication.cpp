@@ -920,7 +920,8 @@ void VulkanDemoApplication::initVulkan()
     createIndexBuffer();
 
     // create framebuffers
-    swapchainFramebuffers.resize(swapchainImageViewsSize);
+    swapchainFramebuffers = new VkFramebuffer[swapchainImageViewsSize];
+    swapchainFramebuffersSize = swapchainImageViewsSize;
     for (size_t i = 0; i < swapchainImageViewsSize; i++)
     {
         VkImageView attachments[] = {swapchainImageViews[i]};
@@ -958,7 +959,7 @@ void VulkanDemoApplication::initVulkan()
     createGridVertexBuffer();
 
     // allocate command buffers
-    commandBuffers.resize(swapchainFramebuffers.size());
+    commandBuffers.resize(swapchainFramebuffersSize);
     VkCommandBufferAllocateInfo allocInfo{};
     allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
     allocInfo.commandPool = commandPool;
@@ -1183,10 +1184,12 @@ void VulkanDemoApplication::cleanup()
     vkDestroySemaphore(device, renderFinishedSemaphore, nullptr);
     vkDestroySemaphore(device, imageAvailableSemaphore, nullptr);
     vkDestroyCommandPool(device, commandPool, nullptr);
-    for (VkFramebuffer fb : swapchainFramebuffers)
+    for (unsigned int i=0; i<swapchainFramebuffersSize; i++)
     {
+        VkFramebuffer &fb = swapchainFramebuffers[i];
         vkDestroyFramebuffer(device, fb, nullptr);
     }
+    delete[] swapchainFramebuffers;
     vkDestroyPipeline(device, graphicsPipeline, nullptr);
     vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
     vkDestroyPipeline(device, gridPipeline, nullptr);
