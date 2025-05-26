@@ -822,9 +822,9 @@ void VulkanDemoApplication::initVulkan()
     // Bilder aus der Swapchain holen
     uint32_t imageCount = 0;
     vkGetSwapchainImagesKHR(device, swapchain, &imageCount, nullptr);
-    swapchainImages.resize(imageCount);
+    VkImage *swapchainImages = new VkImage[imageCount];
     vkGetSwapchainImagesKHR(device, swapchain, &imageCount,
-                            swapchainImages.data());
+                            swapchainImages);
     LOG_DEBUG("Swap Chain Images: " + std::to_string(imageCount));
 
     // Format merken (wird für Renderpass und ImageViews gebraucht)
@@ -856,6 +856,7 @@ void VulkanDemoApplication::initVulkan()
             exit(EXIT_FAILURE);
         }
     }
+    delete[] swapchainImages;
 
     // Now we create the render pass
     VkAttachmentDescription colorAttachment{};

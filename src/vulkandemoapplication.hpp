@@ -141,7 +141,6 @@ class VulkanDemoApplication
     VkQueue graphicsQueue;
     uint32_t queueFamilyIndex;
     VkSwapchainKHR swapchain;
-    std::vector<VkImage> swapchainImages;
     std::vector<VkImageView> swapchainImageViews;
     VkFormat swapchainImageFormat;
     VkRenderPass renderPass;
