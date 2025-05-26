@@ -152,7 +152,8 @@ class VulkanDemoApplication
     VkFramebuffer* swapchainFramebuffers;
     unsigned int swapchainFramebuffersSize;
     VkCommandPool commandPool;
-    std::vector<VkCommandBuffer> commandBuffers;
+    VkCommandBuffer *commandBuffers;
+    unsigned int commandBuffersSize;
     VkSemaphore imageAvailableSemaphore;
     VkSemaphore renderFinishedSemaphore;
 

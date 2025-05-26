@@ -959,20 +959,21 @@ void VulkanDemoApplication::initVulkan()
     createGridVertexBuffer();
 
     // allocate command buffers
-    commandBuffers.resize(swapchainFramebuffersSize);
+    commandBuffers = new VkCommandBuffer[swapchainFramebuffersSize];
+    commandBuffersSize = swapchainFramebuffersSize;
     VkCommandBufferAllocateInfo allocInfo{};
     allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
     allocInfo.commandPool = commandPool;
     allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-    allocInfo.commandBufferCount = static_cast<uint32_t>(commandBuffers.size());
-    if (vkAllocateCommandBuffers(device, &allocInfo, commandBuffers.data()) !=
+    allocInfo.commandBufferCount = static_cast<uint32_t>(commandBuffersSize);
+    if (vkAllocateCommandBuffers(device, &allocInfo, commandBuffers) !=
         VK_SUCCESS)
     {
         LOG_DEBUG("Failed to allocate command buffers!");
         exit(EXIT_FAILURE);
     }
 
-    LOG_DEBUG("Command Buffers: " + std::to_string(commandBuffers.size()));
+    LOG_DEBUG("Command Buffers: " + std::to_string(commandBuffersSize));
 
     // create semaphores
     VkSemaphoreCreateInfo semaphoreInfo{};
@@ -1184,6 +1185,7 @@ void VulkanDemoApplication::cleanup()
     vkDestroySemaphore(device, renderFinishedSemaphore, nullptr);
     vkDestroySemaphore(device, imageAvailableSemaphore, nullptr);
     vkDestroyCommandPool(device, commandPool, nullptr);
+    delete[] commandBuffers; // since we destroye the command buffers by destroying their pool, we can now free the array
     for (unsigned int i=0; i<swapchainFramebuffersSize; i++)
     {
         VkFramebuffer &fb = swapchainFramebuffers[i];
