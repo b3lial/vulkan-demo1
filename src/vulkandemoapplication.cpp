@@ -831,7 +831,8 @@ void VulkanDemoApplication::initVulkan()
     swapchainImageFormat = format.format;
 
     // Image Views erstellen
-    swapchainImageViews.resize(imageCount);
+    swapchainImageViews = new VkImageView[imageCount];
+    swapchainImageViewsSize = imageCount;
     for (size_t i = 0; i < imageCount; i++)
     {
         VkImageViewCreateInfo viewInfo{};
@@ -919,8 +920,8 @@ void VulkanDemoApplication::initVulkan()
     createIndexBuffer();
 
     // create framebuffers
-    swapchainFramebuffers.resize(swapchainImageViews.size());
-    for (size_t i = 0; i < swapchainImageViews.size(); i++)
+    swapchainFramebuffers.resize(swapchainImageViewsSize);
+    for (size_t i = 0; i < swapchainImageViewsSize; i++)
     {
         VkImageView attachments[] = {swapchainImageViews[i]};
 
@@ -1190,10 +1191,12 @@ void VulkanDemoApplication::cleanup()
     vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
     vkDestroyPipeline(device, gridPipeline, nullptr);
     vkDestroyPipelineLayout(device, gridPipelineLayout, nullptr);
-    for (VkImageView view : swapchainImageViews)
+    for (unsigned int i=0; i<swapchainImageViewsSize; i++)
     {
+        VkImageView &view = swapchainImageViews[i];
         vkDestroyImageView(device, view, nullptr);
     }
+    delete[] swapchainImageViews;
     vkDestroyRenderPass(device, renderPass, nullptr);
     vkDestroySwapchainKHR(device, swapchain, nullptr);
     vkDestroyDevice(device, nullptr);
