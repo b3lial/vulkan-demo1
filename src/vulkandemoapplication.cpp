@@ -1,6 +1,5 @@
 #include <cstdio> 
 #include <memory.h>
-#include <random>
 
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -41,17 +40,6 @@ void VulkanDemoApplication::setView(glm::vec3 eye)
 
 void VulkanDemoApplication::run()
 {
-    // init random number generator
-    std::random_device rd;
-    gen = std::mt19937(rd());
-    radiusDist =
-        std::uniform_real_distribution<float>(2.5f, 6.0f); // Radius 2–6
-    heightDist = std::uniform_real_distribution<float>(1.0f, 3.0f); // Höhe 1–3
-    speedDist = std::uniform_real_distribution<float>(
-        0.02f, 0.05f); // Umdrehungsgeschwindigkeit
-    directionDist = std::uniform_int_distribution<int>(0, 1);
-    axisDist = std::uniform_real_distribution<float>(-0.3f, 0.3f);
-
     initWindow();
     initVulkan();
     mainLoop();
@@ -1103,12 +1091,15 @@ void VulkanDemoApplication::mainLoop()
             lastSwitchTime = time;
 
             // change view
-            orbitRadius = radiusDist(gen);
-            orbitHeight = heightDist(gen);
-            orbitSpeed = speedDist(gen);
-            orbitAxis =
-                glm::normalize(glm::vec3(axisDist(gen), 1.0f, axisDist(gen)));
-            if (directionDist(gen) == 1)
+            orbitRadius = rand_float_range(2.5f, 6.0f);    // vorher: radiusDist(gen)
+            orbitHeight = rand_float_range(1.0f, 3.0f);    // vorher: heightDist(gen)
+            orbitSpeed = rand_float_range(0.02f, 0.05f);   // vorher: speedDist(gen)
+
+            float axisX = rand_float_range(-0.3f, 0.3f);   // vorher: axisDist(gen)
+            float axisZ = rand_float_range(-0.3f, 0.3f);   // vorher: axisDist(gen)
+            orbitAxis = glm::normalize(glm::vec3(axisX, 1.0f, axisZ));
+
+            if (rand_int_range(0, 1) == 1)                 // vorher: directionDist(gen)
             {
                 orbitSpeed *= -1.0f;
             }

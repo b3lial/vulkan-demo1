@@ -3,8 +3,6 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/constants.hpp>
 
-#include <random>
-
 #include "Sphere.hpp"
 
 #pragma once
@@ -201,12 +199,15 @@ class VulkanDemoApplication
 
     // animation
     float lastSwitchTime = 0;
-    std::mt19937 gen;
-    std::uniform_real_distribution<float> radiusDist; // Radius 2–6
-    std::uniform_real_distribution<float> heightDist; // Höhe 1–3
-    std::uniform_real_distribution<float>
-        speedDist; // Umdrehungsgeschwindigkeit
-    std::uniform_int_distribution<int>
-        directionDist; // Umdrehungsgeschwindigkeit
-    std::uniform_real_distribution<float> axisDist;
+    uint32_t rng_state = 0xDEADBEEF;
+    uint32_t rand_u32() {
+        rng_state = rng_state * 1664525 + 1013904223;
+        return rng_state;
+    }
+    float rand_float_range(float min, float max) {
+        return min + (rand_u32() / (float)UINT32_MAX) * (max - min);
+    }
+    int rand_int_range(int min, int max) {
+        return min + (rand_u32() % (max - min + 1));
+    } 
 };
