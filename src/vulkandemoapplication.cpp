@@ -91,7 +91,7 @@ VkShaderModule VulkanDemoApplication::createShaderModule(const char *code,
     return shaderModule;
 }
 
-char *VulkanDemoApplication::readFile(const char *filename, size_t size)
+char *VulkanDemoApplication::readFile(const char *filename, size_t *size)
 {
     LOG_DEBUG(filename);
     std::ifstream file(filename, std::ios::ate | std::ios::binary);
@@ -100,35 +100,22 @@ char *VulkanDemoApplication::readFile(const char *filename, size_t size)
         LOG_DEBUG("failed to open file!");
         exit(EXIT_FAILURE);
     }
-    char *buffer = new char[size];
+    *size = file.tellg();
+    char *buffer = new char[*size];
     file.seekg(0);
-    file.read(buffer, size);
+    file.read(buffer, *size);
     file.close();
     return buffer;
 }
 
-size_t VulkanDemoApplication::getFileSize(const char *filename)
-{
-    LOG_DEBUG(filename);
-    std::ifstream file(filename, std::ios::ate | std::ios::binary);
-    if (!file.is_open())
-    {
-        LOG_DEBUG("failed to open file!");
-        exit(EXIT_FAILURE);
-    }
-    size_t size = file.tellg();
-    file.close();
-    return size;
-}
-
 void VulkanDemoApplication::createGridPipeline()
 {
-    size_t vertShaderCodeSize = getFileSize("shaders/grid.vert.spv");
+    size_t vertShaderCodeSize;
     char *vertShaderCode =
-        readFile("shaders/grid.vert.spv", vertShaderCodeSize);
-    size_t fragShaderCodeSize = getFileSize("shaders/grid.frag.spv");
+        readFile("shaders/grid.vert.spv", &vertShaderCodeSize);
+    size_t fragShaderCodeSize;
     char *fragShaderCode =
-        readFile("shaders/grid.frag.spv", fragShaderCodeSize);
+        readFile("shaders/grid.frag.spv", &fragShaderCodeSize);
 
     VkShaderModule vertModule =
         createShaderModule(vertShaderCode, vertShaderCodeSize);
@@ -267,12 +254,12 @@ void VulkanDemoApplication::createGridPipeline()
 
 void VulkanDemoApplication::createGraphicsPipeline()
 {
-    size_t vertShaderCodeSize = getFileSize("shaders/shader.vert.spv");
+    size_t vertShaderCodeSize;
     char *vertShaderCode =
-        readFile("shaders/shader.vert.spv", vertShaderCodeSize);
-    size_t fragShaderCodeSize = getFileSize("shaders/shader.frag.spv");
+        readFile("shaders/shader.vert.spv", &vertShaderCodeSize);
+    size_t fragShaderCodeSize;
     char *fragShaderCode =
-        readFile("shaders/shader.frag.spv", fragShaderCodeSize);
+        readFile("shaders/shader.frag.spv", &fragShaderCodeSize);
 
     VkShaderModule vertModule =
         createShaderModule(vertShaderCode, vertShaderCodeSize);

@@ -106,8 +106,7 @@ class VulkanDemoApplication
 
   private:
     VkShaderModule createShaderModule(const char *code, size_t size);
-    char *readFile(const char *filename, size_t size);
-    size_t getFileSize(const char *filename);
+    char *readFile(const char *filename, size_t *size);
 
     void initWindow();
     void createGraphicsPipeline();
