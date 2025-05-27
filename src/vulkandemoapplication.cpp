@@ -1,4 +1,4 @@
-#include <fstream>
+#include <cstdio> 
 #include <memory.h>
 #include <random>
 
@@ -94,17 +94,38 @@ VkShaderModule VulkanDemoApplication::createShaderModule(const char *code,
 char *VulkanDemoApplication::readFile(const char *filename, size_t *size)
 {
     LOG_DEBUG(filename);
-    std::ifstream file(filename, std::ios::ate | std::ios::binary);
-    if (!file.is_open())
+
+    FILE *file = fopen(filename, "rb");
+    if (!file)
     {
         LOG_DEBUG("failed to open file!");
         exit(EXIT_FAILURE);
     }
-    *size = file.tellg();
+
+    fseek(file, 0, SEEK_END);
+    long fileSize = ftell(file);
+    rewind(file); // oder: fseek(file, 0, SEEK_SET);
+
+    if (fileSize < 0)
+    {
+        LOG_DEBUG("ftell failed!");
+        fclose(file);
+        exit(EXIT_FAILURE);
+    }
+
+    *size = static_cast<size_t>(fileSize);
     char *buffer = new char[*size];
-    file.seekg(0);
-    file.read(buffer, *size);
-    file.close();
+
+    size_t bytesRead = fread(buffer, 1, *size, file);
+    fclose(file);
+
+    if (bytesRead != *size)
+    {
+        LOG_DEBUG("fread failed!");
+        delete[] buffer;
+        exit(EXIT_FAILURE);
+    }
+
     return buffer;
 }
 
