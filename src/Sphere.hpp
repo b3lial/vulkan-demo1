@@ -1,17 +1,19 @@
 #pragma once
 #include <Eigen/Geometry>
-#include <optional>
 
 struct CollisionInfo
 {
     const double depth = 0;
     // vector moving the objects out of each other
     const Eigen::Vector3d exitDir;
+    // workaround to replace optional<>
+    bool isValid;
 };
 
 class Sphere
 {
   public:
+    Sphere() = default;
     Sphere(const Eigen::Vector3d &initialPosition,
            const Eigen::Vector3d &initialVelocity, double diameter);
 
@@ -20,7 +22,7 @@ class Sphere
      * If an intersection exists, the shortest vector
      * solving the intersection is returned
      */
-    std::optional<CollisionInfo> computeExitDir(const Sphere &other);
+    CollisionInfo computeExitDir(const Sphere &other);
 
     void setPos(const Eigen::Vector3d &newPos) { pos = newPos; }
     const Eigen::Vector3d &getPos() const { return pos; }

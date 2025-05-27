@@ -1,12 +1,11 @@
 #include "SphereTools.hpp"
 #include <cmath>
 
-std::vector<Vertex> generateSphereVertices(float radius, int sectors,
-                                           int stacks)
+int generateSphereVertices(float radius, int sectors,
+                                           int stacks, Vertex vertices[])
 {
-    std::vector<Vertex> vertices;
-
     const float PI = 3.14159265359f;
+    int index = 0;
 
     for (int i = 0; i <= stacks; ++i)
     {
@@ -25,16 +24,17 @@ std::vector<Vertex> generateSphereVertices(float radius, int sectors,
             glm::vec3 color = glm::vec3(1.0f, 1.0f, 1.0f);
             glm::vec3 normal = glm::normalize(glm::vec3(x, y, z));
 
-            vertices.push_back({position, color, normal});
+            vertices[index] = {position, color, normal};
+            index++;
         }
     }
 
-    return vertices;
+    return index;
 }
 
-std::vector<uint32_t> generateSphereIndices(int sectors, int stacks)
+int generateSphereIndices(int sectors, int stacks, uint32_t indices[])
 {
-    std::vector<uint32_t> indices;
+    int index = 0;
 
     for (int i = 0; i < stacks; ++i)
     {
@@ -49,16 +49,22 @@ std::vector<uint32_t> generateSphereIndices(int sectors, int stacks)
             uint32_t bottomRight = nextStackStart + j + 1;
 
             // Dreieck 1
-            indices.push_back(topLeft);
-            indices.push_back(bottomLeft);
-            indices.push_back(topRight);
+            indices[index] = topLeft;
+            index++;
+            indices[index] = bottomLeft;
+            index++;
+            indices[index] = topRight;
+            index++;
 
             // Dreieck 2
-            indices.push_back(topRight);
-            indices.push_back(bottomLeft);
-            indices.push_back(bottomRight);
+            indices[index] = topRight;
+            index++;
+            indices[index] = bottomLeft;
+            index++;
+            indices[index] = bottomRight;
+            index++;
         }
     }
 
-    return indices;
+    return index;
 }

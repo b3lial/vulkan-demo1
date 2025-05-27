@@ -15,19 +15,13 @@ WorldCube::WorldCube()
                            Side(Eigen::Vector3d::UnitZ() * -sideSize / 2.0,
                                 Eigen::Vector3d::UnitZ())}
 {
-    const size_t numSpheres = 40;
-    const double sphereSize = 0.2;
-
-    const double initialDist = 0.02;
-
     const size_t steps = sideSize / (sphereSize + initialDist) - 1;
-
-    spheres.reserve(numSpheres);
 
     auto toCoord = [&](size_t step) {
         return -sideSize / 2.0 + initialDist + (step + 1) * (sphereSize + 0.02);
     };
 
+    unsigned int i = 0;
     for (size_t x = 0; x < steps; x++)
     {
         const double curX = toCoord(x);
@@ -37,27 +31,29 @@ WorldCube::WorldCube()
             for (size_t z = 0; z < steps; z++)
             {
                 const double curZ = toCoord(z);
-                spheres.emplace_back(Eigen::Vector3d(curX, curY, curZ),
+                spheres[i] = Sphere(Eigen::Vector3d(curX, curY, curZ),
                                      Eigen::Vector3d(0.05, 0.05, 0.1),
                                      sphereSize);
+                i++;
 
 //                 std::cout << spheres.back().getPos().transpose() << std::endl;
 
-                if (spheres.size() > numSpheres)
+                if (i > numSpheres)
                 {
                     break;
                 }
             }
-            if (spheres.size() > numSpheres)
+            if (i > numSpheres)
             {
                 break;
             }
         }
-        if (spheres.size() > numSpheres)
+        if (i > numSpheres)
         {
             break;
         }
     }
+    spheresSize = i;
 }
 
 void WorldCube::updateObjects()
@@ -107,15 +103,15 @@ void WorldCube::updateObjects()
 void WorldCube::checkSphereSphereCollisions()
 {
     // solve collisions
-    for (size_t i = 0; i < spheres.size(); i++)
+    for (size_t i = 0; i < spheresSize; i++)
     {
         Sphere &cur(spheres[i]);
-        for (size_t j = i + 1; j < spheres.size(); j++)
+        for (size_t j = i + 1; j < spheresSize; j++)
         {
             Sphere &other(spheres[j]);
             const auto intersection = cur.computeExitDir(other);
 
-            if (!intersection)
+            if (!intersection.isValid)
             {
                 continue;
             }
@@ -124,9 +120,9 @@ void WorldCube::checkSphereSphereCollisions()
             //             << " depth: " << intersection->depth << " exit dir "
             //             << intersection->exitDir.transpose() << std::endl;
 
-            const double d2 = intersection->depth / 2.0;
-            cur.setPos(cur.getPos() + intersection->exitDir * d2);
-            other.setPos(other.getPos() - intersection->exitDir * d2);
+            const double d2 = intersection.depth / 2.0;
+            cur.setPos(cur.getPos() + intersection.exitDir * d2);
+            other.setPos(other.getPos() - intersection.exitDir * d2);
 
             //             std::cout << "New Pos  : " <<
             //             cur.getPos().transpose() << " and " <<

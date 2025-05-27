@@ -9,19 +9,22 @@
 #include "vulkandemoapplication.hpp"
 
 // --------------- public functions ---------------------
-void VulkanDemoApplication::setVertices(std::vector<Vertex> &v)
+void VulkanDemoApplication::setVertices(Vertex v[], int size)
 {
     vertices = v;
+    verticesSize = size;
 }
 
-void VulkanDemoApplication::setIndices(std::vector<uint32_t> &i)
+void VulkanDemoApplication::setIndices(uint32_t i[], int size)
 {
     indices = i;
+    indicesSize = size;
 }
 
-void VulkanDemoApplication::setLights(std::vector<Light> l)
+void VulkanDemoApplication::setLights(Light l[], int size)
 {
     lights = l;
+    lightsSize = size;
 }
 
 void VulkanDemoApplication::setView(glm::vec3 eye)
@@ -55,9 +58,10 @@ void VulkanDemoApplication::run()
     cleanup();
 }
 
-void VulkanDemoApplication::setSpheres(const std::vector<Sphere> &s)
+void VulkanDemoApplication::setSpheres(const Sphere s[], unsigned int size)
 {
     spheres = s;
+    spheresSize = size;
 }
 
 // --------------- private functions ---------------------
@@ -69,13 +73,13 @@ void VulkanDemoApplication::initWindow()
     window = glfwCreateWindow(WIDTH, HEIGHT, "Vulkan", nullptr, nullptr);
 }
 
-VkShaderModule
-VulkanDemoApplication::createShaderModule(const std::vector<char> &code)
+VkShaderModule VulkanDemoApplication::createShaderModule(const char *code,
+                                                         size_t size)
 {
     VkShaderModuleCreateInfo createInfo{};
     createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-    createInfo.codeSize = code.size();
-    createInfo.pCode = reinterpret_cast<const uint32_t *>(code.data());
+    createInfo.codeSize = size;
+    createInfo.pCode = reinterpret_cast<const uint32_t *>(code);
 
     VkShaderModule shaderModule;
     if (vkCreateShaderModule(device, &createInfo, nullptr, &shaderModule) !=
@@ -87,7 +91,23 @@ VulkanDemoApplication::createShaderModule(const std::vector<char> &code)
     return shaderModule;
 }
 
-std::vector<char> VulkanDemoApplication::readFile(const char *filename)
+char *VulkanDemoApplication::readFile(const char *filename, size_t size)
+{
+    LOG_DEBUG(filename);
+    std::ifstream file(filename, std::ios::ate | std::ios::binary);
+    if (!file.is_open())
+    {
+        LOG_DEBUG("failed to open file!");
+        exit(EXIT_FAILURE);
+    }
+    char *buffer = new char[size];
+    file.seekg(0);
+    file.read(buffer, size);
+    file.close();
+    return buffer;
+}
+
+size_t VulkanDemoApplication::getFileSize(const char *filename)
 {
     LOG_DEBUG(filename);
     std::ifstream file(filename, std::ios::ate | std::ios::binary);
@@ -97,20 +117,25 @@ std::vector<char> VulkanDemoApplication::readFile(const char *filename)
         exit(EXIT_FAILURE);
     }
     size_t size = file.tellg();
-    std::vector<char> buffer(size);
-    file.seekg(0);
-    file.read(buffer.data(), size);
     file.close();
-    return buffer;
+    return size;
 }
 
 void VulkanDemoApplication::createGridPipeline()
 {
-    auto vertShaderCode = readFile("shaders/grid.vert.spv");
-    auto fragShaderCode = readFile("shaders/grid.frag.spv");
+    size_t vertShaderCodeSize = getFileSize("shaders/grid.vert.spv");
+    char *vertShaderCode =
+        readFile("shaders/grid.vert.spv", vertShaderCodeSize);
+    size_t fragShaderCodeSize = getFileSize("shaders/grid.frag.spv");
+    char *fragShaderCode =
+        readFile("shaders/grid.frag.spv", fragShaderCodeSize);
 
-    VkShaderModule vertModule = createShaderModule(vertShaderCode);
-    VkShaderModule fragModule = createShaderModule(fragShaderCode);
+    VkShaderModule vertModule =
+        createShaderModule(vertShaderCode, vertShaderCodeSize);
+    delete[] vertShaderCode;
+    VkShaderModule fragModule =
+        createShaderModule(fragShaderCode, fragShaderCodeSize);
+    delete[] fragShaderCode;
 
     VkPipelineShaderStageCreateInfo vertStageInfo{};
     vertStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -242,11 +267,19 @@ void VulkanDemoApplication::createGridPipeline()
 
 void VulkanDemoApplication::createGraphicsPipeline()
 {
-    auto vertShaderCode = readFile("shaders/shader.vert.spv");
-    auto fragShaderCode = readFile("shaders/shader.frag.spv");
+    size_t vertShaderCodeSize = getFileSize("shaders/shader.vert.spv");
+    char *vertShaderCode =
+        readFile("shaders/shader.vert.spv", vertShaderCodeSize);
+    size_t fragShaderCodeSize = getFileSize("shaders/shader.frag.spv");
+    char *fragShaderCode =
+        readFile("shaders/shader.frag.spv", fragShaderCodeSize);
 
-    VkShaderModule vertModule = createShaderModule(vertShaderCode);
-    VkShaderModule fragModule = createShaderModule(fragShaderCode);
+    VkShaderModule vertModule =
+        createShaderModule(vertShaderCode, vertShaderCodeSize);
+    delete[] vertShaderCode;
+    VkShaderModule fragModule =
+        createShaderModule(fragShaderCode, fragShaderCodeSize);
+    delete[] fragShaderCode;
 
     VkPipelineShaderStageCreateInfo vertStageInfo{};
     vertStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -463,7 +496,7 @@ uint32_t VulkanDemoApplication::findMemoryType(uint32_t typeFilter,
 
 void VulkanDemoApplication::createVertexBuffer()
 {
-    VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
+    VkDeviceSize bufferSize = sizeof(vertices[0]) * verticesSize;
 
     createBuffer(bufferSize, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
                  VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
@@ -473,17 +506,17 @@ void VulkanDemoApplication::createVertexBuffer()
     // Daten kopieren
     void *data;
     vkMapMemory(device, vertexBufferMemory, 0, bufferSize, 0, &data);
-    memcpy(data, vertices.data(), static_cast<size_t>(bufferSize));
+    memcpy(data, vertices, static_cast<size_t>(bufferSize));
     vkUnmapMemory(device, vertexBufferMemory);
 }
 
 void VulkanDemoApplication::createGridVertexBuffer()
 {
-    std::vector<glm::vec3> gridVertices =
-        generateGridLines(10, 1.0f); // Erzeuge Linien von -10 bis +10
-    gridVertexCount = static_cast<uint32_t>(gridVertices.size());
+    glm::vec3 gridVertices[GRID_VERTEX_COUNT];
+    gridVertexCount = generateGridLines(GRID_HALF_EXTEND, 1.0f, gridVertices); // Erzeuge Linien von -10 bis +10
+    LOG_DEBUG("Grid Vertices: " + std::to_string(gridVertexCount));
 
-    VkDeviceSize bufferSize = sizeof(glm::vec3) * gridVertices.size();
+    VkDeviceSize bufferSize = sizeof(glm::vec3) * gridVertexCount;
 
     // Create staging buffer
     VkBuffer stagingBuffer;
@@ -496,7 +529,7 @@ void VulkanDemoApplication::createGridVertexBuffer()
     // Daten reinkopieren
     void *data;
     vkMapMemory(device, stagingBufferMemory, 0, bufferSize, 0, &data);
-    memcpy(data, gridVertices.data(), (size_t)bufferSize);
+    memcpy(data, gridVertices, (size_t)bufferSize);
     vkUnmapMemory(device, stagingBufferMemory);
 
     // Create final vertex buffer
@@ -516,7 +549,7 @@ void VulkanDemoApplication::createGridVertexBuffer()
 
 void VulkanDemoApplication::createIndexBuffer()
 {
-    VkDeviceSize bufferSize = sizeof(indices[0]) * indices.size();
+    VkDeviceSize bufferSize = sizeof(indices[0]) * indicesSize;
 
     createBuffer(bufferSize, VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
                  VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
@@ -525,7 +558,7 @@ void VulkanDemoApplication::createIndexBuffer()
 
     void *data;
     vkMapMemory(device, indexBufferMemory, 0, bufferSize, 0, &data);
-    memcpy(data, indices.data(), static_cast<size_t>(bufferSize));
+    memcpy(data, indices, static_cast<size_t>(bufferSize));
     vkUnmapMemory(device, indexBufferMemory);
 }
 
@@ -541,7 +574,7 @@ void VulkanDemoApplication::createUniformBuffer()
 
 void VulkanDemoApplication::updateUniformBuffer()
 {
-    if (lights.size() < 2)
+    if (lightsSize < 3)
     {
         LOG_DEBUG("add two light sources, otherwise you wont see anything");
         return;
@@ -635,31 +668,35 @@ void VulkanDemoApplication::createDescriptorSet()
     vkUpdateDescriptorSets(device, 1, &descriptorWrite, 0, nullptr);
 }
 
-std::vector<glm::vec3> VulkanDemoApplication::generateGridLines(int halfExtent,
-                                                                float spacing)
+int VulkanDemoApplication::generateGridLines(int halfExtent, float spacing,
+                                             glm::vec3 lines[])
 {
-    std::vector<glm::vec3> lines;
+    int index = 0;
 
     for (int i = -halfExtent; i <= halfExtent; ++i)
     {
         float v = i * spacing;
 
         // Linie entlang X
-        lines.push_back(glm::vec3(-halfExtent * spacing, 0.0f, v));
-        lines.push_back(glm::vec3(halfExtent * spacing, 0.0f, v));
+        lines[index] = glm::vec3(-halfExtent * spacing, 0.0f, v);
+        index++;
+        lines[index] = glm::vec3(halfExtent * spacing, 0.0f, v);
+        index++;
 
         // Linie entlang Z
-        lines.push_back(glm::vec3(v, 0.0f, -halfExtent * spacing));
-        lines.push_back(glm::vec3(v, 0.0f, halfExtent * spacing));
+        lines[index] = glm::vec3(v, 0.0f, -halfExtent * spacing);
+        index++;
+        lines[index] = glm::vec3(v, 0.0f, halfExtent * spacing);
+        index++;
     }
 
-    return lines;
+    return index;
 }
 
 void VulkanDemoApplication::initVulkan()
 {
-    LOG_DEBUG("Vertices: " + std::to_string(vertices.size()));
-    LOG_DEBUG("Indices: " + std::to_string(indices.size()));
+    LOG_DEBUG("Vertices: " + std::to_string(verticesSize));
+    LOG_DEBUG("Indices: " + std::to_string(indicesSize));
 
     // Create instance
     VkApplicationInfo appInfo{VK_STRUCTURE_TYPE_APPLICATION_INFO};
@@ -691,17 +728,18 @@ void VulkanDemoApplication::initVulkan()
     // Physical device
     uint32_t deviceCount = 0;
     vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
-    std::vector<VkPhysicalDevice> devices(deviceCount);
-    vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
+    VkPhysicalDevice* devices = new VkPhysicalDevice[deviceCount];
+    vkEnumeratePhysicalDevices(instance, &deviceCount, devices);
     physicalDevice = devices[0];
+    delete[] devices;
 
     // Find queue
     uint32_t queueCount = 0;
     vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueCount,
                                              nullptr);
-    std::vector<VkQueueFamilyProperties> queueProps(queueCount);
+    VkQueueFamilyProperties* queueProps = new VkQueueFamilyProperties[queueCount];
     vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueCount,
-                                             queueProps.data());
+                                             queueProps);
     for (uint32_t i = 0; i < queueCount; ++i)
     {
         VkBool32 supported = false;
@@ -713,6 +751,7 @@ void VulkanDemoApplication::initVulkan()
             break;
         }
     }
+    delete[] queueProps;
 
     // Create logical device
     float priority = 1.0f;
@@ -745,10 +784,11 @@ void VulkanDemoApplication::initVulkan()
     uint32_t formatCount;
     vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatCount,
                                          nullptr);
-    std::vector<VkSurfaceFormatKHR> formats(formatCount);
+    VkSurfaceFormatKHR* formats = new VkSurfaceFormatKHR[formatCount];
     vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatCount,
-                                         formats.data());
+                                         formats);
     format = formats[0];
+    delete[] formats;
 
     VkSwapchainCreateInfoKHR swapInfo{
         VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR};
@@ -782,16 +822,17 @@ void VulkanDemoApplication::initVulkan()
     // Bilder aus der Swapchain holen
     uint32_t imageCount = 0;
     vkGetSwapchainImagesKHR(device, swapchain, &imageCount, nullptr);
-    swapchainImages.resize(imageCount);
+    VkImage *swapchainImages = new VkImage[imageCount];
     vkGetSwapchainImagesKHR(device, swapchain, &imageCount,
-                            swapchainImages.data());
+                            swapchainImages);
     LOG_DEBUG("Swap Chain Images: " + std::to_string(imageCount));
 
     // Format merken (wird für Renderpass und ImageViews gebraucht)
     swapchainImageFormat = format.format;
 
     // Image Views erstellen
-    swapchainImageViews.resize(imageCount);
+    swapchainImageViews = new VkImageView[imageCount];
+    swapchainImageViewsSize = imageCount;
     for (size_t i = 0; i < imageCount; i++)
     {
         VkImageViewCreateInfo viewInfo{};
@@ -816,6 +857,7 @@ void VulkanDemoApplication::initVulkan()
             exit(EXIT_FAILURE);
         }
     }
+    delete[] swapchainImages;
 
     // Now we create the render pass
     VkAttachmentDescription colorAttachment{};
@@ -878,8 +920,9 @@ void VulkanDemoApplication::initVulkan()
     createIndexBuffer();
 
     // create framebuffers
-    swapchainFramebuffers.resize(swapchainImageViews.size());
-    for (size_t i = 0; i < swapchainImageViews.size(); i++)
+    swapchainFramebuffers = new VkFramebuffer[swapchainImageViewsSize];
+    swapchainFramebuffersSize = swapchainImageViewsSize;
+    for (size_t i = 0; i < swapchainImageViewsSize; i++)
     {
         VkImageView attachments[] = {swapchainImageViews[i]};
 
@@ -916,20 +959,21 @@ void VulkanDemoApplication::initVulkan()
     createGridVertexBuffer();
 
     // allocate command buffers
-    commandBuffers.resize(swapchainFramebuffers.size());
+    commandBuffers = new VkCommandBuffer[swapchainFramebuffersSize];
+    commandBuffersSize = swapchainFramebuffersSize;
     VkCommandBufferAllocateInfo allocInfo{};
     allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
     allocInfo.commandPool = commandPool;
     allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-    allocInfo.commandBufferCount = static_cast<uint32_t>(commandBuffers.size());
-    if (vkAllocateCommandBuffers(device, &allocInfo, commandBuffers.data()) !=
+    allocInfo.commandBufferCount = static_cast<uint32_t>(commandBuffersSize);
+    if (vkAllocateCommandBuffers(device, &allocInfo, commandBuffers) !=
         VK_SUCCESS)
     {
         LOG_DEBUG("Failed to allocate command buffers!");
         exit(EXIT_FAILURE);
     }
 
-    LOG_DEBUG("Command Buffers: " + std::to_string(commandBuffers.size()));
+    LOG_DEBUG("Command Buffers: " + std::to_string(commandBuffersSize));
 
     // create semaphores
     VkSemaphoreCreateInfo semaphoreInfo{};
@@ -1005,8 +1049,9 @@ void VulkanDemoApplication::recordCommandBuffer(uint32_t imageIndex, float time)
                          VK_INDEX_TYPE_UINT32);
 
     // calculate positions of spheres
-    for (const Sphere &sphere : spheres)
+    for(unsigned int j=0; j<spheresSize; j++)
     {
+        Sphere sphere = spheres[j];
         glm::mat4 model =
             glm::translate(glm::mat4(1.0f),
                            glm::vec3(sphere.getPos().x(), sphere.getPos().y(),
@@ -1019,8 +1064,8 @@ void VulkanDemoApplication::recordCommandBuffer(uint32_t imageIndex, float time)
                            VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(PushConstants),
                            &pc);
 
-        vkCmdDrawIndexed(commandBuffers[i],
-                         static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
+        vkCmdDrawIndexed(commandBuffers[i], static_cast<uint32_t>(indicesSize),
+                         1, 0, 0, 0);
     }
 
     vkCmdEndRenderPass(commandBuffers[i]);
@@ -1074,8 +1119,7 @@ void VulkanDemoApplication::mainLoop()
                               &imageIndex);
 
         // spheres
-        const std::vector<Sphere> &s = world.getSpheres();
-        setSpheres(s);
+        setSpheres(world.getSpheres(), world.getSpheresSize());
 
         // view
         float angle = glm::two_pi<float>() * orbitSpeed * time;
@@ -1141,18 +1185,23 @@ void VulkanDemoApplication::cleanup()
     vkDestroySemaphore(device, renderFinishedSemaphore, nullptr);
     vkDestroySemaphore(device, imageAvailableSemaphore, nullptr);
     vkDestroyCommandPool(device, commandPool, nullptr);
-    for (VkFramebuffer fb : swapchainFramebuffers)
+    delete[] commandBuffers; // since we destroye the command buffers by destroying their pool, we can now free the array
+    for (unsigned int i=0; i<swapchainFramebuffersSize; i++)
     {
+        VkFramebuffer &fb = swapchainFramebuffers[i];
         vkDestroyFramebuffer(device, fb, nullptr);
     }
+    delete[] swapchainFramebuffers;
     vkDestroyPipeline(device, graphicsPipeline, nullptr);
     vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
     vkDestroyPipeline(device, gridPipeline, nullptr);
     vkDestroyPipelineLayout(device, gridPipelineLayout, nullptr);
-    for (VkImageView view : swapchainImageViews)
+    for (unsigned int i=0; i<swapchainImageViewsSize; i++)
     {
+        VkImageView &view = swapchainImageViews[i];
         vkDestroyImageView(device, view, nullptr);
     }
+    delete[] swapchainImageViews;
     vkDestroyRenderPass(device, renderPass, nullptr);
     vkDestroySwapchainKHR(device, swapchain, nullptr);
     vkDestroyDevice(device, nullptr);

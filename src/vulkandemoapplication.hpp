@@ -3,9 +3,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/constants.hpp>
 
-//#include <array>
 #include <random>
-#include <vector>
 
 #include "Sphere.hpp"
 
@@ -13,6 +11,18 @@
 
 constexpr uint32_t WIDTH = 800;
 constexpr uint32_t HEIGHT = 800;
+
+constexpr uint32_t SPHERE_VERTICE_SECTORS = 48;
+constexpr uint32_t SPHERE_VERTICE_STACKS = 32;
+constexpr uint32_t SPHERE_VERTICES =
+    (SPHERE_VERTICE_SECTORS + 1) * (SPHERE_VERTICE_STACKS + 1);
+constexpr uint32_t SPHERE_INDICES =
+    SPHERE_VERTICE_SECTORS * SPHERE_VERTICE_STACKS * 6;
+
+constexpr uint32_t LIGHTS_AMOUNT = 3;
+
+constexpr uint32_t GRID_HALF_EXTEND = 10;
+constexpr uint32_t GRID_VERTEX_COUNT = (GRID_HALF_EXTEND * 2 + 1) * 4;
 
 struct GridPushConstants
 {
@@ -87,17 +97,19 @@ struct Vertex
 class VulkanDemoApplication
 {
   public:
-    void setSpheres(const std::vector<Sphere> &s);
-    void setVertices(std::vector<Vertex> &v);
-    void setIndices(std::vector<uint32_t> &i);
-    void setLights(std::vector<Light> l);
+    void setSpheres(const Sphere s[], unsigned int size);
+    void setVertices(Vertex v[], int size);
+    void setIndices(uint32_t i[], int size);
+    void setLights(Light l[], int size);
     void setView(glm::vec3 eye);
     void run();
 
   private:
+    VkShaderModule createShaderModule(const char *code, size_t size);
+    char *readFile(const char *filename, size_t size);
+    size_t getFileSize(const char *filename);
+
     void initWindow();
-    VkShaderModule createShaderModule(const std::vector<char> &code);
-    std::vector<char> readFile(const char* filename);
     void createGraphicsPipeline();
     void createGridPipeline();
     void initVulkan();
@@ -118,8 +130,7 @@ class VulkanDemoApplication
     void createDescriptorSetLayout();
     void createDescriptorPool();
     void createDescriptorSet();
-    std::vector<glm::vec3> generateGridLines(int halfExtent = 10,
-                                             float spacing = 1.0f);
+    int generateGridLines(int halfExtent, float spacing, glm::vec3 lines[]);
 
     // vulkan boilerplate init stuff
     GLFWwindow *window;
@@ -130,22 +141,25 @@ class VulkanDemoApplication
     VkQueue graphicsQueue;
     uint32_t queueFamilyIndex;
     VkSwapchainKHR swapchain;
-    std::vector<VkImage> swapchainImages;
-    std::vector<VkImageView> swapchainImageViews;
+    VkImageView *swapchainImageViews;
+    unsigned int swapchainImageViewsSize;
     VkFormat swapchainImageFormat;
     VkRenderPass renderPass;
     VkPipelineLayout pipelineLayout;
     VkPipeline graphicsPipeline;
     VkPipelineLayout gridPipelineLayout;
     VkPipeline gridPipeline;
-    std::vector<VkFramebuffer> swapchainFramebuffers;
+    VkFramebuffer* swapchainFramebuffers;
+    unsigned int swapchainFramebuffersSize;
     VkCommandPool commandPool;
-    std::vector<VkCommandBuffer> commandBuffers;
+    VkCommandBuffer *commandBuffers;
+    unsigned int commandBuffersSize;
     VkSemaphore imageAvailableSemaphore;
     VkSemaphore renderFinishedSemaphore;
 
-    // vertex and index section
-    std::vector<Vertex> vertices;
+    // vertex and indices section
+    Vertex *vertices;
+    int verticesSize;
 
     VkBuffer vertexBuffer;
     VkDeviceMemory vertexBufferMemory;
@@ -156,7 +170,9 @@ class VulkanDemoApplication
 
     VkBuffer indexBuffer;
     VkDeviceMemory indexBufferMemory;
-    std::vector<uint32_t> indices;
+
+    uint32_t *indices;
+    int indicesSize;
 
     // uniform buffer
     VkBuffer uniformBuffer;
@@ -167,10 +183,12 @@ class VulkanDemoApplication
     VkDescriptorSet descriptorSet;
 
     // lights for the scenery
-    std::vector<Light> lights;
+    Light *lights;
+    int lightsSize;
 
     // spheres we want to display
-    std::vector<Sphere> spheres;
+    const Sphere *spheres;
+    unsigned int spheresSize = 0;
 
     // camera matrix
     glm::mat4 view;

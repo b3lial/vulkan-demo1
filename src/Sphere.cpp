@@ -7,7 +7,7 @@ Sphere::Sphere(const Eigen::Vector3d &initialPosition,
 {
 }
 
-std::optional<CollisionInfo> Sphere::computeExitDir(const Sphere &other)
+CollisionInfo Sphere::computeExitDir(const Sphere &other)
 {
     const Eigen::Vector3d toOther(other.pos - pos);
 
@@ -17,15 +17,16 @@ std::optional<CollisionInfo> Sphere::computeExitDir(const Sphere &other)
 
     if (dist >= minDist)
     {
-        return std::nullopt;
+        return CollisionInfo{.isValid=false};
     }
 
     if (dist == 0)
     {
         // FIXME random vector
         return CollisionInfo{.depth = radius,
-                             .exitDir = -Eigen::Vector3d::UnitZ()};
+                             .exitDir = -Eigen::Vector3d::UnitZ(),
+                             .isValid=true};
     }
 
-    return CollisionInfo{.depth = minDist - dist, .exitDir = -toOther / dist};
+    return CollisionInfo{.depth = minDist - dist, .exitDir = -toOther / dist, .isValid=true};
 }
