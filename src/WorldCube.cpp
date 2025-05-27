@@ -111,7 +111,7 @@ void WorldCube::checkSphereSphereCollisions()
             Sphere &other(spheres[j]);
             const auto intersection = cur.computeExitDir(other);
 
-            if (!intersection)
+            if (!intersection.isValid)
             {
                 continue;
             }
@@ -120,9 +120,9 @@ void WorldCube::checkSphereSphereCollisions()
             //             << " depth: " << intersection->depth << " exit dir "
             //             << intersection->exitDir.transpose() << std::endl;
 
-            const double d2 = intersection->depth / 2.0;
-            cur.setPos(cur.getPos() + intersection->exitDir * d2);
-            other.setPos(other.getPos() - intersection->exitDir * d2);
+            const double d2 = intersection.depth / 2.0;
+            cur.setPos(cur.getPos() + intersection.exitDir * d2);
+            other.setPos(other.getPos() - intersection.exitDir * d2);
 
             //             std::cout << "New Pos  : " <<
             //             cur.getPos().transpose() << " and " <<
