@@ -15,12 +15,12 @@ class WorldCube
     int getSpheresSize() const { return spheresSize; }
 
     using Side = Eigen::Hyperplane<double, 3>;
-    const std::array<Side, 6> &getSides() const { return sides; }
+    const Side *getSides() const { return sides; }
     const double getEdgeLength() const { return sideSize; }
 
   private:
     double sideSize;
-    const std::array<Side, 6> sides;
+    const Side sides[6];
 
     void updateObjects();
     void checkSphereSphereCollisions();
