@@ -1,5 +1,5 @@
 #include "SphereTools.hpp"
-#include <cmath>
+#include <math.h>
 
 int generateSphereVertices(float radius, int sectors,
                                            int stacks, Vertex vertices[])
