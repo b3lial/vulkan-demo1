@@ -986,12 +986,10 @@ void VulkanDemoApplication::initVulkan()
 
 void VulkanDemoApplication::recordCommandBuffer(uint32_t imageIndex, float time)
 {
-    int i = imageIndex;
-
     VkCommandBufferBeginInfo beginInfo{};
     beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 
-    if (vkBeginCommandBuffer(commandBuffers[i], &beginInfo) != VK_SUCCESS)
+    if (vkBeginCommandBuffer(commandBuffers[imageIndex], &beginInfo) != VK_SUCCESS)
     {
         LOG_DEBUG("Failed to begin recording command buffer!");
         exit(EXIT_FAILURE);
@@ -1002,46 +1000,46 @@ void VulkanDemoApplication::recordCommandBuffer(uint32_t imageIndex, float time)
     VkRenderPassBeginInfo renderPassInfo{};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
     renderPassInfo.renderPass = renderPass;
-    renderPassInfo.framebuffer = swapchainFramebuffers[i];
+    renderPassInfo.framebuffer = swapchainFramebuffers[imageIndex];
     renderPassInfo.renderArea.offset = {0, 0};
     renderPassInfo.renderArea.extent = {WIDTH, HEIGHT};
     renderPassInfo.clearValueCount = 1;
     renderPassInfo.pClearValues = &clearColor;
 
-    vkCmdBeginRenderPass(commandBuffers[i], &renderPassInfo,
+    vkCmdBeginRenderPass(commandBuffers[imageIndex], &renderPassInfo,
                          VK_SUBPASS_CONTENTS_INLINE);
 
     // === GRID ZEICHNEN ===
     GridPushConstants gpc{view, proj};
 
-    vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS,
+    vkCmdBindPipeline(commandBuffers[imageIndex], VK_PIPELINE_BIND_POINT_GRAPHICS,
                       gridPipeline);
 
-    vkCmdPushConstants(commandBuffers[i], gridPipelineLayout,
+    vkCmdPushConstants(commandBuffers[imageIndex], gridPipelineLayout,
                        VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(GridPushConstants),
                        &gpc);
 
     VkBuffer gridBuffers[] = {gridVertexBuffer};
     VkDeviceSize gridOffsets[] = {0};
-    vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, gridBuffers, gridOffsets);
+    vkCmdBindVertexBuffers(commandBuffers[imageIndex], 0, 1, gridBuffers, gridOffsets);
 
-    vkCmdDraw(commandBuffers[i],
+    vkCmdDraw(commandBuffers[imageIndex],
               static_cast<uint32_t>(
                   gridVertexCount), // Achtung: zählst du beim Erzeugen
               1, 0, 0);
 
     // === KUGELN ZEICHNEN ===
-    vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS,
+    vkCmdBindPipeline(commandBuffers[imageIndex], VK_PIPELINE_BIND_POINT_GRAPHICS,
                       graphicsPipeline);
 
-    vkCmdBindDescriptorSets(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS,
+    vkCmdBindDescriptorSets(commandBuffers[imageIndex], VK_PIPELINE_BIND_POINT_GRAPHICS,
                             pipelineLayout, 0, 1, &descriptorSet, 0, nullptr);
 
     VkBuffer vertexBuffers[] = {vertexBuffer}; // dein VkBuffer-Handle
     VkDeviceSize offsets[] = {0};
-    vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertexBuffers, offsets);
+    vkCmdBindVertexBuffers(commandBuffers[imageIndex], 0, 1, vertexBuffers, offsets);
 
-    vkCmdBindIndexBuffer(commandBuffers[i], indexBuffer, 0,
+    vkCmdBindIndexBuffer(commandBuffers[imageIndex], indexBuffer, 0,
                          VK_INDEX_TYPE_UINT32);
 
     // calculate positions of spheres
@@ -1056,17 +1054,17 @@ void VulkanDemoApplication::recordCommandBuffer(uint32_t imageIndex, float time)
 
         PushConstants pc{model, view, proj};
 
-        vkCmdPushConstants(commandBuffers[i], pipelineLayout,
+        vkCmdPushConstants(commandBuffers[imageIndex], pipelineLayout,
                            VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(PushConstants),
                            &pc);
 
-        vkCmdDrawIndexed(commandBuffers[i], static_cast<uint32_t>(indicesSize),
+        vkCmdDrawIndexed(commandBuffers[imageIndex], static_cast<uint32_t>(indicesSize),
                          1, 0, 0, 0);
     }
 
-    vkCmdEndRenderPass(commandBuffers[i]);
+    vkCmdEndRenderPass(commandBuffers[imageIndex]);
 
-    if (vkEndCommandBuffer(commandBuffers[i]) != VK_SUCCESS)
+    if (vkEndCommandBuffer(commandBuffers[imageIndex]) != VK_SUCCESS)
     {
         LOG_DEBUG("Failed to record command buffer!");
         exit(EXIT_FAILURE);
