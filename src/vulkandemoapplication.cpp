@@ -8,6 +8,13 @@
 #include "vulkandemoapplication.hpp"
 
 // --------------- public functions ---------------------
+
+VulkanDemoApplication::VulkanDemoApplication(WorldCube &worldCube)
+    : mWorldCube(worldCube)
+{
+    // intentionally left blank
+}
+
 void VulkanDemoApplication::setVertices(Vertex v[], int size)
 {
     vertices = v;
@@ -44,12 +51,6 @@ void VulkanDemoApplication::run()
     initVulkan();
     mainLoop();
     cleanup();
-}
-
-void VulkanDemoApplication::setSpheres(const Sphere s[], unsigned int size)
-{
-    spheres = s;
-    spheresSize = size;
 }
 
 // --------------- private functions ---------------------
@@ -1043,6 +1044,8 @@ void VulkanDemoApplication::recordCommandBuffer(uint32_t imageIndex, float time)
                          VK_INDEX_TYPE_UINT32);
 
     // calculate positions of spheres
+    unsigned int spheresSize = mWorldCube.getSpheresSize();
+    const Sphere *spheres = mWorldCube.getSpheres();
     for(unsigned int j=0; j<spheresSize; j++)
     {
         Sphere sphere = spheres[j];
@@ -1073,8 +1076,6 @@ void VulkanDemoApplication::recordCommandBuffer(uint32_t imageIndex, float time)
 
 void VulkanDemoApplication::mainLoop()
 {
-    static WorldCube world;
-
     while (!glfwWindowShouldClose(window))
     {
         float time = static_cast<float>(glfwGetTime());
@@ -1105,7 +1106,7 @@ void VulkanDemoApplication::mainLoop()
 
         for (int i = 0; i < 10; i++)
         {
-            world.stepWorld();
+            mWorldCube.stepWorld();
         }
         glfwPollEvents();
 
@@ -1114,9 +1115,6 @@ void VulkanDemoApplication::mainLoop()
         vkAcquireNextImageKHR(device, swapchain, UINT64_MAX,
                               imageAvailableSemaphore, VK_NULL_HANDLE,
                               &imageIndex);
-
-        // spheres
-        setSpheres(world.getSpheres(), world.getSpheresSize());
 
         // view
         float angle = glm::two_pi<float>() * orbitSpeed * time;

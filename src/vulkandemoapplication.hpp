@@ -4,6 +4,7 @@
 #include <glm/gtc/constants.hpp>
 
 #include "Sphere.hpp"
+#include "WorldCube.hpp"
 
 #pragma once
 
@@ -95,7 +96,8 @@ struct Vertex
 class VulkanDemoApplication
 {
   public:
-    void setSpheres(const Sphere s[], unsigned int size);
+    VulkanDemoApplication(WorldCube &worldCube);
+
     void setVertices(Vertex v[], int size);
     void setIndices(uint32_t i[], int size);
     void setLights(Light l[], int size);
@@ -103,6 +105,8 @@ class VulkanDemoApplication
     void run();
 
   private:
+    WorldCube &mWorldCube;
+
     VkShaderModule createShaderModule(const char *code, size_t size);
     char *readFile(const char *filename, size_t *size);
 
@@ -182,10 +186,6 @@ class VulkanDemoApplication
     // lights for the scenery
     Light *lights;
     int lightsSize;
-
-    // spheres we want to display
-    const Sphere *spheres;
-    unsigned int spheresSize = 0;
 
     // camera matrix
     glm::mat4 view;

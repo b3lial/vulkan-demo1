@@ -1,4 +1,5 @@
 #include "SphereTools.hpp"
+#include "WorldCube.hpp"
 #include "vulkandemoapplication.hpp"
 
 int main()
@@ -6,8 +7,11 @@ int main()
     // verify whether aligning works correctly
     static_assert(sizeof(Light) == 32, "Light must be exactly 32 bytes");
 
+    // manages spheres, moves them, checks for collisions
+    WorldCube worldCube;
+
     // our renderer and window creation
-    VulkanDemoApplication app;
+    VulkanDemoApplication app(worldCube);
 
     // add sphere vertex
     Vertex vertices[SPHERE_VERTICES];
