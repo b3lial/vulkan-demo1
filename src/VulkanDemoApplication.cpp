@@ -7,32 +7,14 @@
 #include "Logger.hpp"
 #include "VulkanDemoApplication.hpp"
 
-// --------------- public functions ---------------------
-
+//---------------------------------------------------
 VulkanDemoApplication::VulkanDemoApplication(WorldCube &worldCube)
     : mWorldCube(worldCube)
 {
     // intentionally left blank
 }
 
-void VulkanDemoApplication::setVertices(Vertex v[], int size)
-{
-    vertices = v;
-    verticesSize = size;
-}
-
-void VulkanDemoApplication::setIndices(uint32_t i[], int size)
-{
-    indices = i;
-    indicesSize = size;
-}
-
-void VulkanDemoApplication::setLights(Light l[], int size)
-{
-    lights = l;
-    lightsSize = size;
-}
-
+//---------------------------------------------------
 void VulkanDemoApplication::setView(glm::vec3 eye)
 {
     view = glm::lookAt(eye,                        // Eye
@@ -45,6 +27,7 @@ void VulkanDemoApplication::setView(glm::vec3 eye)
     proj[1][1] *= -1; // Vulkan Y-Korrektur
 }
 
+//---------------------------------------------------
 void VulkanDemoApplication::run()
 {
     initWindow();
@@ -53,7 +36,7 @@ void VulkanDemoApplication::run()
     cleanup();
 }
 
-// --------------- private functions ---------------------
+//---------------------------------------------------
 void VulkanDemoApplication::initWindow()
 {
     glfwInit();
@@ -62,6 +45,7 @@ void VulkanDemoApplication::initWindow()
     window = glfwCreateWindow(WIDTH, HEIGHT, "Vulkan", nullptr, nullptr);
 }
 
+//---------------------------------------------------
 VkShaderModule VulkanDemoApplication::createShaderModule(const char *code,
                                                          size_t size)
 {
@@ -80,6 +64,7 @@ VkShaderModule VulkanDemoApplication::createShaderModule(const char *code,
     return shaderModule;
 }
 
+//---------------------------------------------------
 char *VulkanDemoApplication::readFile(const char *filename, size_t *size)
 {
     LOG_DEBUG(filename);
@@ -118,6 +103,7 @@ char *VulkanDemoApplication::readFile(const char *filename, size_t *size)
     return buffer;
 }
 
+//---------------------------------------------------
 void VulkanDemoApplication::createGridPipeline()
 {
     size_t vertShaderCodeSize;
@@ -262,6 +248,7 @@ void VulkanDemoApplication::createGridPipeline()
     vkDestroyShaderModule(device, fragModule, nullptr);
 }
 
+//---------------------------------------------------
 void VulkanDemoApplication::createGraphicsPipeline()
 {
     size_t vertShaderCodeSize;
@@ -400,6 +387,7 @@ void VulkanDemoApplication::createGraphicsPipeline()
     vkDestroyShaderModule(device, fragModule, nullptr);
 }
 
+//---------------------------------------------------
 void VulkanDemoApplication::copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer,
                                        VkDeviceSize size)
 {
@@ -434,6 +422,7 @@ void VulkanDemoApplication::copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer,
     vkFreeCommandBuffers(device, commandPool, 1, &commandBuffer);
 }
 
+//---------------------------------------------------
 void VulkanDemoApplication::createBuffer(VkDeviceSize size,
                                          VkBufferUsageFlags usage,
                                          VkMemoryPropertyFlags properties,
@@ -471,6 +460,7 @@ void VulkanDemoApplication::createBuffer(VkDeviceSize size,
     vkBindBufferMemory(device, buffer, bufferMemory, 0);
 }
 
+//---------------------------------------------------
 uint32_t VulkanDemoApplication::findMemoryType(uint32_t typeFilter,
                                                VkMemoryPropertyFlags properties)
 {
@@ -491,6 +481,7 @@ uint32_t VulkanDemoApplication::findMemoryType(uint32_t typeFilter,
     exit(EXIT_FAILURE);
 }
 
+//---------------------------------------------------
 void VulkanDemoApplication::createVertexBuffer()
 {
     VkDeviceSize bufferSize = sizeof(vertices[0]) * verticesSize;
@@ -507,6 +498,7 @@ void VulkanDemoApplication::createVertexBuffer()
     vkUnmapMemory(device, vertexBufferMemory);
 }
 
+//---------------------------------------------------
 void VulkanDemoApplication::createGridVertexBuffer()
 {
     glm::vec3 gridVertices[GRID_VERTEX_COUNT];
@@ -544,6 +536,7 @@ void VulkanDemoApplication::createGridVertexBuffer()
     vkFreeMemory(device, stagingBufferMemory, nullptr);
 }
 
+//---------------------------------------------------
 void VulkanDemoApplication::createIndexBuffer()
 {
     VkDeviceSize bufferSize = sizeof(indices[0]) * indicesSize;
@@ -559,6 +552,7 @@ void VulkanDemoApplication::createIndexBuffer()
     vkUnmapMemory(device, indexBufferMemory);
 }
 
+//---------------------------------------------------
 void VulkanDemoApplication::createUniformBuffer()
 {
     VkDeviceSize bufferSize = sizeof(UniformBufferObject);
@@ -569,6 +563,7 @@ void VulkanDemoApplication::createUniformBuffer()
                  uniformBuffer, uniformBufferMemory);
 }
 
+//---------------------------------------------------
 void VulkanDemoApplication::updateUniformBuffer()
 {
     if (lightsSize < 3)
@@ -591,6 +586,7 @@ void VulkanDemoApplication::updateUniformBuffer()
     vkUnmapMemory(device, uniformBufferMemory);
 }
 
+//---------------------------------------------------
 void VulkanDemoApplication::createDescriptorSetLayout()
 {
     VkDescriptorSetLayoutBinding uboLayoutBinding{};
@@ -613,6 +609,7 @@ void VulkanDemoApplication::createDescriptorSetLayout()
     }
 }
 
+//---------------------------------------------------
 void VulkanDemoApplication::createDescriptorPool()
 {
     VkDescriptorPoolSize poolSize{};
@@ -633,6 +630,7 @@ void VulkanDemoApplication::createDescriptorPool()
     }
 }
 
+//---------------------------------------------------
 void VulkanDemoApplication::createDescriptorSet()
 {
     VkDescriptorSetAllocateInfo allocInfo{};
@@ -665,6 +663,7 @@ void VulkanDemoApplication::createDescriptorSet()
     vkUpdateDescriptorSets(device, 1, &descriptorWrite, 0, nullptr);
 }
 
+//---------------------------------------------------
 int VulkanDemoApplication::generateGridLines(int halfExtent, float spacing,
                                              glm::vec3 lines[])
 {
@@ -690,6 +689,7 @@ int VulkanDemoApplication::generateGridLines(int halfExtent, float spacing,
     return index;
 }
 
+//---------------------------------------------------
 void VulkanDemoApplication::initVulkan()
 {
     LOG_DEBUG("Vertices: " + std::to_string(verticesSize));
@@ -985,6 +985,7 @@ void VulkanDemoApplication::initVulkan()
     }
 }
 
+//---------------------------------------------------
 void VulkanDemoApplication::recordCommandBuffer(uint32_t imageIndex, float time)
 {
     VkCommandBufferBeginInfo beginInfo{};
@@ -1074,6 +1075,7 @@ void VulkanDemoApplication::recordCommandBuffer(uint32_t imageIndex, float time)
     }
 }
 
+//---------------------------------------------------
 void VulkanDemoApplication::mainLoop()
 {
     while (!glfwWindowShouldClose(window))
@@ -1166,6 +1168,7 @@ void VulkanDemoApplication::mainLoop()
     }
 }
 
+//---------------------------------------------------
 void VulkanDemoApplication::cleanup()
 {
     LOG_DEBUG("Cleaning up");

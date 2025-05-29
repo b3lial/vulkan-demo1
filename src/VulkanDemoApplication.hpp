@@ -97,9 +97,24 @@ class VulkanDemoApplication
   public:
     VulkanDemoApplication(WorldCube &worldCube);
 
-    void setVertices(Vertex v[], int size);
-    void setIndices(uint32_t i[], int size);
-    void setLights(Light l[], int size);
+    void setVertices(Vertex v[], int size)
+    {
+        vertices = v;
+        verticesSize = size;
+    }
+
+    void setIndices(uint32_t i[], int size)
+    {
+        indices = i;
+        indicesSize = size;
+    }
+
+    void setLights(Light l[], int size)
+    {
+        lights = l;
+        lightsSize = size;
+    }
+
     void setView(glm::vec3 eye);
     void run();
 
