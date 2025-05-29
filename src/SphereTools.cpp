@@ -2,8 +2,8 @@
 
 #include "SphereTools.hpp"
 
-int generateSphereVertices(float radius, int sectors,
-                                           int stacks, Vertex vertices[])
+int generateSphereVertices(float radius, int sectors, int stacks,
+                           Vertex vertices[])
 {
     const float PI = 3.14159265359f;
     int index = 0;

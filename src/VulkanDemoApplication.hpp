@@ -164,7 +164,7 @@ class VulkanDemoApplication
     VkPipeline graphicsPipeline;
     VkPipelineLayout gridPipelineLayout;
     VkPipeline gridPipeline;
-    VkFramebuffer* swapchainFramebuffers;
+    VkFramebuffer *swapchainFramebuffers;
     unsigned int swapchainFramebuffersSize;
     VkCommandPool commandPool;
     VkCommandBuffer *commandBuffers;
@@ -214,14 +214,17 @@ class VulkanDemoApplication
     // animation
     float lastSwitchTime = 0;
     uint32_t rng_state = 0xDEADBEEF;
-    uint32_t rand_u32() {
+    uint32_t rand_u32()
+    {
         rng_state = rng_state * 1664525 + 1013904223;
         return rng_state;
     }
-    float rand_float_range(float min, float max) {
+    float rand_float_range(float min, float max)
+    {
         return min + (rand_u32() / (float)UINT32_MAX) * (max - min);
     }
-    int rand_int_range(int min, int max) {
+    int rand_int_range(int min, int max)
+    {
         return min + (rand_u32() % (max - min + 1));
-    } 
+    }
 };

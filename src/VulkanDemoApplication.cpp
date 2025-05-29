@@ -1,11 +1,11 @@
-#include <cstdio> 
+#include <cstdio>
 #include <memory.h>
 
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "WorldCube.hpp"
 #include "Logger.hpp"
 #include "VulkanDemoApplication.hpp"
+#include "WorldCube.hpp"
 
 //---------------------------------------------------
 VulkanDemoApplication::VulkanDemoApplication(WorldCube &worldCube)
@@ -502,7 +502,8 @@ void VulkanDemoApplication::createVertexBuffer()
 void VulkanDemoApplication::createGridVertexBuffer()
 {
     glm::vec3 gridVertices[GRID_VERTEX_COUNT];
-    gridVertexCount = generateGridLines(GRID_HALF_EXTEND, 1.0f, gridVertices); // Erzeuge Linien von -10 bis +10
+    gridVertexCount = generateGridLines(
+        GRID_HALF_EXTEND, 1.0f, gridVertices); // Erzeuge Linien von -10 bis +10
     LOG_DEBUG("Grid Vertices: " + std::to_string(gridVertexCount));
 
     VkDeviceSize bufferSize = sizeof(glm::vec3) * gridVertexCount;
@@ -725,7 +726,7 @@ void VulkanDemoApplication::initVulkan()
     // Physical device
     uint32_t deviceCount = 0;
     vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
-    VkPhysicalDevice* devices = new VkPhysicalDevice[deviceCount];
+    VkPhysicalDevice *devices = new VkPhysicalDevice[deviceCount];
     vkEnumeratePhysicalDevices(instance, &deviceCount, devices);
     physicalDevice = devices[0];
     delete[] devices;
@@ -734,7 +735,8 @@ void VulkanDemoApplication::initVulkan()
     uint32_t queueCount = 0;
     vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueCount,
                                              nullptr);
-    VkQueueFamilyProperties* queueProps = new VkQueueFamilyProperties[queueCount];
+    VkQueueFamilyProperties *queueProps =
+        new VkQueueFamilyProperties[queueCount];
     vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueCount,
                                              queueProps);
     for (uint32_t i = 0; i < queueCount; ++i)
@@ -781,7 +783,7 @@ void VulkanDemoApplication::initVulkan()
     uint32_t formatCount;
     vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatCount,
                                          nullptr);
-    VkSurfaceFormatKHR* formats = new VkSurfaceFormatKHR[formatCount];
+    VkSurfaceFormatKHR *formats = new VkSurfaceFormatKHR[formatCount];
     vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatCount,
                                          formats);
     format = formats[0];
@@ -820,8 +822,7 @@ void VulkanDemoApplication::initVulkan()
     uint32_t imageCount = 0;
     vkGetSwapchainImagesKHR(device, swapchain, &imageCount, nullptr);
     VkImage *swapchainImages = new VkImage[imageCount];
-    vkGetSwapchainImagesKHR(device, swapchain, &imageCount,
-                            swapchainImages);
+    vkGetSwapchainImagesKHR(device, swapchain, &imageCount, swapchainImages);
     LOG_DEBUG("Swap Chain Images: " + std::to_string(imageCount));
 
     // Format merken (wird für Renderpass und ImageViews gebraucht)
@@ -991,7 +992,8 @@ void VulkanDemoApplication::recordCommandBuffer(uint32_t imageIndex, float time)
     VkCommandBufferBeginInfo beginInfo{};
     beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 
-    if (vkBeginCommandBuffer(commandBuffers[imageIndex], &beginInfo) != VK_SUCCESS)
+    if (vkBeginCommandBuffer(commandBuffers[imageIndex], &beginInfo) !=
+        VK_SUCCESS)
     {
         LOG_DEBUG("Failed to begin recording command buffer!");
         exit(EXIT_FAILURE);
@@ -1014,8 +1016,8 @@ void VulkanDemoApplication::recordCommandBuffer(uint32_t imageIndex, float time)
     // === GRID ZEICHNEN ===
     GridPushConstants gpc{view, proj};
 
-    vkCmdBindPipeline(commandBuffers[imageIndex], VK_PIPELINE_BIND_POINT_GRAPHICS,
-                      gridPipeline);
+    vkCmdBindPipeline(commandBuffers[imageIndex],
+                      VK_PIPELINE_BIND_POINT_GRAPHICS, gridPipeline);
 
     vkCmdPushConstants(commandBuffers[imageIndex], gridPipelineLayout,
                        VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(GridPushConstants),
@@ -1023,7 +1025,8 @@ void VulkanDemoApplication::recordCommandBuffer(uint32_t imageIndex, float time)
 
     VkBuffer gridBuffers[] = {gridVertexBuffer};
     VkDeviceSize gridOffsets[] = {0};
-    vkCmdBindVertexBuffers(commandBuffers[imageIndex], 0, 1, gridBuffers, gridOffsets);
+    vkCmdBindVertexBuffers(commandBuffers[imageIndex], 0, 1, gridBuffers,
+                           gridOffsets);
 
     vkCmdDraw(commandBuffers[imageIndex],
               static_cast<uint32_t>(
@@ -1031,15 +1034,17 @@ void VulkanDemoApplication::recordCommandBuffer(uint32_t imageIndex, float time)
               1, 0, 0);
 
     // === KUGELN ZEICHNEN ===
-    vkCmdBindPipeline(commandBuffers[imageIndex], VK_PIPELINE_BIND_POINT_GRAPHICS,
-                      graphicsPipeline);
+    vkCmdBindPipeline(commandBuffers[imageIndex],
+                      VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
 
-    vkCmdBindDescriptorSets(commandBuffers[imageIndex], VK_PIPELINE_BIND_POINT_GRAPHICS,
-                            pipelineLayout, 0, 1, &descriptorSet, 0, nullptr);
+    vkCmdBindDescriptorSets(commandBuffers[imageIndex],
+                            VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0,
+                            1, &descriptorSet, 0, nullptr);
 
     VkBuffer vertexBuffers[] = {vertexBuffer}; // dein VkBuffer-Handle
     VkDeviceSize offsets[] = {0};
-    vkCmdBindVertexBuffers(commandBuffers[imageIndex], 0, 1, vertexBuffers, offsets);
+    vkCmdBindVertexBuffers(commandBuffers[imageIndex], 0, 1, vertexBuffers,
+                           offsets);
 
     vkCmdBindIndexBuffer(commandBuffers[imageIndex], indexBuffer, 0,
                          VK_INDEX_TYPE_UINT32);
@@ -1047,7 +1052,7 @@ void VulkanDemoApplication::recordCommandBuffer(uint32_t imageIndex, float time)
     // calculate positions of spheres
     unsigned int spheresSize = mWorldCube.getSpheresSize();
     const Sphere *spheres = mWorldCube.getSpheres();
-    for(unsigned int j=0; j<spheresSize; j++)
+    for (unsigned int j = 0; j < spheresSize; j++)
     {
         Sphere sphere = spheres[j];
         glm::mat4 model =
@@ -1062,8 +1067,8 @@ void VulkanDemoApplication::recordCommandBuffer(uint32_t imageIndex, float time)
                            VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(PushConstants),
                            &pc);
 
-        vkCmdDrawIndexed(commandBuffers[imageIndex], static_cast<uint32_t>(indicesSize),
-                         1, 0, 0, 0);
+        vkCmdDrawIndexed(commandBuffers[imageIndex],
+                         static_cast<uint32_t>(indicesSize), 1, 0, 0, 0);
     }
 
     vkCmdEndRenderPass(commandBuffers[imageIndex]);
@@ -1092,15 +1097,20 @@ void VulkanDemoApplication::mainLoop()
             lastSwitchTime = time;
 
             // change view
-            orbitRadius = rand_float_range(2.5f, 6.0f);    // vorher: radiusDist(gen)
-            orbitHeight = rand_float_range(1.0f, 3.0f);    // vorher: heightDist(gen)
-            orbitSpeed = rand_float_range(0.02f, 0.05f);   // vorher: speedDist(gen)
+            orbitRadius =
+                rand_float_range(2.5f, 6.0f); // vorher: radiusDist(gen)
+            orbitHeight =
+                rand_float_range(1.0f, 3.0f); // vorher: heightDist(gen)
+            orbitSpeed =
+                rand_float_range(0.02f, 0.05f); // vorher: speedDist(gen)
 
-            float axisX = rand_float_range(-0.3f, 0.3f);   // vorher: axisDist(gen)
-            float axisZ = rand_float_range(-0.3f, 0.3f);   // vorher: axisDist(gen)
+            float axisX =
+                rand_float_range(-0.3f, 0.3f); // vorher: axisDist(gen)
+            float axisZ =
+                rand_float_range(-0.3f, 0.3f); // vorher: axisDist(gen)
             orbitAxis = glm::normalize(glm::vec3(axisX, 1.0f, axisZ));
 
-            if (rand_int_range(0, 1) == 1)                 // vorher: directionDist(gen)
+            if (rand_int_range(0, 1) == 1) // vorher: directionDist(gen)
             {
                 orbitSpeed *= -1.0f;
             }
@@ -1183,8 +1193,9 @@ void VulkanDemoApplication::cleanup()
     vkDestroySemaphore(device, renderFinishedSemaphore, nullptr);
     vkDestroySemaphore(device, imageAvailableSemaphore, nullptr);
     vkDestroyCommandPool(device, commandPool, nullptr);
-    delete[] commandBuffers; // since we destroye the command buffers by destroying their pool, we can now free the array
-    for (unsigned int i=0; i<swapchainFramebuffersSize; i++)
+    delete[] commandBuffers; // since we destroye the command buffers by
+                             // destroying their pool, we can now free the array
+    for (unsigned int i = 0; i < swapchainFramebuffersSize; i++)
     {
         VkFramebuffer &fb = swapchainFramebuffers[i];
         vkDestroyFramebuffer(device, fb, nullptr);
@@ -1194,7 +1205,7 @@ void VulkanDemoApplication::cleanup()
     vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
     vkDestroyPipeline(device, gridPipeline, nullptr);
     vkDestroyPipelineLayout(device, gridPipelineLayout, nullptr);
-    for (unsigned int i=0; i<swapchainImageViewsSize; i++)
+    for (unsigned int i = 0; i < swapchainImageViewsSize; i++)
     {
         VkImageView &view = swapchainImageViews[i];
         vkDestroyImageView(device, view, nullptr);

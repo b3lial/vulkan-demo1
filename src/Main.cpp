@@ -1,6 +1,6 @@
 #include "SphereTools.hpp"
-#include "WorldCube.hpp"
 #include "VulkanDemoApplication.hpp"
+#include "WorldCube.hpp"
 
 int main()
 {
@@ -15,10 +15,12 @@ int main()
 
     // add sphere vertex
     Vertex vertices[SPHERE_VERTICES];
-    int verticesSize = generateSphereVertices(0.5, SPHERE_VERTICE_SECTORS, SPHERE_VERTICE_STACKS, vertices);
+    int verticesSize = generateSphereVertices(0.5, SPHERE_VERTICE_SECTORS,
+                                              SPHERE_VERTICE_STACKS, vertices);
     app.setVertices(vertices, verticesSize);
     uint32_t indices[SPHERE_INDICES];
-    int indicesSize = generateSphereIndices(SPHERE_VERTICE_SECTORS, SPHERE_VERTICE_STACKS, indices);
+    int indicesSize = generateSphereIndices(SPHERE_VERTICE_SECTORS,
+                                            SPHERE_VERTICE_STACKS, indices);
     app.setIndices(indices, indicesSize);
 
     // add lights
