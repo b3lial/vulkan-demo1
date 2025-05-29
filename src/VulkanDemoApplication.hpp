@@ -3,7 +3,6 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/constants.hpp>
 
-#include "Sphere.hpp"
 #include "WorldCube.hpp"
 
 #pragma once

@@ -1,6 +1,6 @@
 #include "SphereTools.hpp"
 #include "WorldCube.hpp"
-#include "vulkandemoapplication.hpp"
+#include "VulkanDemoApplication.hpp"
 
 int main()
 {

@@ -4,8 +4,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "WorldCube.hpp"
-#include "logger.hpp"
-#include "vulkandemoapplication.hpp"
+#include "Logger.hpp"
+#include "VulkanDemoApplication.hpp"
 
 // --------------- public functions ---------------------
 

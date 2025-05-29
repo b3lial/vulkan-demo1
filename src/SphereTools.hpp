@@ -1,4 +1,4 @@
-#include "vulkandemoapplication.hpp"
+#include "VulkanDemoApplication.hpp"
 
 int generateSphereVertices(float radius, int sectors,
                                            int stacks, Vertex vertices[]);

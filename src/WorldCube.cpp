@@ -1,5 +1,4 @@
 #include "WorldCube.hpp"
-// #include <iostream>
 
 WorldCube::WorldCube()
     : sideSize(2.0), sides{Side(Eigen::Vector3d::UnitX() * sideSize / 2.0,

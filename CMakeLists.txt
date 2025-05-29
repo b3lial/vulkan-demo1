@@ -33,10 +33,10 @@ SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
 SET(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
 
 ADD_EXECUTABLE(vulkan_demo1
-    src/main.cpp
+    src/Main.cpp
     src/Sphere.cpp
     src/WorldCube.cpp
-    src/vulkandemoapplication.cpp
+    src/VulkanDemoApplication.cpp
     src/SphereTools.cpp
 )
 target_link_libraries (vulkan_demo1
