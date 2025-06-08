@@ -38,6 +38,8 @@ ADD_EXECUTABLE(vulkan_demo1
     src/WorldCube.cpp
     src/VulkanDemoApplication.cpp
     src/SphereTools.cpp
+    src/VulkanSpheres.cpp
+    src/VulkanGrid.cpp
 )
 target_link_libraries (vulkan_demo1
     PUBLIC

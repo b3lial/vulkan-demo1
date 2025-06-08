@@ -1,7 +1,10 @@
 #pragma once
 
 #include "ShaderData.hpp"
+#include "VulkanSpheres.hpp"
 #include "WorldCube.hpp"
+#include "VulkanGrid.hpp"
+#include "VulkanGrid.hpp"
 
 constexpr uint32_t WIDTH = 800;
 constexpr uint32_t HEIGHT = 800;
@@ -46,6 +49,8 @@ class VulkanDemoApplication
 
   private:
     WorldCube &mWorldCube;
+    VulkanSpheres mVulkanSpheres;
+    VulkanGrid mVulkanGrid;
 
     VkShaderModule createShaderModule(const char *code, size_t size);
     char *readFile(const char *filename, size_t *size);
