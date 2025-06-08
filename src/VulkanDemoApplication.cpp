@@ -5,7 +5,6 @@
 
 #include "Logger.hpp"
 #include "VulkanDemoApplication.hpp"
-#include "WorldCube.hpp"
 
 //---------------------------------------------------
 VulkanDemoApplication::VulkanDemoApplication(WorldCube &worldCube)
@@ -530,6 +529,7 @@ void VulkanDemoApplication::createGridVertexBuffer()
                  gridVertexBufferMemory);
 
     // Kopiere von staging -> device-local
+    
     copyBuffer(stagingBuffer, gridVertexBuffer, bufferSize);
 
     // Aufräumen
