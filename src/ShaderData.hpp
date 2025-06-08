@@ -31,6 +31,8 @@ struct UniformBufferObject
     Light lights[3];
 };
 
+constexpr uint32_t ATTRIBUTES_DESCRIPTION_SIZE = 3;
+
 struct Vertex
 {
     glm::vec3 pos;
@@ -46,10 +48,8 @@ struct Vertex
         return binding;
     }
 
-    static std::array<VkVertexInputAttributeDescription, 3>
-    getAttributeDescriptions()
+    static void getAttributeDescriptions(VkVertexInputAttributeDescription* attributes)
     {
-        std::array<VkVertexInputAttributeDescription, 3> attributes{};
         attributes[0].binding = 0;
         attributes[0].location = 0;
         attributes[0].format = VK_FORMAT_R32G32B32_SFLOAT;
@@ -64,7 +64,5 @@ struct Vertex
         attributes[2].location = 2;
         attributes[2].format = VK_FORMAT_R32G32B32_SFLOAT; // normal
         attributes[2].offset = offsetof(Vertex, normal);
-
-        return attributes;
     }
 };
