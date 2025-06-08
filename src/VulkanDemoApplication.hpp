@@ -51,7 +51,7 @@ class VulkanDemoApplication
     char *readFile(const char *filename, size_t *size);
 
     void initWindow();
-    void createGraphicsPipeline();
+    void createSpheresPipeline();
     void createGridPipeline();
     void initVulkan();
     void mainLoop();
@@ -63,7 +63,7 @@ class VulkanDemoApplication
                       VkDeviceMemory &bufferMemory);
     uint32_t findMemoryType(uint32_t typeFilter,
                             VkMemoryPropertyFlags properties);
-    void createVertexBuffer();
+    void createSpheresVertexBuffer();
     void createGridVertexBuffer();
     void createIndexBuffer();
     void createUniformBuffer();

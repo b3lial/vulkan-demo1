@@ -248,7 +248,7 @@ void VulkanDemoApplication::createGridPipeline()
 }
 
 //---------------------------------------------------
-void VulkanDemoApplication::createGraphicsPipeline()
+void VulkanDemoApplication::createSpheresPipeline()
 {
     size_t vertShaderCodeSize;
     char *vertShaderCode =
@@ -481,7 +481,7 @@ uint32_t VulkanDemoApplication::findMemoryType(uint32_t typeFilter,
 }
 
 //---------------------------------------------------
-void VulkanDemoApplication::createVertexBuffer()
+void VulkanDemoApplication::createSpheresVertexBuffer()
 {
     VkDeviceSize bufferSize = sizeof(vertices[0]) * verticesSize;
 
@@ -912,9 +912,9 @@ void VulkanDemoApplication::initVulkan()
     createDescriptorSet(); // ← Buffer wird hier eingebunden
     updateUniformBuffer(); // ← jetzt kann er korrekt beschrieben werden
 
-    createGraphicsPipeline(); // nutzt descriptorSetLayout
+    createSpheresPipeline(); // nutzt descriptorSetLayout
     createGridPipeline();
-    createVertexBuffer();
+    createSpheresVertexBuffer();
     createIndexBuffer();
 
     // create framebuffers
