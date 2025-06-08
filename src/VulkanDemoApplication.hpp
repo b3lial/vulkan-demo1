@@ -35,14 +35,6 @@ struct PushConstants
     glm::mat4 proj;
 };
 
-struct AnimatedBody
-{
-    glm::vec3 basePosition; // Start-Offset
-    float radius;           // Abstand zum Mittelpunkt
-    float speed;            // Umdrehungen pro Sekunde
-    float phase;            // Startwinkel
-};
-
 struct Light
 {
     alignas(16) glm::vec3 position;
