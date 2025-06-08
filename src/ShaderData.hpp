@@ -5,8 +5,6 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/constants.hpp>
 
-#include <array>
-
 struct GridPushConstants
 {
     glm::mat4 view;
