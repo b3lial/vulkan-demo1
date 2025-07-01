@@ -52,12 +52,9 @@ class VulkanDemoApplication
     VulkanSpheres mVulkanSpheres;
     VulkanGrid mVulkanGrid;
 
-    VkShaderModule createShaderModule(const char *code, size_t size);
-    char *readFile(const char *filename, size_t *size);
-
     void initWindow();
     void createSpheresPipeline();
-    void createGridPipeline();
+    
     void initVulkan();
     void mainLoop();
     void recordCommandBuffer(uint32_t imageIndex, float time);
@@ -69,14 +66,12 @@ class VulkanDemoApplication
     uint32_t findMemoryType(uint32_t typeFilter,
                             VkMemoryPropertyFlags properties);
     void createSpheresVertexBuffer();
-    void createGridVertexBuffer();
     void createIndexBuffer();
     void createUniformBuffer();
     void updateUniformBuffer();
     void createDescriptorSetLayout();
     void createDescriptorPool();
     void createDescriptorSet();
-    int generateGridLines(int halfExtent, float spacing, glm::vec3 lines[]);
 
     // vulkan boilerplate init stuff
     GLFWwindow *window;
@@ -93,8 +88,6 @@ class VulkanDemoApplication
     VkRenderPass renderPass;
     VkPipelineLayout pipelineLayout;
     VkPipeline graphicsPipeline;
-    VkPipelineLayout gridPipelineLayout;
-    VkPipeline gridPipeline;
     VkFramebuffer *swapchainFramebuffers;
     unsigned int swapchainFramebuffersSize;
     VkCommandPool commandPool;
@@ -109,10 +102,6 @@ class VulkanDemoApplication
 
     VkBuffer vertexBuffer;
     VkDeviceMemory vertexBufferMemory;
-
-    VkBuffer gridVertexBuffer;
-    VkDeviceMemory gridVertexBufferMemory;
-    uint32_t gridVertexCount;
 
     VkBuffer indexBuffer;
     VkDeviceMemory indexBufferMemory;

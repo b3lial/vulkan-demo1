@@ -64,3 +64,6 @@ struct Vertex
         attributes[2].offset = offsetof(Vertex, normal);
     }
 };
+
+VkShaderModule createShaderModule(VkDevice &device, const char *code, size_t size);
+char *readFile(const char *filename, size_t *size);
