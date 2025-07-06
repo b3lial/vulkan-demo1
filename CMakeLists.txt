@@ -45,7 +45,7 @@ target_link_libraries (vulkan_demo1
     PUBLIC
         Eigen3::Eigen
         glfw
-        vulkan
+        Vulkan::Vulkan
         cpp20
         glm::glm
 )

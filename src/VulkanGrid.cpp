@@ -3,7 +3,7 @@
 #include "VulkanDemoApplication.hpp"
 
 //---------------------------------------------------
-void VulkanGrid::createGridPipeline(VkDevice &device, VkRenderPass &renderPass)
+void VulkanGrid::createGridPipeline(VkRenderPass &renderPass)
 {
     size_t vertShaderCodeSize;
     char *vertShaderCode =
@@ -13,10 +13,10 @@ void VulkanGrid::createGridPipeline(VkDevice &device, VkRenderPass &renderPass)
         readFile("shaders/grid.frag.spv", &fragShaderCodeSize);
 
     VkShaderModule vertModule =
-        createShaderModule(device, vertShaderCode, vertShaderCodeSize);
+        createShaderModule(mDevice, vertShaderCode, vertShaderCodeSize);
     delete[] vertShaderCode;
     VkShaderModule fragModule =
-        createShaderModule(device, fragShaderCode, fragShaderCodeSize);
+        createShaderModule(mDevice, fragShaderCode, fragShaderCodeSize);
     delete[] fragShaderCode;
 
     VkPipelineShaderStageCreateInfo vertStageInfo{};
@@ -115,7 +115,7 @@ void VulkanGrid::createGridPipeline(VkDevice &device, VkRenderPass &renderPass)
     layoutInfo.pushConstantRangeCount = 1;
     layoutInfo.pPushConstantRanges = &pushConstantRange;
 
-    if (vkCreatePipelineLayout(device, &layoutInfo, nullptr,
+    if (vkCreatePipelineLayout(mDevice, &layoutInfo, nullptr,
                                &gridPipelineLayout) != VK_SUCCESS)
     {
         LOG_DEBUG("Failed to create grid pipeline layout!");
@@ -136,19 +136,19 @@ void VulkanGrid::createGridPipeline(VkDevice &device, VkRenderPass &renderPass)
     pipelineInfo.renderPass = renderPass;
     pipelineInfo.subpass = 0;
 
-    if (vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo,
+    if (vkCreateGraphicsPipelines(mDevice, VK_NULL_HANDLE, 1, &pipelineInfo,
                                   nullptr, &gridPipeline) != VK_SUCCESS)
     {
         LOG_DEBUG("Failed to create grid pipeline layout!");
         exit(EXIT_FAILURE);
     }
 
-    vkDestroyShaderModule(device, vertModule, nullptr);
-    vkDestroyShaderModule(device, fragModule, nullptr);
+    vkDestroyShaderModule(mDevice, vertModule, nullptr);
+    vkDestroyShaderModule(mDevice, fragModule, nullptr);
 }
 
 //---------------------------------------------------
-void VulkanGrid::createGridVertexBuffer(VkDevice &device)
+void VulkanGrid::createGridVertexBuffer()
 {
     glm::vec3 gridVertices[GRID_VERTEX_COUNT];
     gridVertexCount = generateGridLines(
@@ -160,19 +160,19 @@ void VulkanGrid::createGridVertexBuffer(VkDevice &device)
     // Create staging buffer
     VkBuffer stagingBuffer;
     VkDeviceMemory stagingBufferMemory;
-    createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+    createBuffer(mPhysicalDevice , mDevice, bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
                  VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
                      VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
                  stagingBuffer, stagingBufferMemory);
 
     // Daten reinkopieren
     void *data;
-    vkMapMemory(device, stagingBufferMemory, 0, bufferSize, 0, &data);
+    vkMapMemory(mDevice, stagingBufferMemory, 0, bufferSize, 0, &data);
     memcpy(data, gridVertices, (size_t)bufferSize);
-    vkUnmapMemory(device, stagingBufferMemory);
+    vkUnmapMemory(mDevice, stagingBufferMemory);
 
     // Create final vertex buffer
-    createBuffer(bufferSize,
+    createBuffer(mPhysicalDevice, mDevice, bufferSize,
                  VK_BUFFER_USAGE_VERTEX_BUFFER_BIT |
                      VK_BUFFER_USAGE_TRANSFER_DST_BIT,
                  VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, gridVertexBuffer,
@@ -183,8 +183,8 @@ void VulkanGrid::createGridVertexBuffer(VkDevice &device)
     copyBuffer(stagingBuffer, gridVertexBuffer, bufferSize);
 
     // Aufräumen
-    vkDestroyBuffer(device, stagingBuffer, nullptr);
-    vkFreeMemory(device, stagingBufferMemory, nullptr);
+    vkDestroyBuffer(mDevice, stagingBuffer, nullptr);
+    vkFreeMemory(mDevice, stagingBufferMemory, nullptr);
 }
 
 //---------------------------------------------------
@@ -211,4 +211,39 @@ int VulkanGrid::generateGridLines(int halfExtent, float spacing,
     }
 
     return index;
+}
+
+//---------------------------------------------------
+void VulkanGrid::copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer,
+                                       VkDeviceSize size)
+{
+    VkCommandBufferAllocateInfo allocInfo{};
+    allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+    allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    allocInfo.commandPool = mCommandPool;
+    allocInfo.commandBufferCount = 1;
+
+    VkCommandBuffer commandBuffer;
+    vkAllocateCommandBuffers(mDevice, &allocInfo, &commandBuffer);
+
+    VkCommandBufferBeginInfo beginInfo{};
+    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+    beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+    vkBeginCommandBuffer(commandBuffer, &beginInfo);
+
+    VkBufferCopy copyRegion{};
+    copyRegion.size = size;
+    vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
+
+    vkEndCommandBuffer(commandBuffer);
+
+    VkSubmitInfo submitInfo{};
+    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    submitInfo.commandBufferCount = 1;
+    submitInfo.pCommandBuffers = &commandBuffer;
+
+    vkQueueSubmit(mGraphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
+    vkQueueWaitIdle(mGraphicsQueue);
+
+    vkFreeCommandBuffers(mDevice, mCommandPool, 1, &commandBuffer);
 }

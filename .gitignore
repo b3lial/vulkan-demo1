@@ -1,6 +1,8 @@
 triangle
 build
 .cache
+.DS_Store
+.vscode
 
 .kdev4
 *.kdev4

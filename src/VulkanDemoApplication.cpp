@@ -184,105 +184,11 @@ void VulkanDemoApplication::createSpheresPipeline()
 }
 
 //---------------------------------------------------
-void VulkanDemoApplication::copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer,
-                                       VkDeviceSize size)
-{
-    VkCommandBufferAllocateInfo allocInfo{};
-    allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-    allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-    allocInfo.commandPool = commandPool;
-    allocInfo.commandBufferCount = 1;
-
-    VkCommandBuffer commandBuffer;
-    vkAllocateCommandBuffers(device, &allocInfo, &commandBuffer);
-
-    VkCommandBufferBeginInfo beginInfo{};
-    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-    beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-    vkBeginCommandBuffer(commandBuffer, &beginInfo);
-
-    VkBufferCopy copyRegion{};
-    copyRegion.size = size;
-    vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
-
-    vkEndCommandBuffer(commandBuffer);
-
-    VkSubmitInfo submitInfo{};
-    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-    submitInfo.commandBufferCount = 1;
-    submitInfo.pCommandBuffers = &commandBuffer;
-
-    vkQueueSubmit(graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
-    vkQueueWaitIdle(graphicsQueue);
-
-    vkFreeCommandBuffers(device, commandPool, 1, &commandBuffer);
-}
-
-//---------------------------------------------------
-void VulkanDemoApplication::createBuffer(VkDeviceSize size,
-                                         VkBufferUsageFlags usage,
-                                         VkMemoryPropertyFlags properties,
-                                         VkBuffer &buffer,
-                                         VkDeviceMemory &bufferMemory)
-{
-    VkBufferCreateInfo bufferInfo{};
-    bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-    bufferInfo.size = size;
-    bufferInfo.usage = usage;
-    bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-
-    if (vkCreateBuffer(device, &bufferInfo, nullptr, &buffer) != VK_SUCCESS)
-    {
-        LOG_DEBUG("Failed to create buffer");
-        exit(EXIT_FAILURE);
-    }
-
-    VkMemoryRequirements memRequirements;
-    vkGetBufferMemoryRequirements(device, buffer, &memRequirements);
-
-    VkMemoryAllocateInfo allocInfo{};
-    allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-    allocInfo.allocationSize = memRequirements.size;
-    allocInfo.memoryTypeIndex =
-        findMemoryType(memRequirements.memoryTypeBits, properties);
-
-    if (vkAllocateMemory(device, &allocInfo, nullptr, &bufferMemory) !=
-        VK_SUCCESS)
-    {
-        LOG_DEBUG("Failed to allocate buffer memory");
-        exit(EXIT_FAILURE);
-    }
-
-    vkBindBufferMemory(device, buffer, bufferMemory, 0);
-}
-
-//---------------------------------------------------
-uint32_t VulkanDemoApplication::findMemoryType(uint32_t typeFilter,
-                                               VkMemoryPropertyFlags properties)
-{
-    VkPhysicalDeviceMemoryProperties memProperties;
-    vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memProperties);
-
-    for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++)
-    {
-        if ((typeFilter & (1 << i)) &&
-            (memProperties.memoryTypes[i].propertyFlags & properties) ==
-                properties)
-        {
-            return i;
-        }
-    }
-
-    LOG_DEBUG("Failed to find suitable memory type");
-    exit(EXIT_FAILURE);
-}
-
-//---------------------------------------------------
 void VulkanDemoApplication::createSpheresVertexBuffer()
 {
     VkDeviceSize bufferSize = sizeof(vertices[0]) * verticesSize;
 
-    createBuffer(bufferSize, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+    createBuffer(physicalDevice, device, bufferSize, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
                  VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
                      VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
                  vertexBuffer, vertexBufferMemory);
@@ -299,7 +205,7 @@ void VulkanDemoApplication::createIndexBuffer()
 {
     VkDeviceSize bufferSize = sizeof(indices[0]) * indicesSize;
 
-    createBuffer(bufferSize, VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
+    createBuffer(physicalDevice, device, bufferSize, VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
                  VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
                      VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
                  indexBuffer, indexBufferMemory);
@@ -315,7 +221,7 @@ void VulkanDemoApplication::createUniformBuffer()
 {
     VkDeviceSize bufferSize = sizeof(UniformBufferObject);
 
-    createBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+    createBuffer(physicalDevice, device, bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
                  VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
                      VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
                  uniformBuffer, uniformBufferMemory);
@@ -461,6 +367,7 @@ void VulkanDemoApplication::initVulkan()
     vkEnumeratePhysicalDevices(instance, &deviceCount, devices);
     physicalDevice = devices[0];
     delete[] devices;
+    mVulkanGrid.setPhysicalDevice(physicalDevice);
 
     // Find queue
     uint32_t queueCount = 0;
@@ -503,8 +410,10 @@ void VulkanDemoApplication::initVulkan()
         LOG_DEBUG("Failed to create device");
         exit(EXIT_FAILURE);
     }
+    mVulkanGrid.setDevice(device);
 
     vkGetDeviceQueue(device, queueFamilyIndex, 0, &graphicsQueue);
+    mVulkanGrid.setGraphicsQueue(graphicsQueue);
 
     // Create swapchain
     VkSurfaceCapabilitiesKHR caps;
@@ -644,7 +553,7 @@ void VulkanDemoApplication::initVulkan()
     updateUniformBuffer(); // ← jetzt kann er korrekt beschrieben werden
 
     createSpheresPipeline(); // nutzt descriptorSetLayout
-    mVulkanGrid.createGridPipeline(device, renderPass);
+    mVulkanGrid.createGridPipeline(renderPass);
     createSpheresVertexBuffer();
     createIndexBuffer();
 
@@ -684,8 +593,9 @@ void VulkanDemoApplication::initVulkan()
         LOG_DEBUG("Failed to create command pool!");
         exit(EXIT_FAILURE);
     }
+    mVulkanGrid.setCommandPool(commandPool);
 
-    mVulkanGrid.createGridVertexBuffer(device);
+    mVulkanGrid.createGridVertexBuffer();
 
     // allocate command buffers
     commandBuffers = new VkCommandBuffer[swapchainFramebuffersSize];
@@ -748,20 +658,20 @@ void VulkanDemoApplication::recordCommandBuffer(uint32_t imageIndex, float time)
     GridPushConstants gpc{view, proj};
 
     vkCmdBindPipeline(commandBuffers[imageIndex],
-                      VK_PIPELINE_BIND_POINT_GRAPHICS, gridPipeline);
+                      VK_PIPELINE_BIND_POINT_GRAPHICS, mVulkanGrid.getPipeline());
 
-    vkCmdPushConstants(commandBuffers[imageIndex], gridPipelineLayout,
+    vkCmdPushConstants(commandBuffers[imageIndex], mVulkanGrid.getPipelineLayout(),
                        VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(GridPushConstants),
                        &gpc);
 
-    VkBuffer gridBuffers[] = {gridVertexBuffer};
+    VkBuffer gridBuffers[] = {mVulkanGrid.getVertexBuffer()};
     VkDeviceSize gridOffsets[] = {0};
     vkCmdBindVertexBuffers(commandBuffers[imageIndex], 0, 1, gridBuffers,
                            gridOffsets);
 
     vkCmdDraw(commandBuffers[imageIndex],
               static_cast<uint32_t>(
-                  gridVertexCount), // Achtung: zählst du beim Erzeugen
+                  mVulkanGrid.getVertexCount()), // Achtung: zählst du beim Erzeugen
               1, 0, 0);
 
     // === KUGELN ZEICHNEN ===
@@ -919,8 +829,8 @@ void VulkanDemoApplication::cleanup()
     vkFreeMemory(device, indexBufferMemory, nullptr);
     vkDestroyBuffer(device, vertexBuffer, nullptr);
     vkFreeMemory(device, vertexBufferMemory, nullptr);
-    vkDestroyBuffer(device, gridVertexBuffer, nullptr);
-    vkFreeMemory(device, gridVertexBufferMemory, nullptr);
+    vkDestroyBuffer(device, mVulkanGrid.getVertexBuffer(), nullptr);
+    vkFreeMemory(device, mVulkanGrid.getVertexBufferMemory(), nullptr);
     vkDestroySemaphore(device, renderFinishedSemaphore, nullptr);
     vkDestroySemaphore(device, imageAvailableSemaphore, nullptr);
     vkDestroyCommandPool(device, commandPool, nullptr);
@@ -934,8 +844,8 @@ void VulkanDemoApplication::cleanup()
     delete[] swapchainFramebuffers;
     vkDestroyPipeline(device, graphicsPipeline, nullptr);
     vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
-    vkDestroyPipeline(device, gridPipeline, nullptr);
-    vkDestroyPipelineLayout(device, gridPipelineLayout, nullptr);
+    vkDestroyPipeline(device, mVulkanGrid.getPipeline(), nullptr);
+    vkDestroyPipelineLayout(device, mVulkanGrid.getPipelineLayout(), nullptr);
     for (unsigned int i = 0; i < swapchainImageViewsSize; i++)
     {
         VkImageView &view = swapchainImageViews[i];

@@ -1,4 +1,3 @@
-#include "SphereTools.hpp"
 #include "VulkanDemoApplication.hpp"
 #include "WorldCube.hpp"
 

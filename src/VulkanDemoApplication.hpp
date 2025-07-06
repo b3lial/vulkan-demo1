@@ -59,12 +59,6 @@ class VulkanDemoApplication
     void mainLoop();
     void recordCommandBuffer(uint32_t imageIndex, float time);
     void cleanup();
-    void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
-    void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage,
-                      VkMemoryPropertyFlags properties, VkBuffer &buffer,
-                      VkDeviceMemory &bufferMemory);
-    uint32_t findMemoryType(uint32_t typeFilter,
-                            VkMemoryPropertyFlags properties);
     void createSpheresVertexBuffer();
     void createIndexBuffer();
     void createUniformBuffer();
