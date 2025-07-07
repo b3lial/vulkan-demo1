@@ -48,6 +48,9 @@ class VulkanDemoApplication
     void run();
 
   private:
+    // framebuffer size, can differ from actual window size in pixels
+    int fbWidth = 0, fbHeight = 0;
+
     WorldCube &mWorldCube;
     VulkanSpheres mVulkanSpheres;
     VulkanGrid mVulkanGrid;

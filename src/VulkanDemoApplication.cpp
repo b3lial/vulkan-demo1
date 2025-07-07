@@ -1,6 +1,7 @@
 #include <memory.h>
 
 #include <glm/gtc/matrix_transform.hpp>
+#include <string>
 
 #include "Logger.hpp"
 #include "VulkanDemoApplication.hpp"
@@ -41,6 +42,9 @@ void VulkanDemoApplication::initWindow()
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
     window = glfwCreateWindow(WIDTH, HEIGHT, "Vulkan", nullptr, nullptr);
+    glfwGetFramebufferSize(window, &fbWidth, &fbHeight);
+    LOG_DEBUG("fb width: " + std::to_string(fbWidth));
+    LOG_DEBUG("fb height: " + std::to_string(fbHeight));
 }
 
 //---------------------------------------------------
