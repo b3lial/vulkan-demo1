@@ -5,6 +5,7 @@
 
 #include "Logger.hpp"
 #include "VulkanDemoApplication.hpp"
+#include "Config.hpp"
 
 //---------------------------------------------------
 VulkanDemoApplication::VulkanDemoApplication(WorldCube &worldCube)
@@ -21,7 +22,7 @@ void VulkanDemoApplication::setView(glm::vec3 eye)
                        glm::vec3(0.0f, 1.0f, 0.0f) // Up
     );
 
-    proj = glm::perspective(glm::radians(45.0f), WIDTH / (float)HEIGHT, 0.1f,
+    proj = glm::perspective(glm::radians(45.0f), fbWidth / (float)fbHeight, 0.1f,
                             3000.0f);
     proj[1][1] *= -1; // Vulkan Y-Korrektur
 }
@@ -42,9 +43,11 @@ void VulkanDemoApplication::initWindow()
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
     window = glfwCreateWindow(WIDTH, HEIGHT, "Vulkan", nullptr, nullptr);
+
     glfwGetFramebufferSize(window, &fbWidth, &fbHeight);
     LOG_DEBUG("fb width: " + std::to_string(fbWidth));
     LOG_DEBUG("fb height: " + std::to_string(fbHeight));
+    mVulkanGrid.setFramebufferResolution(fbWidth, fbHeight);
 }
 
 //---------------------------------------------------
@@ -105,14 +108,14 @@ void VulkanDemoApplication::createSpheresPipeline()
     VkViewport viewport{};
     viewport.x = 0.0f;
     viewport.y = 0.0f;
-    viewport.width = static_cast<float>(WIDTH);
-    viewport.height = static_cast<float>(HEIGHT);
+    viewport.width = static_cast<float>(fbWidth);
+    viewport.height = static_cast<float>(fbHeight);
     viewport.minDepth = 0.0f;
     viewport.maxDepth = 1.0f;
 
     VkRect2D scissor{};
     scissor.offset = {0, 0};
-    scissor.extent = {WIDTH, HEIGHT};
+    scissor.extent = {static_cast<uint32_t>(fbWidth), static_cast<uint32_t>(fbHeight)};
 
     VkPipelineViewportStateCreateInfo viewportState{};
     viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
@@ -444,7 +447,7 @@ void VulkanDemoApplication::initVulkan()
     }
     else
     {
-        swapInfo.imageExtent = {WIDTH, HEIGHT}; // eigene Fenstergröße
+        swapInfo.imageExtent = {static_cast<uint32_t>(fbWidth), static_cast<uint32_t>(fbHeight)}; // eigene Fenstergröße
     }
     swapInfo.imageArrayLayers = 1;
     swapInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
@@ -572,8 +575,8 @@ void VulkanDemoApplication::initVulkan()
         framebufferInfo.renderPass = renderPass;
         framebufferInfo.attachmentCount = 1;
         framebufferInfo.pAttachments = attachments;
-        framebufferInfo.width = WIDTH;
-        framebufferInfo.height = HEIGHT;
+        framebufferInfo.width = fbWidth;
+        framebufferInfo.height = fbHeight;
         framebufferInfo.layers = 1;
 
         if (vkCreateFramebuffer(device, &framebufferInfo, nullptr,
@@ -650,7 +653,7 @@ void VulkanDemoApplication::recordCommandBuffer(uint32_t imageIndex, float time)
     renderPassInfo.renderPass = renderPass;
     renderPassInfo.framebuffer = swapchainFramebuffers[imageIndex];
     renderPassInfo.renderArea.offset = {0, 0};
-    renderPassInfo.renderArea.extent = {WIDTH, HEIGHT};
+    renderPassInfo.renderArea.extent = {static_cast<uint32_t>(fbWidth), static_cast<uint32_t>(fbHeight)};
     renderPassInfo.clearValueCount = 1;
     renderPassInfo.pClearValues = &clearColor;
 

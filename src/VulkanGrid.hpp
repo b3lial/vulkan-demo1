@@ -5,6 +5,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/constants.hpp>
 
+#include "Config.hpp"
+
 class VulkanGrid
 {
   public:
@@ -30,6 +32,12 @@ class VulkanGrid
     void setGraphicsQueue(VkQueue graphicsQueue)
     {
       mGraphicsQueue = graphicsQueue;
+    }
+
+    void setFramebufferResolution(int fbWidth, int fbHeight)
+    {
+      mFbWidth = fbWidth;
+      mFbHeight = fbHeight;
     }
 
     VkPipelineLayout& getPipelineLayout()
@@ -71,4 +79,7 @@ class VulkanGrid
     VkBuffer mGridVertexBuffer;
     VkDeviceMemory mGridVertexBufferMemory;
     uint32_t mGridVertexCount;
+
+    int mFbWidth = WIDTH;
+    int mFbHeight = HEIGHT;
 };

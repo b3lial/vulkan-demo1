@@ -1,7 +1,6 @@
 #include "VulkanGrid.hpp"
 #include "Logger.hpp"
 #include "ShaderData.hpp"
-#include "VulkanDemoApplication.hpp"
 
 //---------------------------------------------------
 void VulkanGrid::createGridPipeline(VkRenderPass &renderPass)
@@ -64,14 +63,14 @@ void VulkanGrid::createGridPipeline(VkRenderPass &renderPass)
     VkViewport viewport{};
     viewport.x = 0.0f;
     viewport.y = 0.0f;
-    viewport.width = static_cast<float>(WIDTH);
-    viewport.height = static_cast<float>(HEIGHT);
+    viewport.width = static_cast<float>(mFbWidth);
+    viewport.height = static_cast<float>(mFbHeight);
     viewport.minDepth = 0.0f;
     viewport.maxDepth = 1.0f;
 
     VkRect2D scissor{};
     scissor.offset = {0, 0};
-    scissor.extent = {WIDTH, HEIGHT};
+    scissor.extent = {static_cast<uint32_t>(mFbWidth), static_cast<uint32_t>(mFbHeight)};
 
     VkPipelineViewportStateCreateInfo viewportState{};
     viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
