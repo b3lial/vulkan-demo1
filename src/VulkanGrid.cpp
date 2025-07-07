@@ -1,5 +1,6 @@
 #include "VulkanGrid.hpp"
 #include "Logger.hpp"
+#include "ShaderData.hpp"
 #include "VulkanDemoApplication.hpp"
 
 //---------------------------------------------------
@@ -116,7 +117,7 @@ void VulkanGrid::createGridPipeline(VkRenderPass &renderPass)
     layoutInfo.pPushConstantRanges = &pushConstantRange;
 
     if (vkCreatePipelineLayout(mDevice, &layoutInfo, nullptr,
-                               &gridPipelineLayout) != VK_SUCCESS)
+                               &mGridPipelineLayout) != VK_SUCCESS)
     {
         LOG_DEBUG("Failed to create grid pipeline layout!");
         exit(EXIT_FAILURE);
@@ -132,12 +133,12 @@ void VulkanGrid::createGridPipeline(VkRenderPass &renderPass)
     pipelineInfo.pRasterizationState = &rasterizer;
     pipelineInfo.pMultisampleState = &multisampling;
     pipelineInfo.pColorBlendState = &colorBlending;
-    pipelineInfo.layout = gridPipelineLayout;
+    pipelineInfo.layout = mGridPipelineLayout;
     pipelineInfo.renderPass = renderPass;
     pipelineInfo.subpass = 0;
 
     if (vkCreateGraphicsPipelines(mDevice, VK_NULL_HANDLE, 1, &pipelineInfo,
-                                  nullptr, &gridPipeline) != VK_SUCCESS)
+                                  nullptr, &mGridPipeline) != VK_SUCCESS)
     {
         LOG_DEBUG("Failed to create grid pipeline layout!");
         exit(EXIT_FAILURE);
@@ -151,11 +152,11 @@ void VulkanGrid::createGridPipeline(VkRenderPass &renderPass)
 void VulkanGrid::createGridVertexBuffer()
 {
     glm::vec3 gridVertices[GRID_VERTEX_COUNT];
-    gridVertexCount = generateGridLines(
+    mGridVertexCount = generateGridLines(
         GRID_HALF_EXTEND, 1.0f, gridVertices); // Erzeuge Linien von -10 bis +10
-    LOG_DEBUG("Grid Vertices: " + std::to_string(gridVertexCount));
+    LOG_DEBUG("Grid Vertices: " + std::to_string(mGridVertexCount));
 
-    VkDeviceSize bufferSize = sizeof(glm::vec3) * gridVertexCount;
+    VkDeviceSize bufferSize = sizeof(glm::vec3) * mGridVertexCount;
 
     // Create staging buffer
     VkBuffer stagingBuffer;
@@ -175,12 +176,11 @@ void VulkanGrid::createGridVertexBuffer()
     createBuffer(mPhysicalDevice, mDevice, bufferSize,
                  VK_BUFFER_USAGE_VERTEX_BUFFER_BIT |
                      VK_BUFFER_USAGE_TRANSFER_DST_BIT,
-                 VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, gridVertexBuffer,
-                 gridVertexBufferMemory);
+                 VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, mGridVertexBuffer,
+                 mGridVertexBufferMemory);
 
     // Kopiere von staging -> device-local
-    
-    copyBuffer(stagingBuffer, gridVertexBuffer, bufferSize);
+    copyBuffer(stagingBuffer, mGridVertexBuffer, bufferSize);
 
     // Aufräumen
     vkDestroyBuffer(mDevice, stagingBuffer, nullptr);

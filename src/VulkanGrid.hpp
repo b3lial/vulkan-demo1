@@ -34,27 +34,27 @@ class VulkanGrid
 
     VkPipelineLayout& getPipelineLayout()
     {
-      return gridPipelineLayout;
+      return mGridPipelineLayout;
     }
 
     VkPipeline& getPipeline()
     {
-      return gridPipeline;
+      return mGridPipeline;
     }
 
     VkBuffer& getVertexBuffer()
     {
-      return gridVertexBuffer;
+      return mGridVertexBuffer;
     }
 
     uint32_t getVertexCount()
     {
-      return gridVertexCount;
+      return mGridVertexCount;
     }
 
     VkDeviceMemory& getVertexBufferMemory()
     {
-      return gridVertexBufferMemory;
+      return mGridVertexBufferMemory;
     }
 
   private:
@@ -66,9 +66,9 @@ class VulkanGrid
     VkCommandPool mCommandPool;
     VkQueue mGraphicsQueue;
 
-    VkPipelineLayout gridPipelineLayout;
-    VkPipeline gridPipeline;
-    VkBuffer gridVertexBuffer;
-    VkDeviceMemory gridVertexBufferMemory;
-    uint32_t gridVertexCount;
+    VkPipelineLayout mGridPipelineLayout;
+    VkPipeline mGridPipeline;
+    VkBuffer mGridVertexBuffer;
+    VkDeviceMemory mGridVertexBufferMemory;
+    uint32_t mGridVertexCount;
 };

@@ -1,6 +1,6 @@
+cmake_minimum_required(VERSION 3.10)
 PROJECT(vulkan_demo1)
 SET(PROJECT_VERSION 1.0)
-cmake_minimum_required(VERSION 3.22)
 INCLUDE(FindPkgConfig)
 
 find_package(glfw3 REQUIRED)
@@ -66,8 +66,6 @@ set(SHADERS
     grid.vert
     grid.frag
 )
-
-
 
 foreach(SHADER ${SHADERS})
     set(SRC ${SHADER_DIR}/${SHADER})
