@@ -1,6 +1,8 @@
 #include "ShaderData.hpp"
 #include "Logger.hpp"
 
+#include <cstdio>
+
 //---------------------------------------------------
 VkShaderModule createShaderModule(VkDevice &device, const char *code, size_t size)
 {

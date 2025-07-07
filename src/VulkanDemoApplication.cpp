@@ -1,4 +1,3 @@
-#include <cstdio>
 #include <memory.h>
 
 #include <glm/gtc/matrix_transform.hpp>
