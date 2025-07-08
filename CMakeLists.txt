@@ -30,7 +30,19 @@ find_program (GLSLANG_VALIDATOR "glslangValidator" HINTS $ENV{VULKAN_SDK}/bin RE
 set_property (TARGET glslang::validator PROPERTY IMPORTED_LOCATION "${GLSLANG_VALIDATOR}")
 
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
-SET(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
+if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND CMAKE_SYSTEM_NAME MATCHES "Darwin")
+    message(STATUS "Configuring for Clang on macOS (optimized for size)")
+    set(CMAKE_CXX_FLAGS_RELEASE "-Os -ffunction-sections -fdata-sections -fno-exceptions -fno-rtti")
+    set(CMAKE_EXE_LINKER_FLAGS_RELEASE "-s -Wl,-dead_strip")
+
+elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+    message(STATUS "Configuring for GCC (optimized for size)")
+    set(CMAKE_CXX_FLAGS_RELEASE "-Os -ffunction-sections -fdata-sections -fno-exceptions -fno-rtti")
+    set(CMAKE_EXE_LINKER_FLAGS_RELEASE "-s -Wl,--gc-sections")
+
+else()
+    message(WARNING "Unknown compiler/platform – no size optimization flags set.")
+endif()
 
 ADD_EXECUTABLE(vulkan_demo1
     src/Main.cpp

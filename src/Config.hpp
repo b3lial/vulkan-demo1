@@ -2,8 +2,8 @@
 
 #include <cstdint>
 
-constexpr uint32_t WIDTH = 800;
-constexpr uint32_t HEIGHT = 800;
+constexpr uint32_t WIDTH = 1200;
+constexpr uint32_t HEIGHT = 1200;
 
 constexpr uint32_t SPHERE_VERTICE_SECTORS = 48;
 constexpr uint32_t SPHERE_VERTICE_STACKS = 32;
