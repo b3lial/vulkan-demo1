@@ -1,6 +1,7 @@
 #include "VulkanGrid.hpp"
 #include "Logger.hpp"
 #include "ShaderData.hpp"
+#include <memory.h>
 
 //---------------------------------------------------
 void VulkanGrid::createGridPipeline(VkRenderPass &renderPass)
