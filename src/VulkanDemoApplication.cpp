@@ -1,8 +1,4 @@
-#include <memory.h>
-
 #include <glm/gtc/matrix_transform.hpp>
-#include <string>
-
 #include "Logger.hpp"
 #include "VulkanDemoApplication.hpp"
 #include "Config.hpp"

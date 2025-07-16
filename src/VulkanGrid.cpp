@@ -2,6 +2,7 @@
 #include "Logger.hpp"
 #include "ShaderData.hpp"
 #include "EmbeddedShaders.hpp"
+
 #include <memory.h>
 
 //---------------------------------------------------
