@@ -1,24 +1,19 @@
 #include "VulkanGrid.hpp"
 #include "Logger.hpp"
 #include "ShaderData.hpp"
+#include "EmbeddedShaders.hpp"
 #include <memory.h>
 
 //---------------------------------------------------
 void VulkanGrid::createGridPipeline(VkRenderPass &renderPass)
 {
-    size_t vertShaderCodeSize;
-    char *vertShaderCode =
-        readFile("shaders/grid.vert.spv", &vertShaderCodeSize);
-    size_t fragShaderCodeSize;
-    char *fragShaderCode =
-        readFile("shaders/grid.frag.spv", &fragShaderCodeSize);
+    ShaderData vertShaderData = getGridVertData();
+    ShaderData fragShaderData = getGridFragData();
 
     VkShaderModule vertModule =
-        createShaderModule(mDevice, vertShaderCode, vertShaderCodeSize);
-    delete[] vertShaderCode;
+        createShaderModule(mDevice, reinterpret_cast<const char*>(vertShaderData.data), vertShaderData.size);
     VkShaderModule fragModule =
-        createShaderModule(mDevice, fragShaderCode, fragShaderCodeSize);
-    delete[] fragShaderCode;
+        createShaderModule(mDevice, reinterpret_cast<const char*>(fragShaderData.data), fragShaderData.size);
 
     VkPipelineShaderStageCreateInfo vertStageInfo{};
     vertStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;

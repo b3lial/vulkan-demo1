@@ -6,6 +6,7 @@
 #include "Logger.hpp"
 #include "VulkanDemoApplication.hpp"
 #include "Config.hpp"
+#include "EmbeddedShaders.hpp"
 
 //---------------------------------------------------
 VulkanDemoApplication::VulkanDemoApplication(WorldCube &worldCube)
@@ -53,19 +54,13 @@ void VulkanDemoApplication::initWindow()
 //---------------------------------------------------
 void VulkanDemoApplication::createSpheresPipeline()
 {
-    size_t vertShaderCodeSize;
-    char *vertShaderCode =
-        readFile("shaders/shader.vert.spv", &vertShaderCodeSize);
-    size_t fragShaderCodeSize;
-    char *fragShaderCode =
-        readFile("shaders/shader.frag.spv", &fragShaderCodeSize);
+    ShaderData vertShaderData = getShaderVertData();
+    ShaderData fragShaderData = getShaderFragData();
 
     VkShaderModule vertModule =
-        createShaderModule(device, vertShaderCode, vertShaderCodeSize);
-    delete[] vertShaderCode;
+        createShaderModule(device, reinterpret_cast<const char*>(vertShaderData.data), vertShaderData.size);
     VkShaderModule fragModule =
-        createShaderModule(device, fragShaderCode, fragShaderCodeSize);
-    delete[] fragShaderCode;
+        createShaderModule(device, reinterpret_cast<const char*>(fragShaderData.data), fragShaderData.size);
 
     VkPipelineShaderStageCreateInfo vertStageInfo{};
     vertStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;

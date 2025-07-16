@@ -52,6 +52,7 @@ ADD_EXECUTABLE(vulkan_demo1
     src/VulkanSpheres.cpp
     src/VulkanGrid.cpp
     src/ShaderData.cpp
+    src/EmbeddedShaders.cpp
 )
 target_link_libraries (vulkan_demo1
     PUBLIC
@@ -70,7 +71,15 @@ endif()
 # === Shader Compilation ===
 set(SHADER_DIR ${CMAKE_SOURCE_DIR}/shaders)
 set(SPIRV_DIR ${CMAKE_BINARY_DIR}/shaders)
+set(GENERATED_DIR ${CMAKE_BINARY_DIR}/generated)
 file(MAKE_DIRECTORY ${SPIRV_DIR})
+file(MAKE_DIRECTORY ${GENERATED_DIR})
+
+# Find xxd command
+find_program(XXD_COMMAND xxd)
+if(NOT XXD_COMMAND)
+    message(FATAL_ERROR "xxd command not found. Please install xxd.")
+endif()
 
 set(SHADERS
     shader.vert
@@ -82,20 +91,35 @@ set(SHADERS
 foreach(SHADER ${SHADERS})
     set(SRC ${SHADER_DIR}/${SHADER})
     set(SPIRV ${SPIRV_DIR}/${SHADER}.spv)
+    set(HEADER ${GENERATED_DIR}/${SHADER}_spv.h)
 
+    # Compile shader to SPIR-V
     add_custom_command(
         OUTPUT ${SPIRV}
         COMMAND glslang::validator
         ARGS --target-env vulkan1.0 ${SRC} --quiet -o ${SPIRV}
-        #WORKING_DIRECTORY ${SHADERS_DIR}
-        #COMMAND glslc ${SRC} -o ${SPIRV}
         DEPENDS ${SRC}
         COMMENT "Compiling ${SHADER} to SPIR-V"
         VERBATIM
     )
 
+    # Convert SPIR-V to header file with xxd
+    string(REPLACE "." "_" VARIABLE_NAME ${SHADER})
+    add_custom_command(
+        OUTPUT ${HEADER}
+        COMMAND bash -c "${XXD_COMMAND} -i ${SHADER}.spv | sed -e 's/unsigned char/const unsigned char/g' -e 's/unsigned int/const unsigned int/g' > ${HEADER}"
+        WORKING_DIRECTORY ${SPIRV_DIR}
+        DEPENDS ${SPIRV}
+        COMMENT "Converting ${SHADER}.spv to header"
+        VERBATIM
+    )
+
     list(APPEND SPIRV_OUTPUTS ${SPIRV})
+    list(APPEND HEADER_OUTPUTS ${HEADER})
 endforeach()
 
-add_custom_target(compile_shaders ALL DEPENDS ${SPIRV_OUTPUTS})
+add_custom_target(compile_shaders ALL DEPENDS ${SPIRV_OUTPUTS} ${HEADER_OUTPUTS})
 add_dependencies(vulkan_demo1 compile_shaders)
+
+# Include the generated headers directory
+target_include_directories(vulkan_demo1 PRIVATE ${GENERATED_DIR})
