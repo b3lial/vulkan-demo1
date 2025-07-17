@@ -1,6 +1,8 @@
 #include "VulkanSpheres.hpp"
+#include "Logger.hpp"
 
 #include <math.h>
+#include <memory.h>
 
 int generateSphereVertices(float radius, int sectors, int stacks,
                            Vertex vertices[])
@@ -68,4 +70,35 @@ int generateSphereIndices(int sectors, int stacks, uint32_t indices[])
     }
 
     return index;
+}
+
+
+void VulkanSpheres::createSpheresVertexBuffer()
+{
+    VkDeviceSize bufferSize = sizeof(mVertices[0]) * mVerticesSize;
+
+    createBuffer(mPhysicalDevice, mDevice, bufferSize, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+                 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+                     VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                 mVertexBuffer, mVertexBufferMemory);
+
+    void *data;
+    vkMapMemory(mDevice, mVertexBufferMemory, 0, bufferSize, 0, &data);
+    memcpy(data, mVertices, static_cast<size_t>(bufferSize));
+    vkUnmapMemory(mDevice, mVertexBufferMemory);
+}
+
+void VulkanSpheres::createIndexBuffer()
+{
+    VkDeviceSize bufferSize = sizeof(mIndices[0]) * mIndicesSize;
+
+    createBuffer(mPhysicalDevice, mDevice, bufferSize, VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
+                 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+                     VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                 mIndexBuffer, mIndexBufferMemory);
+
+    void *data;
+    vkMapMemory(mDevice, mIndexBufferMemory, 0, bufferSize, 0, &data);
+    memcpy(data, mIndices, static_cast<size_t>(bufferSize));
+    vkUnmapMemory(mDevice, mIndexBufferMemory);
 }

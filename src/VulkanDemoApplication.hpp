@@ -46,8 +46,6 @@ class VulkanDemoApplication
     void mainLoop();
     void recordCommandBuffer(uint32_t imageIndex, float time);
     void cleanup();
-    void createSpheresVertexBuffer();
-    void createIndexBuffer();
     void createUniformBuffer();
     void updateUniformBuffer();
     void createDescriptorSetLayout();
@@ -80,12 +78,6 @@ class VulkanDemoApplication
     // vertex and indices section
     Vertex *vertices;
     int verticesSize;
-
-    VkBuffer vertexBuffer;
-    VkDeviceMemory vertexBufferMemory;
-
-    VkBuffer indexBuffer;
-    VkDeviceMemory indexBufferMemory;
 
     uint32_t *indices;
     int indicesSize;
