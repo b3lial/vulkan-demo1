@@ -43,27 +43,27 @@ class VulkanGrid
     // Getters
     VkPipelineLayout& getPipelineLayout()
     {
-      return mGridPipelineLayout;
+      return mPipelineLayout;
     }
 
     VkPipeline& getPipeline()
     {
-      return mGridPipeline;
+      return mPipeline;
     }
 
     VkBuffer& getVertexBuffer()
     {
-      return mGridVertexBuffer;
+      return mVertexBuffer;
     }
 
     uint32_t getVertexCount()
     {
-      return mGridVertexCount;
+      return mVertexCount;
     }
 
     VkDeviceMemory& getVertexBufferMemory()
     {
-      return mGridVertexBufferMemory;
+      return mVertexBufferMemory;
     }
 
   private:
@@ -75,11 +75,11 @@ class VulkanGrid
     VkCommandPool mCommandPool;
     VkQueue mGraphicsQueue;
 
-    VkPipelineLayout mGridPipelineLayout;
-    VkPipeline mGridPipeline;
-    VkBuffer mGridVertexBuffer;
-    VkDeviceMemory mGridVertexBufferMemory;
-    uint32_t mGridVertexCount;
+    VkPipelineLayout mPipelineLayout;
+    VkPipeline mPipeline;
+    VkBuffer mVertexBuffer;
+    VkDeviceMemory mVertexBufferMemory;
+    uint32_t mVertexCount;
 
     int mFbWidth = WIDTH;
     int mFbHeight = HEIGHT;

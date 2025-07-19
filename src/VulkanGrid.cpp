@@ -113,7 +113,7 @@ void VulkanGrid::createGridPipeline(VkRenderPass &renderPass)
     layoutInfo.pPushConstantRanges = &pushConstantRange;
 
     if (vkCreatePipelineLayout(mDevice, &layoutInfo, nullptr,
-                               &mGridPipelineLayout) != VK_SUCCESS)
+                               &mPipelineLayout) != VK_SUCCESS)
     {
         LOG_DEBUG("Failed to create grid pipeline layout!");
         exit(EXIT_FAILURE);
@@ -129,12 +129,12 @@ void VulkanGrid::createGridPipeline(VkRenderPass &renderPass)
     pipelineInfo.pRasterizationState = &rasterizer;
     pipelineInfo.pMultisampleState = &multisampling;
     pipelineInfo.pColorBlendState = &colorBlending;
-    pipelineInfo.layout = mGridPipelineLayout;
+    pipelineInfo.layout = mPipelineLayout;
     pipelineInfo.renderPass = renderPass;
     pipelineInfo.subpass = 0;
 
     if (vkCreateGraphicsPipelines(mDevice, VK_NULL_HANDLE, 1, &pipelineInfo,
-                                  nullptr, &mGridPipeline) != VK_SUCCESS)
+                                  nullptr, &mPipeline) != VK_SUCCESS)
     {
         LOG_DEBUG("Failed to create grid pipeline layout!");
         exit(EXIT_FAILURE);
@@ -148,11 +148,11 @@ void VulkanGrid::createGridPipeline(VkRenderPass &renderPass)
 void VulkanGrid::createGridVertexBuffer()
 {
     glm::vec3 gridVertices[GRID_VERTEX_COUNT];
-    mGridVertexCount = generateLines(
+    mVertexCount = generateLines(
         GRID_HALF_EXTEND, 1.0f, gridVertices); // Erzeuge Linien von -10 bis +10
-    LOG_DEBUG("Grid Vertices: " + std::to_string(mGridVertexCount));
+    LOG_DEBUG("Grid Vertices: " + std::to_string(mVertexCount));
 
-    VkDeviceSize bufferSize = sizeof(glm::vec3) * mGridVertexCount;
+    VkDeviceSize bufferSize = sizeof(glm::vec3) * mVertexCount;
 
     // Create staging buffer
     VkBuffer stagingBuffer;
@@ -172,11 +172,11 @@ void VulkanGrid::createGridVertexBuffer()
     createBuffer(mPhysicalDevice, mDevice, bufferSize,
                  VK_BUFFER_USAGE_VERTEX_BUFFER_BIT |
                      VK_BUFFER_USAGE_TRANSFER_DST_BIT,
-                 VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, mGridVertexBuffer,
-                 mGridVertexBufferMemory);
+                 VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, mVertexBuffer,
+                 mVertexBufferMemory);
 
     // Kopiere von staging -> device-local
-    copyBuffer(stagingBuffer, mGridVertexBuffer, bufferSize);
+    copyBuffer(stagingBuffer, mVertexBuffer, bufferSize);
 
     // Aufräumen
     vkDestroyBuffer(mDevice, stagingBuffer, nullptr);
