@@ -1,14 +1,14 @@
 #include "VulkanCamera.hpp"
 
-VulkanCamera::VulkanCamera()
-    : lights(nullptr), lightsSize(0)
-{
-}
+// Verify Light struct alignment for GPU compatibility
+static_assert(sizeof(Light) == 32, "Light must be exactly 32 bytes");
 
-void VulkanCamera::setLights(Light l[], int size)
+VulkanCamera::VulkanCamera()
 {
-    lights = l;
-    lightsSize = size;
+    // Initialize default lights
+    defaultLights[0] = {glm::vec3(0.0f, 1.0, -1.0), glm::vec3(1, 0, 0)};
+    defaultLights[1] = {glm::vec3(-1.0f, 0.0f, 0.5), glm::vec3(0, 1, 0)};
+    defaultLights[2] = {glm::vec3(-1.0f, -1.0f, -0.5), glm::vec3(0, 0, 1)};
 }
 
 void VulkanCamera::setView(glm::vec3 eye, int fbWidth, int fbHeight)

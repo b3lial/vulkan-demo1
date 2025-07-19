@@ -4,14 +4,13 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/constants.hpp>
 #include "ShaderData.hpp"
+#include "Config.hpp"
 
 class VulkanCamera
 {
 public:
     VulkanCamera();
     
-    void setLights(Light l[], int size);
-    void setView(glm::vec3 eye, int fbWidth, int fbHeight);
     void updateCamera(float time, int fbWidth, int fbHeight);
     
     // Getters for matrices
@@ -19,8 +18,8 @@ public:
     const glm::mat4& getProjectionMatrix() const { return proj; }
     
     // Getters for lights
-    Light* getLights() { return lights; }
-    int getLightsSize() const { return lightsSize; }
+    Light* getLights() { return defaultLights; }
+    int getLightsSize() const { return LIGHTS_AMOUNT; }
     
     // Getters for animation state
     float getLastSwitchTime() const { return lastSwitchTime; }
@@ -32,8 +31,7 @@ private:
     glm::mat4 proj;
     
     // lights for the scenery
-    Light *lights;
-    int lightsSize;
+    Light defaultLights[LIGHTS_AMOUNT];
 
     // camera orbit
     float orbitRadius = 3.0f;
@@ -44,6 +42,8 @@ private:
     // animation
     float lastSwitchTime = 0;
     uint32_t rng_state = 0xDEADBEEF;
+    
+    void setView(glm::vec3 eye, int fbWidth, int fbHeight);
     
     uint32_t rand_u32();
     float rand_float_range(float min, float max);

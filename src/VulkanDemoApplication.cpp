@@ -11,12 +11,6 @@ VulkanDemoApplication::VulkanDemoApplication(WorldCube &worldCube)
 }
 
 //---------------------------------------------------
-void VulkanDemoApplication::setView(glm::vec3 eye)
-{
-    mVulkanCamera.setView(eye, fbWidth, fbHeight);
-}
-
-//---------------------------------------------------
 void VulkanDemoApplication::run()
 {
     initWindow();
@@ -54,11 +48,7 @@ void VulkanDemoApplication::createUniformBuffer()
 //---------------------------------------------------
 void VulkanDemoApplication::updateUniformBuffer()
 {
-    if (mVulkanCamera.getLightsSize() < 3)
-    {
-        LOG_DEBUG("add two light sources, otherwise you wont see anything");
-        return;
-    }
+    // Camera always has exactly LIGHTS_AMOUNT lights
 
     Light* lights = mVulkanCamera.getLights();
     UniformBufferObject ubo{};

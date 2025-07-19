@@ -1,6 +1,5 @@
 #pragma once
 
-#include "ShaderData.hpp"
 #include "VulkanSpheres.hpp"
 #include "WorldCube.hpp"
 #include "VulkanGrid.hpp"
@@ -11,13 +10,10 @@ class VulkanDemoApplication
   public:
     VulkanDemoApplication(WorldCube &worldCube);
 
-    void setLights(Light l[], int size)
-    {
-        mVulkanCamera.setLights(l, size);
-    }
-
-    void setView(glm::vec3 eye);
     void run();
+    
+    // Access to camera
+    VulkanCamera& getCamera() { return mVulkanCamera; }
 
   private:
     // framebuffer size, can differ from actual window size in pixels
