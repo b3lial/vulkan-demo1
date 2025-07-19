@@ -11,7 +11,7 @@ VulkanSpheres::VulkanSpheres(float radius, int sectors, int stacks)
     mIndicesSize = generateSphereIndices(sectors, stacks, mIndices);
 }
 
-int generateSphereVertices(float radius, int sectors, int stacks,
+int VulkanSpheres::generateSphereVertices(float radius, int sectors, int stacks,
                            Vertex vertices[])
 {
     const float PI = 3.14159265359f;
@@ -42,7 +42,7 @@ int generateSphereVertices(float radius, int sectors, int stacks,
     return index;
 }
 
-int generateSphereIndices(int sectors, int stacks, uint32_t indices[])
+int VulkanSpheres::generateSphereIndices(int sectors, int stacks, uint32_t indices[])
 {
     int index = 0;
 

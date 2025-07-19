@@ -32,6 +32,9 @@ public:
     VkPipelineLayout& getPipelineLayout() { return mPipelineLayout; }
 
 private:
+    int generateSphereVertices(float radius, int sectors, int stacks, Vertex vertices[]);
+    int generateSphereIndices(int sectors, int stacks, uint32_t indices[]);
+
     VkPhysicalDevice mPhysicalDevice;
     VkDevice mDevice;
     
@@ -47,7 +50,3 @@ private:
     VkPipeline mPipeline;
     VkPipelineLayout mPipelineLayout;
 };
-
-int generateSphereVertices(float radius, int sectors, int stacks,
-                           Vertex vertices[]);
-int generateSphereIndices(int sectors, int stacks, uint32_t indices[]);
