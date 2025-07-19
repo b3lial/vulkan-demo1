@@ -53,6 +53,7 @@ ADD_EXECUTABLE(vulkan_demo1
     src/VulkanGrid.cpp
     src/ShaderData.cpp
     src/EmbeddedShaders.cpp
+    src/VulkanCamera.cpp
 )
 target_link_libraries (vulkan_demo1
     PUBLIC

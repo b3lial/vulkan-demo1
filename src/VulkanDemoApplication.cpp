@@ -13,14 +13,7 @@ VulkanDemoApplication::VulkanDemoApplication(WorldCube &worldCube)
 //---------------------------------------------------
 void VulkanDemoApplication::setView(glm::vec3 eye)
 {
-    view = glm::lookAt(eye,                        // Eye
-                       glm::vec3(0.0f),            // Center
-                       glm::vec3(0.0f, 1.0f, 0.0f) // Up
-    );
-
-    proj = glm::perspective(glm::radians(45.0f), fbWidth / (float)fbHeight, 0.1f,
-                            3000.0f);
-    proj[1][1] *= -1; // Vulkan Y-Korrektur
+    mVulkanCamera.setView(eye, fbWidth, fbHeight);
 }
 
 //---------------------------------------------------
@@ -61,12 +54,13 @@ void VulkanDemoApplication::createUniformBuffer()
 //---------------------------------------------------
 void VulkanDemoApplication::updateUniformBuffer()
 {
-    if (lightsSize < 3)
+    if (mVulkanCamera.getLightsSize() < 3)
     {
         LOG_DEBUG("add two light sources, otherwise you wont see anything");
         return;
     }
 
+    Light* lights = mVulkanCamera.getLights();
     UniformBufferObject ubo{};
     ubo.lights[0].position = lights[0].position;
     ubo.lights[0].color = lights[0].color;
@@ -490,7 +484,7 @@ void VulkanDemoApplication::recordCommandBuffer(uint32_t imageIndex, float time)
                          VK_SUBPASS_CONTENTS_INLINE);
 
     // === GRID ZEICHNEN ===
-    GridPushConstants gpc{view, proj};
+    GridPushConstants gpc{mVulkanCamera.getViewMatrix(), mVulkanCamera.getProjectionMatrix()};
 
     vkCmdBindPipeline(commandBuffers[imageIndex],
                       VK_PIPELINE_BIND_POINT_GRAPHICS, mVulkanGrid.getPipeline());
@@ -537,7 +531,7 @@ void VulkanDemoApplication::recordCommandBuffer(uint32_t imageIndex, float time)
                                      sphere.getPos().z())) *
             glm::scale(glm::mat4(1.0f), glm::vec3(sphere.getDiameter()));
 
-        PushConstants pc{model, view, proj};
+        PushConstants pc{model, mVulkanCamera.getViewMatrix(), mVulkanCamera.getProjectionMatrix()};
 
         vkCmdPushConstants(commandBuffers[imageIndex], mVulkanSpheres.getPipelineLayout(),
                            VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(PushConstants),
@@ -563,34 +557,8 @@ void VulkanDemoApplication::mainLoop()
     {
         float time = static_cast<float>(glfwGetTime());
 
-        // change view every 5 seconds for more dynamic
-        if (lastSwitchTime == 0)
-        {
-            lastSwitchTime = time;
-        }
-        else if (time - lastSwitchTime > 8)
-        {
-            lastSwitchTime = time;
-
-            // change view
-            orbitRadius =
-                rand_float_range(2.5f, 6.0f); // vorher: radiusDist(gen)
-            orbitHeight =
-                rand_float_range(1.0f, 3.0f); // vorher: heightDist(gen)
-            orbitSpeed =
-                rand_float_range(0.02f, 0.05f); // vorher: speedDist(gen)
-
-            float axisX =
-                rand_float_range(-0.3f, 0.3f); // vorher: axisDist(gen)
-            float axisZ =
-                rand_float_range(-0.3f, 0.3f); // vorher: axisDist(gen)
-            orbitAxis = glm::normalize(glm::vec3(axisX, 1.0f, axisZ));
-
-            if (rand_int_range(0, 1) == 1) // vorher: directionDist(gen)
-            {
-                orbitSpeed *= -1.0f;
-            }
-        }
+        // Update camera animation
+        mVulkanCamera.updateCamera(time, fbWidth, fbHeight);
 
         for (int i = 0; i < 10; i++)
         {
@@ -603,13 +571,6 @@ void VulkanDemoApplication::mainLoop()
         vkAcquireNextImageKHR(device, swapchain, UINT64_MAX,
                               imageAvailableSemaphore, VK_NULL_HANDLE,
                               &imageIndex);
-
-        // view
-        float angle = glm::two_pi<float>() * orbitSpeed * time;
-        glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), angle, orbitAxis);
-        glm::vec3 eye = glm::vec3(
-            rotation * glm::vec4(orbitRadius, orbitHeight, 0.0f, 1.0f));
-        setView(eye);
 
         recordCommandBuffer(imageIndex, time);
 
