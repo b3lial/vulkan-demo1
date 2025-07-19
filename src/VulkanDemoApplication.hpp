@@ -10,18 +10,6 @@ class VulkanDemoApplication
   public:
     VulkanDemoApplication(WorldCube &worldCube);
 
-    void setVertices(Vertex v[], int size)
-    {
-        vertices = v;
-        verticesSize = size;
-    }
-
-    void setIndices(uint32_t i[], int size)
-    {
-        indices = i;
-        indicesSize = size;
-    }
-
     void setLights(Light l[], int size)
     {
         lights = l;
@@ -74,13 +62,6 @@ class VulkanDemoApplication
     unsigned int commandBuffersSize;
     VkSemaphore imageAvailableSemaphore;
     VkSemaphore renderFinishedSemaphore;
-
-    // vertex and indices section
-    Vertex *vertices;
-    int verticesSize;
-
-    uint32_t *indices;
-    int indicesSize;
 
     // uniform buffer
     VkBuffer uniformBuffer;

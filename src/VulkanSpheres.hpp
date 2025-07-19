@@ -1,10 +1,13 @@
 #pragma once
 
 #include "ShaderData.hpp"
+#include "Config.hpp"
 
 class VulkanSpheres
 {
 public:
+    VulkanSpheres(float radius = 0.5f, int sectors = SPHERE_VERTICE_SECTORS, int stacks = SPHERE_VERTICE_STACKS);
+    
     void createVertexBuffer();
     void createIndexBuffer();
     
@@ -19,18 +22,6 @@ public:
         mDevice = device;
     }
     
-    void setVertices(Vertex *vertices, int verticesSize)
-    {
-        mVertices = vertices;
-        mVerticesSize = verticesSize;
-    }
-    
-    void setIndices(uint32_t *indices, int indicesSize)
-    {
-        mIndices = indices;
-        mIndicesSize = indicesSize;
-    }
-    
     // Getters
     VkBuffer& getVertexBuffer() { return mVertexBuffer; }
     VkBuffer& getIndexBuffer() { return mIndexBuffer; }
@@ -41,9 +32,9 @@ private:
     VkPhysicalDevice mPhysicalDevice;
     VkDevice mDevice;
     
-    Vertex *mVertices;
+    Vertex mVertices[SPHERE_VERTICES];
     int mVerticesSize;
-    uint32_t *mIndices;
+    uint32_t mIndices[SPHERE_INDICES];
     int mIndicesSize;
     
     VkBuffer mVertexBuffer;

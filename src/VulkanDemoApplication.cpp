@@ -294,8 +294,6 @@ void VulkanDemoApplication::createDescriptorSet()
 //---------------------------------------------------
 void VulkanDemoApplication::initVulkan()
 {
-    LOG_DEBUG("Vertices: " + std::to_string(verticesSize));
-    LOG_DEBUG("Indices: " + std::to_string(indicesSize));
 
     // Create instance
     VkApplicationInfo appInfo{VK_STRUCTURE_TYPE_APPLICATION_INFO};
@@ -522,8 +520,6 @@ void VulkanDemoApplication::initVulkan()
     // Configure VulkanSpheres object with required parameters
     mVulkanSpheres.setPhysicalDevice(physicalDevice);
     mVulkanSpheres.setDevice(device);
-    mVulkanSpheres.setVertices(vertices, verticesSize);
-    mVulkanSpheres.setIndices(indices, indicesSize);
     
     // Create sphere buffers
     mVulkanSpheres.createVertexBuffer();
@@ -681,7 +677,7 @@ void VulkanDemoApplication::recordCommandBuffer(uint32_t imageIndex, float time)
                            &pc);
 
         vkCmdDrawIndexed(commandBuffers[imageIndex],
-                         static_cast<uint32_t>(indicesSize), 1, 0, 0, 0);
+                         static_cast<uint32_t>(SPHERE_INDICES), 1, 0, 0, 0);
     }
 
     vkCmdEndRenderPass(commandBuffers[imageIndex]);

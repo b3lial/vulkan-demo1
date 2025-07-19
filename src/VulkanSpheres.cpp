@@ -4,6 +4,12 @@
 #include <math.h>
 #include <memory.h>
 
+VulkanSpheres::VulkanSpheres(float radius, int sectors, int stacks)
+{
+    mVerticesSize = generateSphereVertices(radius, sectors, stacks, mVertices);
+    mIndicesSize = generateSphereIndices(sectors, stacks, mIndices);
+}
+
 int generateSphereVertices(float radius, int sectors, int stacks,
                            Vertex vertices[])
 {
