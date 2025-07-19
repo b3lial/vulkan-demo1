@@ -28,12 +28,11 @@ class VulkanDemoApplication
     VulkanGrid mVulkanGrid;
 
     void initWindow();
-    void createSpheresPipeline();
-    
     void initVulkan();
     void mainLoop();
-    void recordCommandBuffer(uint32_t imageIndex, float time);
     void cleanup();
+
+    void recordCommandBuffer(uint32_t imageIndex, float time);
     void createUniformBuffer();
     void updateUniformBuffer();
     void createDescriptorSetLayout();
@@ -53,8 +52,6 @@ class VulkanDemoApplication
     unsigned int swapchainImageViewsSize;
     VkFormat swapchainImageFormat;
     VkRenderPass renderPass;
-    VkPipelineLayout pipelineLayout;
-    VkPipeline graphicsPipeline;
     VkFramebuffer *swapchainFramebuffers;
     unsigned int swapchainFramebuffersSize;
     VkCommandPool commandPool;
@@ -67,6 +64,7 @@ class VulkanDemoApplication
     VkBuffer uniformBuffer;
     VkDeviceMemory uniformBufferMemory;
 
+    // descriptor
     VkDescriptorSetLayout descriptorSetLayout;
     VkDescriptorPool descriptorPool;
     VkDescriptorSet descriptorSet;

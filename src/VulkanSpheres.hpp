@@ -10,6 +10,7 @@ public:
     
     void createVertexBuffer();
     void createIndexBuffer();
+    void createPipeline(VkDevice& device, VkRenderPass& renderPass, VkDescriptorSetLayout& descriptorSetLayout, int fbWidth, int fbHeight);
     
     // Setters
     void setPhysicalDevice(VkPhysicalDevice &physicalDevice)
@@ -27,6 +28,8 @@ public:
     VkBuffer& getIndexBuffer() { return mIndexBuffer; }
     VkDeviceMemory& getVertexBufferMemory() { return mVertexBufferMemory; }
     VkDeviceMemory& getIndexBufferMemory() { return mIndexBufferMemory; }
+    VkPipeline& getPipeline() { return mPipeline; }
+    VkPipelineLayout& getPipelineLayout() { return mPipelineLayout; }
 
 private:
     VkPhysicalDevice mPhysicalDevice;
@@ -41,6 +44,8 @@ private:
     VkDeviceMemory mVertexBufferMemory;
     VkBuffer mIndexBuffer;
     VkDeviceMemory mIndexBufferMemory;
+    VkPipeline mPipeline;
+    VkPipelineLayout mPipelineLayout;
 };
 
 int generateSphereVertices(float radius, int sectors, int stacks,

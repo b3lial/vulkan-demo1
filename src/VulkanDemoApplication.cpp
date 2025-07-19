@@ -2,7 +2,6 @@
 #include "Logger.hpp"
 #include "VulkanDemoApplication.hpp"
 #include "Config.hpp"
-#include "EmbeddedShaders.hpp"
 
 //---------------------------------------------------
 VulkanDemoApplication::VulkanDemoApplication(WorldCube &worldCube)
@@ -47,138 +46,6 @@ void VulkanDemoApplication::initWindow()
     mVulkanGrid.setFramebufferResolution(fbWidth, fbHeight);
 }
 
-//---------------------------------------------------
-void VulkanDemoApplication::createSpheresPipeline()
-{
-    ShaderData vertShaderData = getShaderVertData();
-    ShaderData fragShaderData = getShaderFragData();
-
-    VkShaderModule vertModule =
-        createShaderModule(device, reinterpret_cast<const char*>(vertShaderData.data), vertShaderData.size);
-    VkShaderModule fragModule =
-        createShaderModule(device, reinterpret_cast<const char*>(fragShaderData.data), fragShaderData.size);
-
-    VkPipelineShaderStageCreateInfo vertStageInfo{};
-    vertStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-    vertStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
-    vertStageInfo.module = vertModule;
-    vertStageInfo.pName = "main";
-
-    VkPipelineShaderStageCreateInfo fragStageInfo{};
-    fragStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-    fragStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-    fragStageInfo.module = fragModule;
-    fragStageInfo.pName = "main";
-
-    VkPipelineShaderStageCreateInfo shaderStages[] = {vertStageInfo,
-                                                      fragStageInfo};
-
-    // configure push constants
-    VkPushConstantRange pushConstantRange{};
-    pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT; // Shader-Stufe
-    pushConstantRange.offset = 0;
-    pushConstantRange.size = sizeof(glm::mat4) * 3; // model + view + proj
-
-    // Erzeuge Vertexdaten
-    auto bindingDescription = Vertex::getBindingDescription();
-    VkVertexInputAttributeDescription attributeDescriptions[ATTRIBUTES_DESCRIPTION_SIZE];
-    Vertex::getAttributeDescriptions(attributeDescriptions);
-    VkPipelineVertexInputStateCreateInfo vertexInput{};
-    vertexInput.sType =
-        VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-    vertexInput.vertexBindingDescriptionCount = 1;
-    vertexInput.pVertexBindingDescriptions = &bindingDescription;
-    vertexInput.vertexAttributeDescriptionCount = ATTRIBUTES_DESCRIPTION_SIZE;
-    vertexInput.pVertexAttributeDescriptions = attributeDescriptions;
-
-    VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
-    inputAssembly.sType =
-        VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
-    inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
-
-    VkViewport viewport{};
-    viewport.x = 0.0f;
-    viewport.y = 0.0f;
-    viewport.width = static_cast<float>(fbWidth);
-    viewport.height = static_cast<float>(fbHeight);
-    viewport.minDepth = 0.0f;
-    viewport.maxDepth = 1.0f;
-
-    VkRect2D scissor{};
-    scissor.offset = {0, 0};
-    scissor.extent = {static_cast<uint32_t>(fbWidth), static_cast<uint32_t>(fbHeight)};
-
-    VkPipelineViewportStateCreateInfo viewportState{};
-    viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
-    viewportState.viewportCount = 1;
-    viewportState.pViewports = &viewport;
-    viewportState.scissorCount = 1;
-    viewportState.pScissors = &scissor;
-
-    VkPipelineRasterizationStateCreateInfo rasterizer{};
-    rasterizer.sType =
-        VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
-    rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
-    rasterizer.lineWidth = 1.0f;
-    rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
-    rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
-
-    VkPipelineMultisampleStateCreateInfo multisampling{};
-    multisampling.sType =
-        VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
-    multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
-
-    VkPipelineColorBlendAttachmentState colorBlendAttachment{};
-    colorBlendAttachment.colorWriteMask =
-        VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT |
-        VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
-    colorBlendAttachment.blendEnable = VK_FALSE;
-
-    VkPipelineColorBlendStateCreateInfo colorBlending{};
-    colorBlending.sType =
-        VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
-    colorBlending.attachmentCount = 1;
-    colorBlending.pAttachments = &colorBlendAttachment;
-
-    // Pipeline-Layout (leer, keine Uniforms)
-    VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
-    pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-    pipelineLayoutInfo.setLayoutCount = 1;
-    pipelineLayoutInfo.pSetLayouts = &descriptorSetLayout;
-    pipelineLayoutInfo.pushConstantRangeCount = 1;
-    pipelineLayoutInfo.pPushConstantRanges = &pushConstantRange;
-
-    if (vkCreatePipelineLayout(device, &pipelineLayoutInfo, nullptr,
-                               &pipelineLayout) != VK_SUCCESS)
-    {
-        LOG_DEBUG("Failed to create pipeline layout!");
-        exit(EXIT_FAILURE);
-    }
-
-    VkGraphicsPipelineCreateInfo pipelineInfo{};
-    pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-    pipelineInfo.stageCount = 2;
-    pipelineInfo.pStages = shaderStages;
-    pipelineInfo.pVertexInputState = &vertexInput;
-    pipelineInfo.pInputAssemblyState = &inputAssembly;
-    pipelineInfo.pViewportState = &viewportState;
-    pipelineInfo.pRasterizationState = &rasterizer;
-    pipelineInfo.pMultisampleState = &multisampling;
-    pipelineInfo.pColorBlendState = &colorBlending;
-    pipelineInfo.layout = pipelineLayout;
-    pipelineInfo.renderPass = renderPass;
-    pipelineInfo.subpass = 0;
-
-    if (vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo,
-                                  nullptr, &graphicsPipeline) != VK_SUCCESS)
-    {
-        LOG_DEBUG("Failed to create graphics pipeline!");
-        exit(EXIT_FAILURE);
-    }
-
-    vkDestroyShaderModule(device, vertModule, nullptr);
-    vkDestroyShaderModule(device, fragModule, nullptr);
-}
 
 //---------------------------------------------------
 void VulkanDemoApplication::createUniformBuffer()
@@ -514,16 +381,16 @@ void VulkanDemoApplication::initVulkan()
     createDescriptorSet(); // ← Buffer wird hier eingebunden
     updateUniformBuffer(); // ← jetzt kann er korrekt beschrieben werden
 
-    createSpheresPipeline(); // nutzt descriptorSetLayout
     mVulkanGrid.createGridPipeline(renderPass);
     
     // Configure VulkanSpheres object with required parameters
     mVulkanSpheres.setPhysicalDevice(physicalDevice);
     mVulkanSpheres.setDevice(device);
     
-    // Create sphere buffers
+    // Create sphere buffers and pipeline
     mVulkanSpheres.createVertexBuffer();
     mVulkanSpheres.createIndexBuffer();
+    mVulkanSpheres.createPipeline(device, renderPass, descriptorSetLayout, fbWidth, fbHeight);
 
     // create framebuffers
     swapchainFramebuffers = new VkFramebuffer[swapchainImageViewsSize];
@@ -644,10 +511,10 @@ void VulkanDemoApplication::recordCommandBuffer(uint32_t imageIndex, float time)
 
     // === KUGELN ZEICHNEN ===
     vkCmdBindPipeline(commandBuffers[imageIndex],
-                      VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
+                      VK_PIPELINE_BIND_POINT_GRAPHICS, mVulkanSpheres.getPipeline());
 
     vkCmdBindDescriptorSets(commandBuffers[imageIndex],
-                            VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0,
+                            VK_PIPELINE_BIND_POINT_GRAPHICS, mVulkanSpheres.getPipelineLayout(), 0,
                             1, &descriptorSet, 0, nullptr);
 
     VkBuffer vertexBuffers[] = {mVulkanSpheres.getVertexBuffer()}; // dein VkBuffer-Handle
@@ -672,7 +539,7 @@ void VulkanDemoApplication::recordCommandBuffer(uint32_t imageIndex, float time)
 
         PushConstants pc{model, view, proj};
 
-        vkCmdPushConstants(commandBuffers[imageIndex], pipelineLayout,
+        vkCmdPushConstants(commandBuffers[imageIndex], mVulkanSpheres.getPipelineLayout(),
                            VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(PushConstants),
                            &pc);
 
@@ -810,8 +677,8 @@ void VulkanDemoApplication::cleanup()
         vkDestroyFramebuffer(device, fb, nullptr);
     }
     delete[] swapchainFramebuffers;
-    vkDestroyPipeline(device, graphicsPipeline, nullptr);
-    vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
+    vkDestroyPipeline(device, mVulkanSpheres.getPipeline(), nullptr);
+    vkDestroyPipelineLayout(device, mVulkanSpheres.getPipelineLayout(), nullptr);
     vkDestroyPipeline(device, mVulkanGrid.getPipeline(), nullptr);
     vkDestroyPipelineLayout(device, mVulkanGrid.getPipelineLayout(), nullptr);
     for (unsigned int i = 0; i < swapchainImageViewsSize; i++)
