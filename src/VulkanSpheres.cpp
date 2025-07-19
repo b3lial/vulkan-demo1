@@ -1,5 +1,4 @@
 #include "VulkanSpheres.hpp"
-#include "Logger.hpp"
 
 #include <math.h>
 #include <memory.h>
