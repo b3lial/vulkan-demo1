@@ -46,7 +46,7 @@ endif()
 
 ADD_EXECUTABLE(vulkan_demo1
     src/Main.cpp
-    src/Sphere.cpp
+    src/WorldSphere.cpp
     src/WorldCube.cpp
     src/VulkanDemoApplication.cpp
     src/VulkanSpheres.cpp

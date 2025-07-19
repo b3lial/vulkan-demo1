@@ -30,7 +30,7 @@ WorldCube::WorldCube()
             for (size_t z = 0; z < steps; z++)
             {
                 const double curZ = toCoord(z);
-                spheres[i] = Sphere(Eigen::Vector3d(curX, curY, curZ),
+                spheres[i] = WorldSphere(Eigen::Vector3d(curX, curY, curZ),
                                      Eigen::Vector3d(0.05, 0.05, 0.1),
                                      sphereSize);
                 i++;
@@ -57,7 +57,7 @@ WorldCube::WorldCube()
 
 void WorldCube::updateObjects()
 {
-    for (Sphere &s : spheres)
+    for (WorldSphere &s : spheres)
     {
         const Eigen::Vector3d curVel = s.getPos() - s.getLastPos();
         const double velDist = curVel.norm();
@@ -104,10 +104,10 @@ void WorldCube::checkSphereSphereCollisions()
     // solve collisions
     for (size_t i = 0; i < spheresSize; i++)
     {
-        Sphere &cur(spheres[i]);
+        WorldSphere &cur(spheres[i]);
         for (size_t j = i + 1; j < spheresSize; j++)
         {
-            Sphere &other(spheres[j]);
+            WorldSphere &other(spheres[j]);
             const auto intersection = cur.computeExitDir(other);
 
             if (!intersection.isValid)
@@ -134,7 +134,7 @@ void WorldCube::checkSphereCubeCollisions()
 {
     for (const Side &side : sides)
     {
-        for (Sphere &s : spheres)
+        for (WorldSphere &s : spheres)
         {
             double distToPlane = side.signedDistance(s.getPos());
             if (distToPlane < s.getRadius())
@@ -202,7 +202,7 @@ void WorldCube::checkSphereCubeCollisions()
     }
 
     // HACK never leave the cube
-    for (Sphere &s : spheres)
+    for (WorldSphere &s : spheres)
     {
         Eigen::Vector3d pos = s.getPos();
 
@@ -220,7 +220,7 @@ void WorldCube::stepWorld()
 {
     // std::cout <<std::endl << "NEW STEP !" << std::endl;
     /*
-        for (Sphere &s : spheres)
+        for (WorldSphere &s : spheres)
         {
             const Eigen::Vector3d curVel = s.getPos() - s.getLastPos();
             //std::cout << "Initial pos : " << s.getPos().transpose() << " last

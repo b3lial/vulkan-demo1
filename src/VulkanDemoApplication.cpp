@@ -511,10 +511,10 @@ void VulkanDemoApplication::recordCommandBuffer(uint32_t imageIndex, float time)
 
     // calculate positions of spheres
     unsigned int spheresSize = mWorldCube.getSpheresSize();
-    const Sphere *spheres = mWorldCube.getSpheres();
+    const WorldSphere *spheres = mWorldCube.getSpheres();
     for (unsigned int j = 0; j < spheresSize; j++)
     {
-        Sphere sphere = spheres[j];
+        WorldSphere sphere = spheres[j];
         glm::mat4 model =
             glm::translate(glm::mat4(1.0f),
                            glm::vec3(sphere.getPos().x(), sphere.getPos().y(),

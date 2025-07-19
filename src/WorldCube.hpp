@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Sphere.hpp"
+#include "WorldSphere.hpp"
 
 class WorldCube
 {
@@ -11,7 +11,7 @@ class WorldCube
 
     WorldCube();
     void stepWorld();
-    const Sphere* getSpheres() const { return spheres; }
+    const WorldSphere* getSpheres() const { return spheres; }
     int getSpheresSize() const { return spheresSize; }
 
     using Side = Eigen::Hyperplane<double, 3>;
@@ -28,6 +28,6 @@ class WorldCube
 
     const double dt = 0.0001;
 
-    Sphere spheres[numSpheres+1];
+    WorldSphere spheres[numSpheres+1];
     unsigned int spheresSize = 0;
 };

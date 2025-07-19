@@ -1,13 +1,13 @@
-#include "Sphere.hpp"
+#include "WorldSphere.hpp"
 
-Sphere::Sphere(const Eigen::Vector3d &initialPosition,
+WorldSphere::WorldSphere(const Eigen::Vector3d &initialPosition,
                const Eigen::Vector3d &initialVelocity, double diameter)
     : pos(initialPosition), lastPos(initialPosition - initialVelocity * 0.1),
       vel(initialVelocity), radius(diameter / 2.0)
 {
 }
 
-CollisionInfo Sphere::computeExitDir(const Sphere &other)
+CollisionInfo WorldSphere::computeExitDir(const WorldSphere &other)
 {
     const Eigen::Vector3d toOther(other.pos - pos);
 

@@ -10,11 +10,11 @@ struct CollisionInfo
     bool isValid;
 };
 
-class Sphere
+class WorldSphere
 {
   public:
-    Sphere() = default;
-    Sphere(const Eigen::Vector3d &initialPosition,
+    WorldSphere() = default;
+    WorldSphere(const Eigen::Vector3d &initialPosition,
            const Eigen::Vector3d &initialVelocity, double diameter);
 
     /**
@@ -22,7 +22,7 @@ class Sphere
      * If an intersection exists, the shortest vector
      * solving the intersection is returned
      */
-    CollisionInfo computeExitDir(const Sphere &other);
+    CollisionInfo computeExitDir(const WorldSphere &other);
 
     void setPos(const Eigen::Vector3d &newPos) { pos = newPos; }
     const Eigen::Vector3d &getPos() const { return pos; }
