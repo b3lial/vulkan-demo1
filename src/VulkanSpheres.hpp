@@ -5,7 +5,7 @@
 class VulkanSpheres
 {
 public:
-    void createSpheresVertexBuffer();
+    void createVertexBuffer();
     void createIndexBuffer();
     
     // Setters

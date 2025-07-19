@@ -526,7 +526,7 @@ void VulkanDemoApplication::initVulkan()
     mVulkanSpheres.setIndices(indices, indicesSize);
     
     // Create sphere buffers
-    mVulkanSpheres.createSpheresVertexBuffer();
+    mVulkanSpheres.createVertexBuffer();
     mVulkanSpheres.createIndexBuffer();
 
     // create framebuffers

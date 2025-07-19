@@ -13,7 +13,7 @@ class VulkanGrid
     void createGridPipeline(VkRenderPass &renderPass);
     void createGridVertexBuffer();
 
-    // Plain Getters and Setters
+    // Setters
     void setPhysicalDevice(VkPhysicalDevice &physicalDevice)
     {
       mPhysicalDevice = physicalDevice;
@@ -40,6 +40,7 @@ class VulkanGrid
       mFbHeight = fbHeight;
     }
 
+    // Getters
     VkPipelineLayout& getPipelineLayout()
     {
       return mGridPipelineLayout;
@@ -66,7 +67,7 @@ class VulkanGrid
     }
 
   private:
-    int generateGridLines(int halfExtent, float spacing, glm::vec3 lines[]);
+    int generateLines(int halfExtent, float spacing, glm::vec3 lines[]);
     void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
 
     VkPhysicalDevice mPhysicalDevice;

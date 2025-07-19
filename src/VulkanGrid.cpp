@@ -148,7 +148,7 @@ void VulkanGrid::createGridPipeline(VkRenderPass &renderPass)
 void VulkanGrid::createGridVertexBuffer()
 {
     glm::vec3 gridVertices[GRID_VERTEX_COUNT];
-    mGridVertexCount = generateGridLines(
+    mGridVertexCount = generateLines(
         GRID_HALF_EXTEND, 1.0f, gridVertices); // Erzeuge Linien von -10 bis +10
     LOG_DEBUG("Grid Vertices: " + std::to_string(mGridVertexCount));
 
@@ -184,7 +184,7 @@ void VulkanGrid::createGridVertexBuffer()
 }
 
 //---------------------------------------------------
-int VulkanGrid::generateGridLines(int halfExtent, float spacing,
+int VulkanGrid::generateLines(int halfExtent, float spacing,
                                              glm::vec3 lines[])
 {
     int index = 0;

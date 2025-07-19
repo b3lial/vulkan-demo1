@@ -73,7 +73,7 @@ int generateSphereIndices(int sectors, int stacks, uint32_t indices[])
 }
 
 
-void VulkanSpheres::createSpheresVertexBuffer()
+void VulkanSpheres::createVertexBuffer()
 {
     VkDeviceSize bufferSize = sizeof(mVertices[0]) * mVerticesSize;
 

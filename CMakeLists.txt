@@ -33,7 +33,7 @@ SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND CMAKE_SYSTEM_NAME MATCHES "Darwin")
     message(STATUS "Configuring for Clang on macOS (optimized for size)")
     set(CMAKE_CXX_FLAGS_RELEASE "-Os -ffunction-sections -fdata-sections -fno-exceptions -fno-rtti")
-    set(CMAKE_EXE_LINKER_FLAGS_RELEASE "-s -Wl,-dead_strip")
+    set(CMAKE_EXE_LINKER_FLAGS_RELEASE "-Wl,-dead_strip")
 
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
     message(STATUS "Configuring for GCC (optimized for size)")
