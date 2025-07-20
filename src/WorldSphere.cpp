@@ -1,7 +1,7 @@
 #include "WorldSphere.hpp"
 
-WorldSphere::WorldSphere(const Eigen::Vector3d &initialPosition,
-               const Eigen::Vector3d &initialVelocity, double diameter)
+WorldSphere::WorldSphere(const glm::dvec3 &initialPosition,
+               const glm::dvec3 &initialVelocity, double diameter)
     : pos(initialPosition), lastPos(initialPosition - initialVelocity * 0.1),
       vel(initialVelocity), radius(diameter / 2.0)
 {
@@ -9,9 +9,9 @@ WorldSphere::WorldSphere(const Eigen::Vector3d &initialPosition,
 
 CollisionInfo WorldSphere::computeExitDir(const WorldSphere &other)
 {
-    const Eigen::Vector3d toOther(other.pos - pos);
+    const glm::dvec3 toOther(other.pos - pos);
 
-    const double dist = toOther.norm();
+    const double dist = length(toOther);
 
     const double minDist = (other.radius + this->radius);
 
@@ -24,7 +24,7 @@ CollisionInfo WorldSphere::computeExitDir(const WorldSphere &other)
     {
         // FIXME random vector
         return CollisionInfo{.depth = radius,
-                             .exitDir = -Eigen::Vector3d::UnitZ(),
+                             .exitDir = -glm::dvec3(0, 0, 1),
                              .isValid=true};
     }
 

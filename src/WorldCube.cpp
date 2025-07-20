@@ -1,18 +1,18 @@
 #include "WorldCube.hpp"
 
 WorldCube::WorldCube()
-    : sideSize(2.0), sides{Side(Eigen::Vector3d::UnitX() * sideSize / 2.0,
-                                -Eigen::Vector3d::UnitX()),
-                           Side(Eigen::Vector3d::UnitX() * -sideSize / 2.0,
-                                Eigen::Vector3d::UnitX()),
-                           Side(Eigen::Vector3d::UnitY() * sideSize / 2.0,
-                                -Eigen::Vector3d::UnitY()),
-                           Side(Eigen::Vector3d::UnitY() * -sideSize / 2.0,
-                                Eigen::Vector3d::UnitY()),
-                           Side(Eigen::Vector3d::UnitZ() * sideSize / 2.0,
-                                -Eigen::Vector3d::UnitZ()),
-                           Side(Eigen::Vector3d::UnitZ() * -sideSize / 2.0,
-                                Eigen::Vector3d::UnitZ())}
+    : sideSize(2.0), sides{Side(glm::dvec3(1, 0, 0) * sideSize / 2.0,
+                                -glm::dvec3(1, 0, 0)),
+                           Side(glm::dvec3(1, 0, 0) * -sideSize / 2.0,
+                                glm::dvec3(1, 0, 0)),
+                           Side(glm::dvec3(0, 1, 0) * sideSize / 2.0,
+                                -glm::dvec3(0, 1, 0)),
+                           Side(glm::dvec3(0, 1, 0) * -sideSize / 2.0,
+                                glm::dvec3(0, 1, 0)),
+                           Side(glm::dvec3(0, 0, 1) * sideSize / 2.0,
+                                -glm::dvec3(0, 0, 1)),
+                           Side(glm::dvec3(0, 0, 1) * -sideSize / 2.0,
+                                glm::dvec3(0, 0, 1))}
 {
     const size_t steps = sideSize / (sphereSize + initialDist) - 1;
 
@@ -30,8 +30,8 @@ WorldCube::WorldCube()
             for (size_t z = 0; z < steps; z++)
             {
                 const double curZ = toCoord(z);
-                spheres[i] = WorldSphere(Eigen::Vector3d(curX, curY, curZ),
-                                     Eigen::Vector3d(0.05, 0.05, 0.1),
+                spheres[i] = WorldSphere(glm::dvec3(curX, curY, curZ),
+                                     glm::dvec3(0.05, 0.05, 0.1),
                                      sphereSize);
                 i++;
 
@@ -59,22 +59,22 @@ void WorldCube::updateObjects()
 {
     for (WorldSphere &s : spheres)
     {
-        const Eigen::Vector3d curVel = s.getPos() - s.getLastPos();
-        const double velDist = curVel.norm();
+        const glm::dvec3 curVel = s.getPos() - s.getLastPos();
+        const double velDist = length(curVel);
         //         std::cout << "Initial pos : " << s.getPos().transpose() << "
         //         last Pos : " << s.getLastPos().transpose() << " vel is : " <<
         //         curVel.transpose() << std::endl;
 
         // speed up !
         const double wantedVel = 0.006;
-        Eigen::Vector3d acceleration(Eigen::Vector3d::Zero());
+        glm::dvec3 acceleration(0.0);
         if (std::abs(velDist - wantedVel) > 1e-7)
         {
-            const Eigen::Vector3d velNorm = curVel.normalized();
+            const glm::dvec3 velNorm = normalize(curVel);
 
-            if (velNorm.isZero())
+            if (velDist < 1e-10)
             {
-                acceleration = -s.getPos().normalized() * wantedVel / dt;
+                acceleration = -normalize(s.getPos()) * wantedVel / dt;
                 // std::cout << "Velocity is zero, setting acc : " <<
                 // acceleration.transpose() << std::endl;
             }
@@ -92,7 +92,7 @@ void WorldCube::updateObjects()
         s.setLastPos();
 
         // verlet integrate
-        Eigen::Vector3d nextPos = s.getPos() + curVel + acceleration * dt * dt;
+        glm::dvec3 nextPos = s.getPos() + curVel + acceleration * dt * dt;
 
         s.setPos(nextPos);
         // std::cout << "NExt pos : " << nextPos.transpose() << std::endl;
@@ -141,19 +141,17 @@ void WorldCube::checkSphereCubeCollisions()
             {
                 // std::cout << "Collision with side !" << std::endl;
 
-                Eigen::Vector3d vel = s.getPos() - s.getLastPos();
-                double velDist = vel.norm();
-                Eigen::Vector3d velNormalized(vel / velDist);
+                glm::dvec3 vel = s.getPos() - s.getLastPos();
+                double velDist = length(vel);
+                glm::dvec3 velNormalized(vel / velDist);
 
                 // std::cout << "Cur VEl is : " << velDist << std::endl;
 
-                Eigen::ParametrizedLine<double, 3> velLine(s.getPos(),
-                                                           velNormalized);
+                // Calculate intersection point manually
+                double t = dot(side.point - s.getPos(), side.normal()) / dot(velNormalized, side.normal());
+                glm::dvec3 travelIntersectionOnSide = s.getPos() + t * velNormalized;
 
-                Eigen::Vector3d travelIntersectionOnSide =
-                    velLine.intersectionPoint(side);
-
-                Eigen::Vector3d curPosOnPlane = side.projection(s.getPos());
+                glm::dvec3 curPosOnPlane = side.projection(s.getPos());
 
                 // std::cout << "travelIntersectionOnSide : " <<
                 // travelIntersectionOnSide.transpose() << std::endl; std::cout
@@ -162,31 +160,31 @@ void WorldCube::checkSphereCubeCollisions()
 
                 const double intersectionDepth = s.getRadius() - distToPlane;
                 double distBackToClearIntersection;
-                if (curPosOnPlane.isApprox(travelIntersectionOnSide))
+                if (length(curPosOnPlane - travelIntersectionOnSide) < 1e-10)
                 {
                     // we don't bounce off at an angle
                     distBackToClearIntersection = intersectionDepth;
                 }
                 else
                 {
-                    const Eigen::Vector3d velProjectedOnSide =
+                    const glm::dvec3 velProjectedOnSide =
                         travelIntersectionOnSide - curPosOnPlane;
 
                     double cosAngle =
-                        velProjectedOnSide.normalized().dot(velNormalized);
+                        dot(normalize(velProjectedOnSide), velNormalized);
 
                     distBackToClearIntersection = intersectionDepth / cosAngle;
                 }
 
                 // Now we compute the bounce off position...
-                const Eigen::Vector3d nonIntersectingPos(
+                const glm::dvec3 nonIntersectingPos(
                     s.getPos() - velNormalized * distBackToClearIntersection);
 
-                const Eigen::Vector3d newVelDir =
-                    -(Eigen::AngleAxisd(M_PI, side.normal()) * velNormalized);
+                // Reflect velocity vector across the normal
+                const glm::dvec3 newVelDir = velNormalized - 2.0 * dot(velNormalized, side.normal()) * side.normal();
 
                 double distBeforeBounce =
-                    (nonIntersectingPos - s.getPos()).norm();
+                    length(nonIntersectingPos - s.getPos());
 
                 s.setPos(nonIntersectingPos +
                          newVelDir * (velDist - distBeforeBounce));
@@ -204,7 +202,7 @@ void WorldCube::checkSphereCubeCollisions()
     // HACK never leave the cube
     for (WorldSphere &s : spheres)
     {
-        Eigen::Vector3d pos = s.getPos();
+        glm::dvec3 pos = s.getPos();
 
         for (size_t i = 0; i < 3; i++)
         {

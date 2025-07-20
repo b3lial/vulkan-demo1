@@ -5,7 +5,6 @@ INCLUDE(FindPkgConfig)
 
 find_package(glfw3 REQUIRED)
 find_package (Vulkan REQUIRED)
-find_package(Eigen3 REQUIRED)
 find_package(glm REQUIRED)
 include_directories(${GLFW3_INCLUDE_DIRS})
 link_directories(${GLFW3_INCLUDE_DIRS})
@@ -57,7 +56,6 @@ ADD_EXECUTABLE(vulkan_demo1
 )
 target_link_libraries (vulkan_demo1
     PUBLIC
-        Eigen3::Eigen
         glfw
         Vulkan::Vulkan
         cpp20

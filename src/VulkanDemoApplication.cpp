@@ -517,8 +517,8 @@ void VulkanDemoApplication::recordCommandBuffer(uint32_t imageIndex, float time)
         WorldSphere sphere = spheres[j];
         glm::mat4 model =
             glm::translate(glm::mat4(1.0f),
-                           glm::vec3(sphere.getPos().x(), sphere.getPos().y(),
-                                     sphere.getPos().z())) *
+                           glm::vec3(sphere.getPos().x, sphere.getPos().y,
+                                     sphere.getPos().z)) *
             glm::scale(glm::mat4(1.0f), glm::vec3(sphere.getDiameter()));
 
         PushConstants pc{model, mVulkanCamera.getViewMatrix(), mVulkanCamera.getProjectionMatrix()};

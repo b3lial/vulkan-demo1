@@ -1,6 +1,8 @@
 #pragma once
 
 #include "WorldSphere.hpp"
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 class WorldCube
 {
@@ -14,7 +16,22 @@ class WorldCube
     const WorldSphere* getSpheres() const { return spheres; }
     int getSpheresSize() const { return spheresSize; }
 
-    using Side = Eigen::Hyperplane<double, 3>;
+    struct Side {
+        glm::dvec3 point;
+        glm::dvec3 normal_vec;
+        
+        Side(const glm::dvec3& p, const glm::dvec3& n) : point(p), normal_vec(normalize(n)) {}
+        
+        double signedDistance(const glm::dvec3& pos) const {
+            return dot(pos - point, normal_vec);
+        }
+        
+        glm::dvec3 projection(const glm::dvec3& pos) const {
+            return pos - signedDistance(pos) * normal_vec;
+        }
+        
+        glm::dvec3 normal() const { return normal_vec; }
+    };
     const Side *getSides() const { return sides; }
     const double getEdgeLength() const { return sideSize; }
 
