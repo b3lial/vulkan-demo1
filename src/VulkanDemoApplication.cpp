@@ -173,7 +173,7 @@ void VulkanDemoApplication::initVulkan()
         exit(EXIT_FAILURE);
     }
 
-    // Physical device
+    // Physical device. Select the first one available
     uint32_t deviceCount = 0;
     vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
     VkPhysicalDevice *devices = new VkPhysicalDevice[deviceCount];
@@ -182,16 +182,18 @@ void VulkanDemoApplication::initVulkan()
     delete[] devices;
     mVulkanGrid.setPhysicalDevice(physicalDevice);
 
-    // Find queue
+    // Find queue family that supports both graphics and presentation
     uint32_t queueCount = 0;
     vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueCount,
                                              nullptr);
+    LOG_DEBUG("Available Queue Families: " + std::to_string(queueCount));
     VkQueueFamilyProperties *queueProps =
         new VkQueueFamilyProperties[queueCount];
     vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueCount,
                                              queueProps);
     for (uint32_t i = 0; i < queueCount; ++i)
     {
+        LOG_DEBUG("Queue Family " + std::to_string(i) + ": " + std::to_string(queueProps[i].queueCount) + " queues");
         VkBool32 supported = false;
         vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, i, surface,
                                              &supported);
@@ -202,8 +204,9 @@ void VulkanDemoApplication::initVulkan()
         }
     }
     delete[] queueProps;
+    LOG_DEBUG("Selected Queue: " + std::to_string(queueFamilyIndex));
 
-    // Create logical device
+    // Create logical device based on previously verified queue familiy capabilities
     float priority = 1.0f;
     VkDeviceQueueCreateInfo qinfo{VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO};
     qinfo.queueFamilyIndex = queueFamilyIndex;
@@ -225,10 +228,19 @@ void VulkanDemoApplication::initVulkan()
     }
     mVulkanGrid.setDevice(device);
 
+    // Get first queue of the previously selected queue family
+    // Queue families are categories of queues with same capabilities (graphics, compute, transfer).
+    // We found a family that supports both graphics operations and presentation to screen.
+    // This retrieves the actual queue handle to submit rendering commands to.
     vkGetDeviceQueue(device, queueFamilyIndex, 0, &graphicsQueue);
+
+    // VulkanGrid needs the graphica queue to transfer a staging buffer into device-local buffer
     mVulkanGrid.setGraphicsQueue(graphicsQueue);
 
-    // Create swapchain
+    // Create swapchain - a queue of 2-3 images for smooth display without tearing.
+    // While GPU renders to one image (back buffer), another is shown on screen (front buffer).
+    // KHR = Khronos extension for presentation, now essential for any windowed application.
+    // Enables double/triple buffering for fluid animation.
     VkSurfaceCapabilitiesKHR caps;
     vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &caps);
 
