@@ -27,9 +27,9 @@ void VulkanDemoApplication::initWindow()
     glfwInit();
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-    window = glfwCreateWindow(WIDTH, HEIGHT, "Vulkan", nullptr, nullptr);
+    mWindow = glfwCreateWindow(WIDTH, HEIGHT, "Vulkan", nullptr, nullptr);
 
-    glfwGetFramebufferSize(window, &fbWidth, &fbHeight);
+    glfwGetFramebufferSize(mWindow, &fbWidth, &fbHeight);
     LOG_DEBUG("fb width: " + std::to_string(fbWidth));
     LOG_DEBUG("fb height: " + std::to_string(fbHeight));
     mVulkanGrid.setFramebufferResolution(fbWidth, fbHeight);
@@ -41,10 +41,10 @@ void VulkanDemoApplication::createUniformBuffer()
 {
     VkDeviceSize bufferSize = sizeof(UniformBufferObject);
 
-    createBuffer(physicalDevice, device, bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+    createBuffer(mPhysicalDevice, mDevice, bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
                  VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
                      VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-                 uniformBuffer, uniformBufferMemory);
+                 mUniformBuffer, mUniformBufferMemory);
 }
 
 //---------------------------------------------------
@@ -62,9 +62,9 @@ void VulkanDemoApplication::updateUniformBuffer()
     ubo.lights[2].color = lights[2].color;
 
     void *data;
-    vkMapMemory(device, uniformBufferMemory, 0, sizeof(ubo), 0, &data);
+    vkMapMemory(mDevice, mUniformBufferMemory, 0, sizeof(ubo), 0, &data);
     memcpy(data, &ubo, sizeof(ubo));
-    vkUnmapMemory(device, uniformBufferMemory);
+    vkUnmapMemory(mDevice, mUniformBufferMemory);
 }
 
 //---------------------------------------------------
@@ -82,8 +82,8 @@ void VulkanDemoApplication::createDescriptorSetLayout()
     layoutInfo.bindingCount = 1;
     layoutInfo.pBindings = &uboLayoutBinding;
 
-    if (vkCreateDescriptorSetLayout(device, &layoutInfo, nullptr,
-                                    &descriptorSetLayout) != VK_SUCCESS)
+    if (vkCreateDescriptorSetLayout(mDevice, &layoutInfo, nullptr,
+                                    &mDescriptorSetLayout) != VK_SUCCESS)
     {
         LOG_DEBUG("Failed to create descriptor set layout");
         exit(EXIT_FAILURE);
@@ -103,7 +103,7 @@ void VulkanDemoApplication::createDescriptorPool()
     poolInfo.pPoolSizes = &poolSize;
     poolInfo.maxSets = 1;
 
-    if (vkCreateDescriptorPool(device, &poolInfo, nullptr, &descriptorPool) !=
+    if (vkCreateDescriptorPool(mDevice, &poolInfo, nullptr, &mDescriptorPool) !=
         VK_SUCCESS)
     {
         LOG_DEBUG("Failed to create descriptor pool");
@@ -116,11 +116,11 @@ void VulkanDemoApplication::createDescriptorSet()
 {
     VkDescriptorSetAllocateInfo allocInfo{};
     allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-    allocInfo.descriptorPool = descriptorPool;
+    allocInfo.descriptorPool = mDescriptorPool;
     allocInfo.descriptorSetCount = 1;
-    allocInfo.pSetLayouts = &descriptorSetLayout;
+    allocInfo.pSetLayouts = &mDescriptorSetLayout;
 
-    if (vkAllocateDescriptorSets(device, &allocInfo, &descriptorSet) !=
+    if (vkAllocateDescriptorSets(mDevice, &allocInfo, &mDescriptorSet) !=
         VK_SUCCESS)
     {
         LOG_DEBUG("Failed to allocate descriptor set");
@@ -128,20 +128,20 @@ void VulkanDemoApplication::createDescriptorSet()
     }
 
     VkDescriptorBufferInfo bufferInfo{};
-    bufferInfo.buffer = uniformBuffer;
+    bufferInfo.buffer = mUniformBuffer;
     bufferInfo.offset = 0;
     bufferInfo.range = sizeof(UniformBufferObject);
 
     VkWriteDescriptorSet descriptorWrite{};
     descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-    descriptorWrite.dstSet = descriptorSet;
+    descriptorWrite.dstSet = mDescriptorSet;
     descriptorWrite.dstBinding = 0;
     descriptorWrite.dstArrayElement = 0;
     descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
     descriptorWrite.descriptorCount = 1;
     descriptorWrite.pBufferInfo = &bufferInfo;
 
-    vkUpdateDescriptorSets(device, 1, &descriptorWrite, 0, nullptr);
+    vkUpdateDescriptorSets(mDevice, 1, &descriptorWrite, 0, nullptr);
 }
 
 //---------------------------------------------------
@@ -150,7 +150,7 @@ void VulkanDemoApplication::initVulkan()
 
     // Create instance
     VkApplicationInfo appInfo{VK_STRUCTURE_TYPE_APPLICATION_INFO};
-    appInfo.pApplicationName = "Hello Triangle";
+    appInfo.pApplicationName = "Vulkan Demo 1";
     appInfo.apiVersion = VK_API_VERSION_1_0;
 
     uint32_t extCount;
@@ -161,14 +161,14 @@ void VulkanDemoApplication::initVulkan()
     createInfo.enabledExtensionCount = extCount;
     createInfo.ppEnabledExtensionNames = extensions;
 
-    if (vkCreateInstance(&createInfo, nullptr, &instance) != VK_SUCCESS)
+    if (vkCreateInstance(&createInfo, nullptr, &mInstance) != VK_SUCCESS)
     {
         LOG_DEBUG("Failed to create instance");
         exit(EXIT_FAILURE);
     }
 
     // Surface
-    if (glfwCreateWindowSurface(instance, window, nullptr, &surface) !=
+    if (glfwCreateWindowSurface(mInstance, mWindow, nullptr, &mSurface) !=
         VK_SUCCESS)
     {
         LOG_DEBUG("Failed to create window surface");
@@ -177,41 +177,41 @@ void VulkanDemoApplication::initVulkan()
 
     // Physical device. Select the first one available
     uint32_t deviceCount = 0;
-    vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
+    vkEnumeratePhysicalDevices(mInstance, &deviceCount, nullptr);
     VkPhysicalDevice *devices = new VkPhysicalDevice[deviceCount];
-    vkEnumeratePhysicalDevices(instance, &deviceCount, devices);
-    physicalDevice = devices[0];
+    vkEnumeratePhysicalDevices(mInstance, &deviceCount, devices);
+    mPhysicalDevice = devices[0];
     delete[] devices;
-    mVulkanGrid.setPhysicalDevice(physicalDevice);
+    mVulkanGrid.setPhysicalDevice(mPhysicalDevice);
 
     // Find queue family that supports both graphics and presentation
     uint32_t queueCount = 0;
-    vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueCount,
+    vkGetPhysicalDeviceQueueFamilyProperties(mPhysicalDevice, &queueCount,
                                              nullptr);
     LOG_DEBUG("Available Queue Families: " + std::to_string(queueCount));
     VkQueueFamilyProperties *queueProps =
         new VkQueueFamilyProperties[queueCount];
-    vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueCount,
+    vkGetPhysicalDeviceQueueFamilyProperties(mPhysicalDevice, &queueCount,
                                              queueProps);
     for (uint32_t i = 0; i < queueCount; ++i)
     {
         LOG_DEBUG("Queue Family " + std::to_string(i) + ": " + std::to_string(queueProps[i].queueCount) + " queues");
         VkBool32 supported = false;
-        vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, i, surface,
+        vkGetPhysicalDeviceSurfaceSupportKHR(mPhysicalDevice, i, mSurface,
                                              &supported);
         if ((queueProps[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) && supported)
         {
-            queueFamilyIndex = i;
+            mQueueFamilyIndex = i;
             break;
         }
     }
     delete[] queueProps;
-    LOG_DEBUG("Selected Queue: " + std::to_string(queueFamilyIndex));
+    LOG_DEBUG("Selected Queue: " + std::to_string(mQueueFamilyIndex));
 
     // Create logical device based on previously verified queue familiy capabilities
     float priority = 1.0f;
     VkDeviceQueueCreateInfo qinfo{VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO};
-    qinfo.queueFamilyIndex = queueFamilyIndex;
+    qinfo.queueFamilyIndex = mQueueFamilyIndex;
     qinfo.queueCount = 1;
     qinfo.pQueuePriorities = &priority;
 
@@ -223,42 +223,42 @@ void VulkanDemoApplication::initVulkan()
     dinfo.enabledExtensionCount = 1;
     dinfo.ppEnabledExtensionNames = deviceExtensions;
 
-    if (vkCreateDevice(physicalDevice, &dinfo, nullptr, &device) != VK_SUCCESS)
+    if (vkCreateDevice(mPhysicalDevice, &dinfo, nullptr, &mDevice) != VK_SUCCESS)
     {
         LOG_DEBUG("Failed to create device");
         exit(EXIT_FAILURE);
     }
-    mVulkanGrid.setDevice(device);
+    mVulkanGrid.setDevice(mDevice);
 
     // Get first queue of the previously selected queue family
     // Queue families are categories of queues with same capabilities (graphics, compute, transfer).
     // We found a family that supports both graphics operations and presentation to screen.
     // This retrieves the actual queue handle to submit rendering commands to.
-    vkGetDeviceQueue(device, queueFamilyIndex, 0, &graphicsQueue);
+    vkGetDeviceQueue(mDevice, mQueueFamilyIndex, 0, &mGraphicsQueue);
 
     // VulkanGrid needs the graphica queue to transfer a staging buffer into device-local buffer
-    mVulkanGrid.setGraphicsQueue(graphicsQueue);
+    mVulkanGrid.setGraphicsQueue(mGraphicsQueue);
 
     // Create swapchain - a queue of 2-3 images for smooth display without tearing.
     // While GPU renders to one image (back buffer), another is shown on screen (front buffer).
     // KHR = Khronos extension for presentation, now essential for any windowed application.
     // Enables double/triple buffering for fluid animation.
     VkSurfaceCapabilitiesKHR caps;
-    vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &caps);
+    vkGetPhysicalDeviceSurfaceCapabilitiesKHR(mPhysicalDevice, mSurface, &caps);
 
     VkSurfaceFormatKHR format;
     uint32_t formatCount;
-    vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatCount,
+    vkGetPhysicalDeviceSurfaceFormatsKHR(mPhysicalDevice, mSurface, &formatCount,
                                          nullptr);
     VkSurfaceFormatKHR *formats = new VkSurfaceFormatKHR[formatCount];
-    vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatCount,
+    vkGetPhysicalDeviceSurfaceFormatsKHR(mPhysicalDevice, mSurface, &formatCount,
                                          formats);
     format = formats[0];
     delete[] formats;
 
     VkSwapchainCreateInfoKHR swapInfo{
         VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR};
-    swapInfo.surface = surface;
+    swapInfo.surface = mSurface;
     swapInfo.minImageCount = caps.minImageCount;
     swapInfo.imageFormat = format.format;
     swapInfo.imageColorSpace = format.colorSpace;
@@ -278,7 +278,7 @@ void VulkanDemoApplication::initVulkan()
     swapInfo.presentMode = VK_PRESENT_MODE_FIFO_KHR;
     swapInfo.clipped = VK_TRUE;
 
-    if (vkCreateSwapchainKHR(device, &swapInfo, nullptr, &swapchain) !=
+    if (vkCreateSwapchainKHR(mDevice, &swapInfo, nullptr, &mSwapchain) !=
         VK_SUCCESS)
     {
         LOG_DEBUG("Failed to create swapchain");
@@ -287,27 +287,27 @@ void VulkanDemoApplication::initVulkan()
 
     // Retrieves the actual image handles from the swapchain
     uint32_t imageCount = 0;
-    vkGetSwapchainImagesKHR(device, swapchain, &imageCount, nullptr);
+    vkGetSwapchainImagesKHR(mDevice, mSwapchain, &imageCount, nullptr);
     VkImage *swapchainImages = new VkImage[imageCount];
-    vkGetSwapchainImagesKHR(device, swapchain, &imageCount, swapchainImages);
+    vkGetSwapchainImagesKHR(mDevice, mSwapchain, &imageCount, swapchainImages);
     LOG_DEBUG("Swap Chain Images: " + std::to_string(imageCount));
 
     // Saves the swapchain pixel format (e.g., VK_FORMAT_B8G8R8A8_UNORM) that the swapchain images use
-    swapchainImageFormat = format.format;
+    mSwapchainImageFormat = format.format;
 
     // This creates Image Views - wrappers that describe how to access the swapchain images
     // What's an Image View?
     // - A VkImage is raw image data
     // - A VkImageView describes HOW to interpret that data (format, which parts to access, etc.)
-    swapchainImageViews = new VkImageView[imageCount];
-    swapchainImageViewsSize = imageCount;
+    mSwapchainImageViews = new VkImageView[imageCount];
+    mSwapchainImageViewsSize = imageCount;
     for (size_t i = 0; i < imageCount; i++)
     {
         VkImageViewCreateInfo viewInfo{};
         viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
         viewInfo.image = swapchainImages[i];
         viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-        viewInfo.format = swapchainImageFormat;
+        viewInfo.format = mSwapchainImageFormat;
         viewInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
         viewInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
         viewInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
@@ -318,8 +318,8 @@ void VulkanDemoApplication::initVulkan()
         viewInfo.subresourceRange.baseArrayLayer = 0;
         viewInfo.subresourceRange.layerCount = 1;
 
-        if (vkCreateImageView(device, &viewInfo, nullptr,
-                              &swapchainImageViews[i]) != VK_SUCCESS)
+        if (vkCreateImageView(mDevice, &viewInfo, nullptr,
+                              &mSwapchainImageViews[i]) != VK_SUCCESS)
         {
             LOG_DEBUG("Failed to create image views!");
             exit(EXIT_FAILURE);
@@ -331,7 +331,7 @@ void VulkanDemoApplication::initVulkan()
     // Defines render targets (attachments), how to clear/store them, and image layout transitions.
     // This render pass: clear to black, render, then prepare image for screen presentation.
     VkAttachmentDescription colorAttachment{};
-    colorAttachment.format = swapchainImageFormat; // Format aus ImageView
+    colorAttachment.format = mSwapchainImageFormat; // Format aus ImageView
     colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
     colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;   // Bild löschen
     colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE; // Bild speichern
@@ -371,7 +371,7 @@ void VulkanDemoApplication::initVulkan()
     renderPassInfo.dependencyCount = 1;
     renderPassInfo.pDependencies = &dependency;
 
-    if (vkCreateRenderPass(device, &renderPassInfo, nullptr, &renderPass) !=
+    if (vkCreateRenderPass(mDevice, &renderPassInfo, nullptr, &mRenderPass) !=
         VK_SUCCESS)
     {
         LOG_DEBUG("Failed to create render pass!");
@@ -384,35 +384,35 @@ void VulkanDemoApplication::initVulkan()
     createDescriptorSet(); // ← Buffer wird hier eingebunden
     updateUniformBuffer(); // ← jetzt kann er korrekt beschrieben werden
 
-    mVulkanGrid.createGridPipeline(renderPass);
+    mVulkanGrid.createGridPipeline(mRenderPass);
     
     // Configure VulkanSpheres object with required parameters
-    mVulkanSpheres.setPhysicalDevice(physicalDevice);
-    mVulkanSpheres.setDevice(device);
+    mVulkanSpheres.setPhysicalDevice(mPhysicalDevice);
+    mVulkanSpheres.setDevice(mDevice);
     
     // Create sphere buffers and pipeline
     mVulkanSpheres.createVertexBuffer();
     mVulkanSpheres.createIndexBuffer();
-    mVulkanSpheres.createPipeline(device, renderPass, descriptorSetLayout, fbWidth, fbHeight);
+    mVulkanSpheres.createPipeline(mDevice, mRenderPass, mDescriptorSetLayout, fbWidth, fbHeight);
 
     // create framebuffers
-    swapchainFramebuffers = new VkFramebuffer[swapchainImageViewsSize];
-    swapchainFramebuffersSize = swapchainImageViewsSize;
-    for (size_t i = 0; i < swapchainImageViewsSize; i++)
+    mSwapchainFramebuffers = new VkFramebuffer[mSwapchainImageViewsSize];
+    mSwapchainFramebuffersSize = mSwapchainImageViewsSize;
+    for (size_t i = 0; i < mSwapchainImageViewsSize; i++)
     {
-        VkImageView attachments[] = {swapchainImageViews[i]};
+        VkImageView attachments[] = {mSwapchainImageViews[i]};
 
         VkFramebufferCreateInfo framebufferInfo{};
         framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-        framebufferInfo.renderPass = renderPass;
+        framebufferInfo.renderPass = mRenderPass;
         framebufferInfo.attachmentCount = 1;
         framebufferInfo.pAttachments = attachments;
         framebufferInfo.width = fbWidth;
         framebufferInfo.height = fbHeight;
         framebufferInfo.layers = 1;
 
-        if (vkCreateFramebuffer(device, &framebufferInfo, nullptr,
-                                &swapchainFramebuffers[i]) != VK_SUCCESS)
+        if (vkCreateFramebuffer(mDevice, &framebufferInfo, nullptr,
+                                &mSwapchainFramebuffers[i]) != VK_SUCCESS)
         {
             LOG_DEBUG("Failed to create framebuffer!");
             exit(EXIT_FAILURE);
@@ -423,42 +423,42 @@ void VulkanDemoApplication::initVulkan()
     VkCommandPoolCreateInfo poolInfo{};
     poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
     poolInfo.queueFamilyIndex =
-        queueFamilyIndex; // dieselbe Queue wie beim Zeichnen
+        mQueueFamilyIndex; // dieselbe Queue wie beim Zeichnen
     poolInfo.flags = 0;
-    if (vkCreateCommandPool(device, &poolInfo, nullptr, &commandPool) !=
+    if (vkCreateCommandPool(mDevice, &poolInfo, nullptr, &mCommandPool) !=
         VK_SUCCESS)
     {
         LOG_DEBUG("Failed to create command pool!");
         exit(EXIT_FAILURE);
     }
-    mVulkanGrid.setCommandPool(commandPool);
+    mVulkanGrid.setCommandPool(mCommandPool);
 
     mVulkanGrid.createGridVertexBuffer();
 
     // allocate command buffers
-    commandBuffers = new VkCommandBuffer[swapchainFramebuffersSize];
-    commandBuffersSize = swapchainFramebuffersSize;
+    mCommandBuffers = new VkCommandBuffer[mSwapchainFramebuffersSize];
+    mCommandBuffersSize = mSwapchainFramebuffersSize;
     VkCommandBufferAllocateInfo allocInfo{};
     allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-    allocInfo.commandPool = commandPool;
+    allocInfo.commandPool = mCommandPool;
     allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-    allocInfo.commandBufferCount = static_cast<uint32_t>(commandBuffersSize);
-    if (vkAllocateCommandBuffers(device, &allocInfo, commandBuffers) !=
+    allocInfo.commandBufferCount = static_cast<uint32_t>(mCommandBuffersSize);
+    if (vkAllocateCommandBuffers(mDevice, &allocInfo, mCommandBuffers) !=
         VK_SUCCESS)
     {
         LOG_DEBUG("Failed to allocate command buffers!");
         exit(EXIT_FAILURE);
     }
 
-    LOG_DEBUG("Command Buffers: " + std::to_string(commandBuffersSize));
+    LOG_DEBUG("Command Buffers: " + std::to_string(mCommandBuffersSize));
 
     // create semaphores
     VkSemaphoreCreateInfo semaphoreInfo{};
     semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-    if (vkCreateSemaphore(device, &semaphoreInfo, nullptr,
-                          &imageAvailableSemaphore) != VK_SUCCESS ||
-        vkCreateSemaphore(device, &semaphoreInfo, nullptr,
-                          &renderFinishedSemaphore) != VK_SUCCESS)
+    if (vkCreateSemaphore(mDevice, &semaphoreInfo, nullptr,
+                          &mImageAvailableSemaphore) != VK_SUCCESS ||
+        vkCreateSemaphore(mDevice, &semaphoreInfo, nullptr,
+                          &mRenderFinishedSemaphore) != VK_SUCCESS)
     {
         LOG_DEBUG("Failed to create semaphores!");
         exit(EXIT_FAILURE);
@@ -471,7 +471,7 @@ void VulkanDemoApplication::recordCommandBuffer(uint32_t imageIndex, float time)
     VkCommandBufferBeginInfo beginInfo{};
     beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 
-    if (vkBeginCommandBuffer(commandBuffers[imageIndex], &beginInfo) !=
+    if (vkBeginCommandBuffer(mCommandBuffers[imageIndex], &beginInfo) !=
         VK_SUCCESS)
     {
         LOG_DEBUG("Failed to begin recording command buffer!");
@@ -482,50 +482,50 @@ void VulkanDemoApplication::recordCommandBuffer(uint32_t imageIndex, float time)
 
     VkRenderPassBeginInfo renderPassInfo{};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-    renderPassInfo.renderPass = renderPass;
-    renderPassInfo.framebuffer = swapchainFramebuffers[imageIndex];
+    renderPassInfo.renderPass = mRenderPass;
+    renderPassInfo.framebuffer = mSwapchainFramebuffers[imageIndex];
     renderPassInfo.renderArea.offset = {0, 0};
     renderPassInfo.renderArea.extent = {static_cast<uint32_t>(fbWidth), static_cast<uint32_t>(fbHeight)};
     renderPassInfo.clearValueCount = 1;
     renderPassInfo.pClearValues = &clearColor;
 
-    vkCmdBeginRenderPass(commandBuffers[imageIndex], &renderPassInfo,
+    vkCmdBeginRenderPass(mCommandBuffers[imageIndex], &renderPassInfo,
                          VK_SUBPASS_CONTENTS_INLINE);
 
     // === GRID ZEICHNEN ===
     GridPushConstants gpc{mVulkanCamera.getViewMatrix(), mVulkanCamera.getProjectionMatrix()};
 
-    vkCmdBindPipeline(commandBuffers[imageIndex],
+    vkCmdBindPipeline(mCommandBuffers[imageIndex],
                       VK_PIPELINE_BIND_POINT_GRAPHICS, mVulkanGrid.getPipeline());
 
-    vkCmdPushConstants(commandBuffers[imageIndex], mVulkanGrid.getPipelineLayout(),
+    vkCmdPushConstants(mCommandBuffers[imageIndex], mVulkanGrid.getPipelineLayout(),
                        VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(GridPushConstants),
                        &gpc);
 
     VkBuffer gridBuffers[] = {mVulkanGrid.getVertexBuffer()};
     VkDeviceSize gridOffsets[] = {0};
-    vkCmdBindVertexBuffers(commandBuffers[imageIndex], 0, 1, gridBuffers,
+    vkCmdBindVertexBuffers(mCommandBuffers[imageIndex], 0, 1, gridBuffers,
                            gridOffsets);
 
-    vkCmdDraw(commandBuffers[imageIndex],
+    vkCmdDraw(mCommandBuffers[imageIndex],
               static_cast<uint32_t>(
                   mVulkanGrid.getVertexCount()), // Achtung: zählst du beim Erzeugen
               1, 0, 0);
 
     // === KUGELN ZEICHNEN ===
-    vkCmdBindPipeline(commandBuffers[imageIndex],
+    vkCmdBindPipeline(mCommandBuffers[imageIndex],
                       VK_PIPELINE_BIND_POINT_GRAPHICS, mVulkanSpheres.getPipeline());
 
-    vkCmdBindDescriptorSets(commandBuffers[imageIndex],
+    vkCmdBindDescriptorSets(mCommandBuffers[imageIndex],
                             VK_PIPELINE_BIND_POINT_GRAPHICS, mVulkanSpheres.getPipelineLayout(), 0,
-                            1, &descriptorSet, 0, nullptr);
+                            1, &mDescriptorSet, 0, nullptr);
 
     VkBuffer vertexBuffers[] = {mVulkanSpheres.getVertexBuffer()}; // dein VkBuffer-Handle
     VkDeviceSize offsets[] = {0};
-    vkCmdBindVertexBuffers(commandBuffers[imageIndex], 0, 1, vertexBuffers,
+    vkCmdBindVertexBuffers(mCommandBuffers[imageIndex], 0, 1, vertexBuffers,
                            offsets);
 
-    vkCmdBindIndexBuffer(commandBuffers[imageIndex], mVulkanSpheres.getIndexBuffer(), 0,
+    vkCmdBindIndexBuffer(mCommandBuffers[imageIndex], mVulkanSpheres.getIndexBuffer(), 0,
                          VK_INDEX_TYPE_UINT32);
 
     // calculate positions of spheres
@@ -542,17 +542,17 @@ void VulkanDemoApplication::recordCommandBuffer(uint32_t imageIndex, float time)
 
         PushConstants pc{model, mVulkanCamera.getViewMatrix(), mVulkanCamera.getProjectionMatrix()};
 
-        vkCmdPushConstants(commandBuffers[imageIndex], mVulkanSpheres.getPipelineLayout(),
+        vkCmdPushConstants(mCommandBuffers[imageIndex], mVulkanSpheres.getPipelineLayout(),
                            VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(PushConstants),
                            &pc);
 
-        vkCmdDrawIndexed(commandBuffers[imageIndex],
+        vkCmdDrawIndexed(mCommandBuffers[imageIndex],
                          static_cast<uint32_t>(SPHERE_INDICES), 1, 0, 0, 0);
     }
 
-    vkCmdEndRenderPass(commandBuffers[imageIndex]);
+    vkCmdEndRenderPass(mCommandBuffers[imageIndex]);
 
-    if (vkEndCommandBuffer(commandBuffers[imageIndex]) != VK_SUCCESS)
+    if (vkEndCommandBuffer(mCommandBuffers[imageIndex]) != VK_SUCCESS)
     {
         LOG_DEBUG("Failed to record command buffer!");
         exit(EXIT_FAILURE);
@@ -562,7 +562,7 @@ void VulkanDemoApplication::recordCommandBuffer(uint32_t imageIndex, float time)
 //---------------------------------------------------
 void VulkanDemoApplication::mainLoop()
 {
-    while (!glfwWindowShouldClose(window))
+    while (!glfwWindowShouldClose(mWindow))
     {
         float time = static_cast<float>(glfwGetTime());
 
@@ -577,8 +577,8 @@ void VulkanDemoApplication::mainLoop()
 
         // 1. Bild aus der Swapchain holen
         uint32_t imageIndex;
-        vkAcquireNextImageKHR(device, swapchain, UINT64_MAX,
-                              imageAvailableSemaphore, VK_NULL_HANDLE,
+        vkAcquireNextImageKHR(mDevice, mSwapchain, UINT64_MAX,
+                              mImageAvailableSemaphore, VK_NULL_HANDLE,
                               &imageIndex);
 
         recordCommandBuffer(imageIndex, time);
@@ -587,7 +587,7 @@ void VulkanDemoApplication::mainLoop()
         VkSubmitInfo submitInfo{};
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
-        VkSemaphore waitSemaphores[] = {imageAvailableSemaphore};
+        VkSemaphore waitSemaphores[] = {mImageAvailableSemaphore};
         VkPipelineStageFlags waitStages[] = {
             VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
         submitInfo.waitSemaphoreCount = 1;
@@ -595,13 +595,13 @@ void VulkanDemoApplication::mainLoop()
         submitInfo.pWaitDstStageMask = waitStages;
 
         submitInfo.commandBufferCount = 1;
-        submitInfo.pCommandBuffers = &commandBuffers[imageIndex];
+        submitInfo.pCommandBuffers = &mCommandBuffers[imageIndex];
 
-        VkSemaphore signalSemaphores[] = {renderFinishedSemaphore};
+        VkSemaphore signalSemaphores[] = {mRenderFinishedSemaphore};
         submitInfo.signalSemaphoreCount = 1;
         submitInfo.pSignalSemaphores = signalSemaphores;
 
-        if (vkQueueSubmit(graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE) !=
+        if (vkQueueSubmit(mGraphicsQueue, 1, &submitInfo, VK_NULL_HANDLE) !=
             VK_SUCCESS)
         {
             LOG_DEBUG("Failed to submit draw command buffer!");
@@ -615,12 +615,12 @@ void VulkanDemoApplication::mainLoop()
         presentInfo.pWaitSemaphores = signalSemaphores;
 
         presentInfo.swapchainCount = 1;
-        presentInfo.pSwapchains = &swapchain;
+        presentInfo.pSwapchains = &mSwapchain;
         presentInfo.pImageIndices = &imageIndex;
 
-        vkQueuePresentKHR(graphicsQueue, &presentInfo);
+        vkQueuePresentKHR(mGraphicsQueue, &presentInfo);
 
-        vkQueueWaitIdle(graphicsQueue); // synchron für Einfachheit
+        vkQueueWaitIdle(mGraphicsQueue); // synchron für Einfachheit
     }
 }
 
@@ -628,40 +628,40 @@ void VulkanDemoApplication::mainLoop()
 void VulkanDemoApplication::cleanup()
 {
     LOG_DEBUG("Cleaning up");
-    vkDestroyDescriptorPool(device, descriptorPool, nullptr);
-    vkDestroyDescriptorSetLayout(device, descriptorSetLayout, nullptr);
-    vkDestroyBuffer(device, mVulkanSpheres.getIndexBuffer(), nullptr);
-    vkFreeMemory(device, mVulkanSpheres.getIndexBufferMemory(), nullptr);
-    vkDestroyBuffer(device, mVulkanSpheres.getVertexBuffer(), nullptr);
-    vkFreeMemory(device, mVulkanSpheres.getVertexBufferMemory(), nullptr);
-    vkDestroyBuffer(device, mVulkanGrid.getVertexBuffer(), nullptr);
-    vkFreeMemory(device, mVulkanGrid.getVertexBufferMemory(), nullptr);
-    vkDestroySemaphore(device, renderFinishedSemaphore, nullptr);
-    vkDestroySemaphore(device, imageAvailableSemaphore, nullptr);
-    vkDestroyCommandPool(device, commandPool, nullptr);
-    delete[] commandBuffers; // since we destroye the command buffers by
+    vkDestroyDescriptorPool(mDevice, mDescriptorPool, nullptr);
+    vkDestroyDescriptorSetLayout(mDevice, mDescriptorSetLayout, nullptr);
+    vkDestroyBuffer(mDevice, mVulkanSpheres.getIndexBuffer(), nullptr);
+    vkFreeMemory(mDevice, mVulkanSpheres.getIndexBufferMemory(), nullptr);
+    vkDestroyBuffer(mDevice, mVulkanSpheres.getVertexBuffer(), nullptr);
+    vkFreeMemory(mDevice, mVulkanSpheres.getVertexBufferMemory(), nullptr);
+    vkDestroyBuffer(mDevice, mVulkanGrid.getVertexBuffer(), nullptr);
+    vkFreeMemory(mDevice, mVulkanGrid.getVertexBufferMemory(), nullptr);
+    vkDestroySemaphore(mDevice, mRenderFinishedSemaphore, nullptr);
+    vkDestroySemaphore(mDevice, mImageAvailableSemaphore, nullptr);
+    vkDestroyCommandPool(mDevice, mCommandPool, nullptr);
+    delete[] mCommandBuffers; // since we destroye the command buffers by
                              // destroying their pool, we can now free the array
-    for (unsigned int i = 0; i < swapchainFramebuffersSize; i++)
+    for (unsigned int i = 0; i < mSwapchainFramebuffersSize; i++)
     {
-        VkFramebuffer &fb = swapchainFramebuffers[i];
-        vkDestroyFramebuffer(device, fb, nullptr);
+        VkFramebuffer &fb = mSwapchainFramebuffers[i];
+        vkDestroyFramebuffer(mDevice, fb, nullptr);
     }
-    delete[] swapchainFramebuffers;
-    vkDestroyPipeline(device, mVulkanSpheres.getPipeline(), nullptr);
-    vkDestroyPipelineLayout(device, mVulkanSpheres.getPipelineLayout(), nullptr);
-    vkDestroyPipeline(device, mVulkanGrid.getPipeline(), nullptr);
-    vkDestroyPipelineLayout(device, mVulkanGrid.getPipelineLayout(), nullptr);
-    for (unsigned int i = 0; i < swapchainImageViewsSize; i++)
+    delete[] mSwapchainFramebuffers;
+    vkDestroyPipeline(mDevice, mVulkanSpheres.getPipeline(), nullptr);
+    vkDestroyPipelineLayout(mDevice, mVulkanSpheres.getPipelineLayout(), nullptr);
+    vkDestroyPipeline(mDevice, mVulkanGrid.getPipeline(), nullptr);
+    vkDestroyPipelineLayout(mDevice, mVulkanGrid.getPipelineLayout(), nullptr);
+    for (unsigned int i = 0; i < mSwapchainImageViewsSize; i++)
     {
-        VkImageView &view = swapchainImageViews[i];
-        vkDestroyImageView(device, view, nullptr);
+        VkImageView &view = mSwapchainImageViews[i];
+        vkDestroyImageView(mDevice, view, nullptr);
     }
-    delete[] swapchainImageViews;
-    vkDestroyRenderPass(device, renderPass, nullptr);
-    vkDestroySwapchainKHR(device, swapchain, nullptr);
-    vkDestroyDevice(device, nullptr);
-    vkDestroySurfaceKHR(instance, surface, nullptr);
-    vkDestroyInstance(instance, nullptr);
-    glfwDestroyWindow(window);
+    delete[] mSwapchainImageViews;
+    vkDestroyRenderPass(mDevice, mRenderPass, nullptr);
+    vkDestroySwapchainKHR(mDevice, mSwapchain, nullptr);
+    vkDestroyDevice(mDevice, nullptr);
+    vkDestroySurfaceKHR(mInstance, mSurface, nullptr);
+    vkDestroyInstance(mInstance, nullptr);
+    glfwDestroyWindow(mWindow);
     glfwTerminate();
 }

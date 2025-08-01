@@ -37,32 +37,32 @@ class VulkanDemoApplication
     void createDescriptorSet();
 
     // vulkan boilerplate init stuff
-    GLFWwindow *window;
-    VkInstance instance;
-    VkSurfaceKHR surface;
-    VkPhysicalDevice physicalDevice;
-    VkDevice device;
-    VkQueue graphicsQueue;
-    uint32_t queueFamilyIndex;
-    VkSwapchainKHR swapchain;
-    VkImageView *swapchainImageViews;
-    unsigned int swapchainImageViewsSize;
-    VkFormat swapchainImageFormat;
-    VkRenderPass renderPass;
-    VkFramebuffer *swapchainFramebuffers;
-    unsigned int swapchainFramebuffersSize;
-    VkCommandPool commandPool;
-    VkCommandBuffer *commandBuffers;
-    unsigned int commandBuffersSize;
-    VkSemaphore imageAvailableSemaphore;
-    VkSemaphore renderFinishedSemaphore;
+    GLFWwindow *mWindow;
+    VkInstance mInstance;
+    VkSurfaceKHR mSurface;
+    VkPhysicalDevice mPhysicalDevice;
+    VkDevice mDevice;
+    VkQueue mGraphicsQueue;
+    uint32_t mQueueFamilyIndex;
+    VkSwapchainKHR mSwapchain;
+    VkImageView *mSwapchainImageViews;
+    unsigned int mSwapchainImageViewsSize;
+    VkFormat mSwapchainImageFormat;
+    VkRenderPass mRenderPass;
+    VkFramebuffer *mSwapchainFramebuffers;
+    unsigned int mSwapchainFramebuffersSize;
+    VkCommandPool mCommandPool;
+    VkCommandBuffer *mCommandBuffers;
+    unsigned int mCommandBuffersSize;
+    VkSemaphore mImageAvailableSemaphore;
+    VkSemaphore mRenderFinishedSemaphore;
 
     // uniform buffer
-    VkBuffer uniformBuffer;
-    VkDeviceMemory uniformBufferMemory;
+    VkBuffer mUniformBuffer;
+    VkDeviceMemory mUniformBufferMemory;
 
     // descriptor
-    VkDescriptorSetLayout descriptorSetLayout;
-    VkDescriptorPool descriptorPool;
-    VkDescriptorSet descriptorSet;
+    VkDescriptorSetLayout mDescriptorSetLayout;
+    VkDescriptorPool mDescriptorPool;
+    VkDescriptorSet mDescriptorSet;
 };
