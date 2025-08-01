@@ -3,6 +3,8 @@
 #include "VulkanDemoApplication.hpp"
 #include "Config.hpp"
 
+#include <memory.h>
+
 //---------------------------------------------------
 VulkanDemoApplication::VulkanDemoApplication(WorldCube &worldCube)
     : mWorldCube(worldCube)
