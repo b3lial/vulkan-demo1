@@ -145,10 +145,8 @@ void VulkanDemoApplication::createDescriptorSet()
 }
 
 //---------------------------------------------------
-void VulkanDemoApplication::initVulkan()
+void VulkanDemoApplication::createInstance()
 {
-
-    // Create instance
     VkApplicationInfo appInfo{VK_STRUCTURE_TYPE_APPLICATION_INFO};
     appInfo.pApplicationName = "Vulkan Demo 1";
     appInfo.apiVersion = VK_API_VERSION_1_0;
@@ -166,6 +164,12 @@ void VulkanDemoApplication::initVulkan()
         LOG_DEBUG("Failed to create instance");
         exit(EXIT_FAILURE);
     }
+}
+
+//---------------------------------------------------
+void VulkanDemoApplication::initVulkan()
+{
+    createInstance();
 
     // Surface
     if (glfwCreateWindowSurface(mInstance, mWindow, nullptr, &mSurface) !=

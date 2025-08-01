@@ -30,6 +30,7 @@ class VulkanDemoApplication
     void cleanup();
 
     void recordCommandBuffer(uint32_t imageIndex, float time);
+    void createInstance();
     void createUniformBuffer();
     void updateUniformBuffer();
     void createDescriptorSetLayout();
