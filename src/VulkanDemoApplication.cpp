@@ -283,17 +283,20 @@ void VulkanDemoApplication::initVulkan()
         exit(EXIT_FAILURE);
     }
 
-    // Bilder aus der Swapchain holen
+    // Retrieves the actual image handles from the swapchain
     uint32_t imageCount = 0;
     vkGetSwapchainImagesKHR(device, swapchain, &imageCount, nullptr);
     VkImage *swapchainImages = new VkImage[imageCount];
     vkGetSwapchainImagesKHR(device, swapchain, &imageCount, swapchainImages);
     LOG_DEBUG("Swap Chain Images: " + std::to_string(imageCount));
 
-    // Format merken (wird für Renderpass und ImageViews gebraucht)
+    // Saves the swapchain pixel format (e.g., VK_FORMAT_B8G8R8A8_UNORM) that the swapchain images use
     swapchainImageFormat = format.format;
 
-    // Image Views erstellen
+    // This creates Image Views - wrappers that describe how to access the swapchain images
+    // What's an Image View?
+    // - A VkImage is raw image data
+    // - A VkImageView describes HOW to interpret that data (format, which parts to access, etc.)
     swapchainImageViews = new VkImageView[imageCount];
     swapchainImageViewsSize = imageCount;
     for (size_t i = 0; i < imageCount; i++)
@@ -322,7 +325,9 @@ void VulkanDemoApplication::initVulkan()
     }
     delete[] swapchainImages;
 
-    // Now we create the render pass
+    // Create render pass - a template describing what happens during rendering.
+    // Defines render targets (attachments), how to clear/store them, and image layout transitions.
+    // This render pass: clear to black, render, then prepare image for screen presentation.
     VkAttachmentDescription colorAttachment{};
     colorAttachment.format = swapchainImageFormat; // Format aus ImageView
     colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
@@ -334,18 +339,18 @@ void VulkanDemoApplication::initVulkan()
     colorAttachment.finalLayout =
         VK_IMAGE_LAYOUT_PRESENT_SRC_KHR; // Präsentierbereit
 
-    // Attachment Referenz – wird im Subpass benutzt
+    // Attachment Reference - links attachment description to subpass
     VkAttachmentReference colorAttachmentRef{};
     colorAttachmentRef.attachment = 0;
     colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
-    // Subpass – beschreibt, wie gezeichnet wird
+    // Subpass - describes the actual rendering operation within the render pass
     VkSubpassDescription subpass{};
     subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
     subpass.colorAttachmentCount = 1;
     subpass.pColorAttachments = &colorAttachmentRef;
 
-    // Subpass Dependency – Synchronisation (wichtig für Swapchain!)
+    // Subpass Dependency - synchronization with swapchain (ensures proper timing)
     VkSubpassDependency dependency{};
     dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
     dependency.dstSubpass = 0;
@@ -354,7 +359,7 @@ void VulkanDemoApplication::initVulkan()
     dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
     dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
 
-    // Renderpass erstellen
+    // Create the render pass object
     VkRenderPassCreateInfo renderPassInfo{};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
     renderPassInfo.attachmentCount = 1;
