@@ -167,28 +167,8 @@ void VulkanDemoApplication::createInstance()
 }
 
 //---------------------------------------------------
-void VulkanDemoApplication::initVulkan()
+void VulkanDemoApplication::findQueueFamily()
 {
-    createInstance();
-
-    // Surface
-    if (glfwCreateWindowSurface(mInstance, mWindow, nullptr, &mSurface) !=
-        VK_SUCCESS)
-    {
-        LOG_DEBUG("Failed to create window surface");
-        exit(EXIT_FAILURE);
-    }
-
-    // Physical device. Select the first one available
-    uint32_t deviceCount = 0;
-    vkEnumeratePhysicalDevices(mInstance, &deviceCount, nullptr);
-    VkPhysicalDevice *devices = new VkPhysicalDevice[deviceCount];
-    vkEnumeratePhysicalDevices(mInstance, &deviceCount, devices);
-    mPhysicalDevice = devices[0];
-    delete[] devices;
-    mVulkanGrid.setPhysicalDevice(mPhysicalDevice);
-
-    // Find queue family that supports both graphics and presentation
     uint32_t queueCount = 0;
     vkGetPhysicalDeviceQueueFamilyProperties(mPhysicalDevice, &queueCount,
                                              nullptr);
@@ -211,6 +191,31 @@ void VulkanDemoApplication::initVulkan()
     }
     delete[] queueProps;
     LOG_DEBUG("Selected Queue: " + std::to_string(mQueueFamilyIndex));
+}
+
+//---------------------------------------------------
+void VulkanDemoApplication::initVulkan()
+{
+    createInstance();
+
+    // Surface
+    if (glfwCreateWindowSurface(mInstance, mWindow, nullptr, &mSurface) !=
+        VK_SUCCESS)
+    {
+        LOG_DEBUG("Failed to create window surface");
+        exit(EXIT_FAILURE);
+    }
+
+    // Physical device. Select the first one available
+    uint32_t deviceCount = 0;
+    vkEnumeratePhysicalDevices(mInstance, &deviceCount, nullptr);
+    VkPhysicalDevice *devices = new VkPhysicalDevice[deviceCount];
+    vkEnumeratePhysicalDevices(mInstance, &deviceCount, devices);
+    mPhysicalDevice = devices[0];
+    delete[] devices;
+    mVulkanGrid.setPhysicalDevice(mPhysicalDevice);
+
+    findQueueFamily();
 
     // Create logical device based on previously verified queue familiy capabilities
     float priority = 1.0f;
