@@ -387,9 +387,6 @@ void VulkanDemoApplication::initVulkan()
     // This retrieves the actual queue handle to submit rendering commands to.
     vkGetDeviceQueue(mDevice, mQueueFamilyIndex, 0, &mGraphicsQueue);
 
-    // VulkanGrid needs the graphica queue to transfer a staging buffer into device-local buffer
-    mVulkanGrid.setGraphicsQueue(mGraphicsQueue);
-
     createSwapchain();
     createImageViews();
     createRenderPass();
@@ -401,6 +398,8 @@ void VulkanDemoApplication::initVulkan()
     updateUniformBuffer(); // ← jetzt kann er korrekt beschrieben werden
 
     mVulkanGrid.createGridPipeline(mRenderPass);
+    // VulkanGrid needs the graphica queue to transfer a staging buffer into device-local buffer
+    mVulkanGrid.setGraphicsQueue(mGraphicsQueue);
     
     // Configure VulkanSpheres object with required parameters
     mVulkanSpheres.setPhysicalDevice(mPhysicalDevice);
