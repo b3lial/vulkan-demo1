@@ -10,121 +10,121 @@ Coding Session 2025
 ---
 ## Execution
 
-Muss im `build` ordner ausgeführt werden, weil sich dort die kompilierten shader befinden.
+Must be executed in the `build` folder because that’s where the compiled shaders are located.
 
 ---
 
 ## Architecture
 
-### 🧱 Instanz & Oberfläche
+### 🧱 Instance & Surface
 
 #### `VkInstance`
-- Einstiegspunkt in die Vulkan-API.
-- Der Vulkan-Loader verwendet die Instanz, um passende Treiber und verfügbare Extensions zu finden.
+- Entry point into the Vulkan API.
+- The Vulkan loader uses the instance to find the appropriate drivers and available extensions.
 
 #### `VkSurfaceKHR`
-- Repräsentiert das Fenster (z. B. von GLFW), auf das gezeichnet wird.
-- Vulkan verwendet die Surface, um gerenderte Bilder an das Window-System zu übergeben.
+- Represents the window (e.g., from GLFW) that will be drawn to.
+- Vulkan uses the surface to pass rendered images to the window system.
 
 ---
 
-### 🧠 Geräte & Queues
+### 🧠 Devices & Queues
 
 #### `VkPhysicalDevice`
-- Reale GPU im System.
-- Liefert Infos über die Fähigkeiten der Hardware (z. B. unterstützte Formate und Queues).
+- The actual GPU in the system.
+- Provides information about the hardware’s capabilities (e.g., supported formats and queues).
 
 #### `VkDevice` (Logical Device)
-- Software-Schnittstelle zur ausgewählten GPU.
-- Ermöglicht das Erstellen von Ressourcen und das Senden von Befehlen an die GPU.
+- Software interface to the selected GPU.
+- Enables creation of resources and sending commands to the GPU.
 
 #### `VkQueue`
-- Eine Warteschlange, in die Command Buffers zur Ausführung gelegt werden.
-- Deine `graphicsQueue` verarbeitet Zeichenbefehle und Präsentationsbefehle.
+- A queue where command buffers are submitted for execution.
+- Your `graphicsQueue` processes draw commands and presentation commands.
 
 ---
 
-### 🖼️ Swapchain & Bilder
+### 🖼️ Swapchain & Images
 
 #### `VkSwapchainKHR`
-- Eine Reihe von Bildern, die auf dem Bildschirm angezeigt werden (Double/Triple Buffering).
-- Die GPU rendert in diese Bilder, die anschließend präsentiert werden.
+- A set of images displayed on the screen (double/triple buffering).
+- The GPU renders into these images, which are then presented.
 
 #### `VkImage`
-- Rohes Speicherobjekt der Swapchain.
-- Enthält das tatsächliche Farbbild für den jeweiligen Frame.
+- Raw memory object from the swapchain.
+- Contains the actual color image for the current frame.
 
 #### `VkImageView`
-- Ermöglicht den Zugriff auf ein `VkImage`, z. B. als Color Attachment im Render Pass.
-- Gibt an, wie das Bild interpretiert werden soll.
+- Provides access to a `VkImage`, e.g., as a color attachment in the render pass.
+- Specifies how the image should be interpreted.
 
 ---
 
-### 🎨 Render-Infrastruktur
+### 🎨 Render Infrastructure
 
 #### `VkRenderPass`
-- Beschreibt, wie die Framebuffer-Bilder verwendet werden (Clear, Load, Store).
-- Legt Layout-Übergänge und Subpasses fest.
+- Describes how the framebuffer images are used (clear, load, store).
+- Defines layout transitions and subpasses.
 
 #### `VkFramebuffer`
-- Kombiniert ein oder mehrere `VkImageView`s mit einem `VkRenderPass`.
-- Stellt das konkrete Zielbild für den aktuellen Frame dar.
+- Combines one or more `VkImageView`s with a `VkRenderPass`.
+- Represents the concrete target image for the current frame.
 
 ---
 
-### 🛠️ Zeichnung & Pipeline
+### 🛠️ Drawing & Pipeline
 
 #### `VkShaderModule`
-- Kompilierter Shader-Code im SPIR-V-Format.
-- Wird in der Pipeline eingebunden und beschreibt die Vertex- und Fragment-Stufen.
+- Compiled shader code in SPIR-V format.
+- Used in the pipeline to define the vertex and fragment stages.
 
 #### `VkPipelineLayout`
-- Container für Ressourcen wie Descriptor Sets oder Push Constants.
-- In unserem Beispiel leer, aber notwendig.
+- Container for resources like descriptor sets or push constants.
+- Empty in our example, but still required.
 
 #### `VkPipeline` (Graphics Pipeline)
-- Umfassende Beschreibung aller Zeichenparameter:
-  - Shader-Stufen
-  - Vertex-Eingabe
-  - Rasterizer
-  - Farbverarbeitung
-  - Ziel-Rendertyp
-- Muss zum `VkRenderPass` passen.
+- Comprehensive description of all drawing parameters:
+  - Shader stages  
+  - Vertex input  
+  - Rasterizer  
+  - Color processing  
+  - Render target type  
+- Must be compatible with the `VkRenderPass`.
 
 ---
 
 ### ✍️ Command Infrastructure
 
 #### `VkCommandPool`
-- Speicherverwaltung für `VkCommandBuffer`.
-- Muss mit einer bestimmten Queue-Familie assoziiert sein.
+- Memory management for `VkCommandBuffer`.
+- Must be associated with a specific queue family.
 
 #### `VkCommandBuffer`
-- Liste von GPU-Befehlen wie `vkCmdDraw`, `vkCmdBindPipeline` usw.
-- Wird vor dem Rendern einmalig aufgenommen (recorded).
+- List of GPU commands such as `vkCmdDraw`, `vkCmdBindPipeline`, etc.
+- Recorded once before rendering.
 
 ---
 
-### 🔄 Draw Loop Synchronisierung
+### 🔄 Draw Loop Synchronization
 
 #### `VkSemaphore` (imageAvailableSemaphore & renderFinishedSemaphore)
-- GPU-Synchronisationsobjekte:
-  - `imageAvailableSemaphore`: signalisiert, dass ein Bild zur Verfügung steht.
-  - `renderFinishedSemaphore`: signalisiert, dass Rendering abgeschlossen ist und das Bild präsentiert werden kann.
+- GPU synchronization objects:
+  - `imageAvailableSemaphore`: signals that an image is available.
+  - `renderFinishedSemaphore`: signals that rendering is complete and the image can be presented.
 
 ---
 
-### 🔁 Ablauf eines Frames
+### 🔁 Frame Flow
 
 1. **Acquire Image (`vkAcquireNextImageKHR`)**
-   - Holt das nächste freie Swapchain-Image.
-   - Wartet auf das `imageAvailableSemaphore`.
+   - Gets the next available swapchain image.
+   - Waits on the `imageAvailableSemaphore`.
 
 2. **Submit Command Buffer (`vkQueueSubmit`)**
-   - Führt die aufgenommenen Zeichenbefehle aus.
-   - Wartet auf das `imageAvailableSemaphore`.
-   - Signalisiert das `renderFinishedSemaphore`.
+   - Executes the recorded draw commands.
+   - Waits on the `imageAvailableSemaphore`.
+   - Signals the `renderFinishedSemaphore`.
 
-3. **Präsentieren (`vkQueuePresentKHR`)**
-   - Gibt das fertig gerenderte Bild an das Fenster aus.
-   - Wartet auf das `renderFinishedSemaphore`.
+3. **Present (`vkQueuePresentKHR`)**
+   - Displays the finished image in the window.
+   - Waits on the `renderFinishedSemaphore`.
