@@ -591,7 +591,7 @@ void VulkanDemoApplication::mainLoop()
         }
         glfwPollEvents();
 
-        // 1. Bild aus der Swapchain holen
+        // 1. Fetch Image from Swapchain
         uint32_t imageIndex;
         vkAcquireNextImageKHR(mLogicalDevice, mSwapchain, UINT64_MAX,
                               mImageAvailableSemaphore, VK_NULL_HANDLE,
@@ -599,7 +599,7 @@ void VulkanDemoApplication::mainLoop()
 
         recordCommandBuffer(imageIndex, time);
 
-        // 2. Infos zum Senden an die Queue
+        // 2. Infos for sending to the queue
         VkSubmitInfo submitInfo{};
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
@@ -624,7 +624,7 @@ void VulkanDemoApplication::mainLoop()
             exit(EXIT_FAILURE);
         }
 
-        // 3. Bild präsentieren
+        // 3. Present Image
         VkPresentInfoKHR presentInfo{};
         presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
         presentInfo.waitSemaphoreCount = 1;
