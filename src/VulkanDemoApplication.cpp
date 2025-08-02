@@ -597,6 +597,7 @@ void VulkanDemoApplication::mainLoop()
                               mImageAvailableSemaphore, VK_NULL_HANDLE,
                               &imageIndex);
 
+        // Here is the real work done. We draw Grid and Spheres
         recordCommandBuffer(imageIndex, time);
 
         // 2. Infos for sending to the queue
