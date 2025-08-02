@@ -7,21 +7,13 @@ class VulkanSpheres
 {
 public:
     VulkanSpheres(float radius = 0.5f, int sectors = SPHERE_VERTICE_SECTORS, int stacks = SPHERE_VERTICE_STACKS);
-    
     void createVertexBuffer();
     void createIndexBuffer();
     void createPipeline(VkDevice& device, VkRenderPass& renderPass, VkDescriptorSetLayout& descriptorSetLayout, int fbWidth, int fbHeight);
     
     // Setters
-    void setPhysicalDevice(VkPhysicalDevice &physicalDevice)
-    {
-        mPhysicalDevice = physicalDevice;
-    }
-    
-    void setLogicalDevice(VkDevice &device)
-    {
-        mLogicalDevice = device;
-    }
+    void setPhysicalDevice(VkPhysicalDevice &physicalDevice){ mPhysicalDevice = physicalDevice; }
+    void setLogicalDevice(VkDevice &device){ mLogicalDevice = device; }
     
     // Getters
     VkBuffer& getVertexBuffer() { return mVertexBuffer; }
