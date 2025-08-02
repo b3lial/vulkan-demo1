@@ -219,43 +219,8 @@ void VulkanDemoApplication::createLogicalDevice()
 }
 
 //---------------------------------------------------
-void VulkanDemoApplication::initVulkan()
+void VulkanDemoApplication::createSwapchain()
 {
-    createInstance();
-
-    // Surface
-    if (glfwCreateWindowSurface(mInstance, mWindow, nullptr, &mSurface) !=
-        VK_SUCCESS)
-    {
-        LOG_DEBUG("Failed to create window surface");
-        exit(EXIT_FAILURE);
-    }
-
-    // Physical device. Select the first one available
-    uint32_t deviceCount = 0;
-    vkEnumeratePhysicalDevices(mInstance, &deviceCount, nullptr);
-    VkPhysicalDevice *devices = new VkPhysicalDevice[deviceCount];
-    vkEnumeratePhysicalDevices(mInstance, &deviceCount, devices);
-    mPhysicalDevice = devices[0];
-    delete[] devices;
-    mVulkanGrid.setPhysicalDevice(mPhysicalDevice);
-
-    findQueueFamily();
-    createLogicalDevice();
-
-    // Get first queue of the previously selected queue family
-    // Queue families are categories of queues with same capabilities (graphics, compute, transfer).
-    // We found a family that supports both graphics operations and presentation to screen.
-    // This retrieves the actual queue handle to submit rendering commands to.
-    vkGetDeviceQueue(mDevice, mQueueFamilyIndex, 0, &mGraphicsQueue);
-
-    // VulkanGrid needs the graphica queue to transfer a staging buffer into device-local buffer
-    mVulkanGrid.setGraphicsQueue(mGraphicsQueue);
-
-    // Create swapchain - a queue of 2-3 images for smooth display without tearing.
-    // While GPU renders to one image (back buffer), another is shown on screen (front buffer).
-    // KHR = Khronos extension for presentation, now essential for any windowed application.
-    // Enables double/triple buffering for fluid animation.
     VkSurfaceCapabilitiesKHR caps;
     vkGetPhysicalDeviceSurfaceCapabilitiesKHR(mPhysicalDevice, mSurface, &caps);
 
@@ -298,15 +263,51 @@ void VulkanDemoApplication::initVulkan()
         exit(EXIT_FAILURE);
     }
 
+    mSwapchainImageFormat = format.format;
+}
+
+//---------------------------------------------------
+void VulkanDemoApplication::initVulkan()
+{
+    createInstance();
+
+    // Surface
+    if (glfwCreateWindowSurface(mInstance, mWindow, nullptr, &mSurface) !=
+        VK_SUCCESS)
+    {
+        LOG_DEBUG("Failed to create window surface");
+        exit(EXIT_FAILURE);
+    }
+
+    // Physical device. Select the first one available
+    uint32_t deviceCount = 0;
+    vkEnumeratePhysicalDevices(mInstance, &deviceCount, nullptr);
+    VkPhysicalDevice *devices = new VkPhysicalDevice[deviceCount];
+    vkEnumeratePhysicalDevices(mInstance, &deviceCount, devices);
+    mPhysicalDevice = devices[0];
+    delete[] devices;
+    mVulkanGrid.setPhysicalDevice(mPhysicalDevice);
+
+    findQueueFamily();
+    createLogicalDevice();
+
+    // Get first queue of the previously selected queue family
+    // Queue families are categories of queues with same capabilities (graphics, compute, transfer).
+    // We found a family that supports both graphics operations and presentation to screen.
+    // This retrieves the actual queue handle to submit rendering commands to.
+    vkGetDeviceQueue(mDevice, mQueueFamilyIndex, 0, &mGraphicsQueue);
+
+    // VulkanGrid needs the graphica queue to transfer a staging buffer into device-local buffer
+    mVulkanGrid.setGraphicsQueue(mGraphicsQueue);
+
+    createSwapchain();
+
     // Retrieves the actual image handles from the swapchain
     uint32_t imageCount = 0;
     vkGetSwapchainImagesKHR(mDevice, mSwapchain, &imageCount, nullptr);
     VkImage *swapchainImages = new VkImage[imageCount];
     vkGetSwapchainImagesKHR(mDevice, mSwapchain, &imageCount, swapchainImages);
     LOG_DEBUG("Swap Chain Images: " + std::to_string(imageCount));
-
-    // Saves the swapchain pixel format (e.g., VK_FORMAT_B8G8R8A8_UNORM) that the swapchain images use
-    mSwapchainImageFormat = format.format;
 
     // This creates Image Views - wrappers that describe how to access the swapchain images
     // What's an Image View?

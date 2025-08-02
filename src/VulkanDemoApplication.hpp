@@ -35,6 +35,8 @@ class VulkanDemoApplication
     void findQueueFamily();
     /// Creates the logical device with swapchain extension and graphics queue
     void createLogicalDevice();
+    /// Creates the swapchain for double/triple buffering presentation
+    void createSwapchain();
 
     void recordCommandBuffer(uint32_t imageIndex, float time);
     void createUniformBuffer();
