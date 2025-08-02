@@ -7,12 +7,11 @@
 
 VulkanSpheres::VulkanSpheres(float radius, int sectors, int stacks)
 {
-    mVerticesSize = generateVertices(radius, sectors, stacks, mVertices);
-    mIndicesSize = generateIndices(sectors, stacks, mIndices);
+    mVerticesSize = generateVertices(radius, sectors, stacks);
+    mIndicesSize = generateIndices(sectors, stacks);
 }
 
-int VulkanSpheres::generateVertices(float radius, int sectors, int stacks,
-                           Vertex vertices[])
+int VulkanSpheres::generateVertices(float radius, int sectors, int stacks)
 {
     const float PI = 3.14159265359f;
     int index = 0;
@@ -34,7 +33,7 @@ int VulkanSpheres::generateVertices(float radius, int sectors, int stacks,
             glm::vec3 color = glm::vec3(1.0f, 1.0f, 1.0f);
             glm::vec3 normal = glm::normalize(glm::vec3(x, y, z));
 
-            vertices[index] = {position, color, normal};
+            mVertices[index] = {position, color, normal};
             index++;
         }
     }
@@ -42,7 +41,7 @@ int VulkanSpheres::generateVertices(float radius, int sectors, int stacks,
     return index;
 }
 
-int VulkanSpheres::generateIndices(int sectors, int stacks, uint32_t indices[])
+int VulkanSpheres::generateIndices(int sectors, int stacks)
 {
     int index = 0;
 
@@ -59,19 +58,19 @@ int VulkanSpheres::generateIndices(int sectors, int stacks, uint32_t indices[])
             uint32_t bottomRight = nextStackStart + j + 1;
 
             // Dreieck 1
-            indices[index] = topLeft;
+            mIndices[index] = topLeft;
             index++;
-            indices[index] = bottomLeft;
+            mIndices[index] = bottomLeft;
             index++;
-            indices[index] = topRight;
+            mIndices[index] = topRight;
             index++;
 
             // Dreieck 2
-            indices[index] = topRight;
+            mIndices[index] = topRight;
             index++;
-            indices[index] = bottomLeft;
+            mIndices[index] = bottomLeft;
             index++;
-            indices[index] = bottomRight;
+            mIndices[index] = bottomRight;
             index++;
         }
     }

@@ -24,8 +24,8 @@ public:
     VkPipelineLayout& getPipelineLayout() { return mPipelineLayout; }
 
 private:
-    int generateVertices(float radius, int sectors, int stacks, Vertex vertices[]);
-    int generateIndices(int sectors, int stacks, uint32_t indices[]);
+    int generateVertices(float radius, int sectors, int stacks);
+    int generateIndices(int sectors, int stacks);
 
     VkPhysicalDevice mPhysicalDevice;
     VkDevice mLogicalDevice;
