@@ -305,45 +305,8 @@ void VulkanDemoApplication::createImageViews()
 }
 
 //---------------------------------------------------
-void VulkanDemoApplication::initVulkan()
+void VulkanDemoApplication::createRenderPass()
 {
-    createInstance();
-
-    // Surface
-    if (glfwCreateWindowSurface(mInstance, mWindow, nullptr, &mSurface) !=
-        VK_SUCCESS)
-    {
-        LOG_DEBUG("Failed to create window surface");
-        exit(EXIT_FAILURE);
-    }
-
-    // Physical device. Select the first one available
-    uint32_t deviceCount = 0;
-    vkEnumeratePhysicalDevices(mInstance, &deviceCount, nullptr);
-    VkPhysicalDevice *devices = new VkPhysicalDevice[deviceCount];
-    vkEnumeratePhysicalDevices(mInstance, &deviceCount, devices);
-    mPhysicalDevice = devices[0];
-    delete[] devices;
-    mVulkanGrid.setPhysicalDevice(mPhysicalDevice);
-
-    findQueueFamily();
-    createLogicalDevice();
-
-    // Get first queue of the previously selected queue family
-    // Queue families are categories of queues with same capabilities (graphics, compute, transfer).
-    // We found a family that supports both graphics operations and presentation to screen.
-    // This retrieves the actual queue handle to submit rendering commands to.
-    vkGetDeviceQueue(mDevice, mQueueFamilyIndex, 0, &mGraphicsQueue);
-
-    // VulkanGrid needs the graphica queue to transfer a staging buffer into device-local buffer
-    mVulkanGrid.setGraphicsQueue(mGraphicsQueue);
-
-    createSwapchain();
-    createImageViews();
-
-    // Create render pass - a template describing what happens during rendering.
-    // Defines render targets (attachments), how to clear/store them, and image layout transitions.
-    // This render pass: clear to black, render, then prepare image for screen presentation.
     VkAttachmentDescription colorAttachment{};
     colorAttachment.format = mSwapchainImageFormat; // Format aus ImageView
     colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
@@ -391,6 +354,45 @@ void VulkanDemoApplication::initVulkan()
         LOG_DEBUG("Failed to create render pass!");
         exit(EXIT_FAILURE);
     }
+}
+
+//---------------------------------------------------
+void VulkanDemoApplication::initVulkan()
+{
+    createInstance();
+
+    // Surface
+    if (glfwCreateWindowSurface(mInstance, mWindow, nullptr, &mSurface) !=
+        VK_SUCCESS)
+    {
+        LOG_DEBUG("Failed to create window surface");
+        exit(EXIT_FAILURE);
+    }
+
+    // Physical device. Select the first one available
+    uint32_t deviceCount = 0;
+    vkEnumeratePhysicalDevices(mInstance, &deviceCount, nullptr);
+    VkPhysicalDevice *devices = new VkPhysicalDevice[deviceCount];
+    vkEnumeratePhysicalDevices(mInstance, &deviceCount, devices);
+    mPhysicalDevice = devices[0];
+    delete[] devices;
+    mVulkanGrid.setPhysicalDevice(mPhysicalDevice);
+
+    findQueueFamily();
+    createLogicalDevice();
+
+    // Get first queue of the previously selected queue family
+    // Queue families are categories of queues with same capabilities (graphics, compute, transfer).
+    // We found a family that supports both graphics operations and presentation to screen.
+    // This retrieves the actual queue handle to submit rendering commands to.
+    vkGetDeviceQueue(mDevice, mQueueFamilyIndex, 0, &mGraphicsQueue);
+
+    // VulkanGrid needs the graphica queue to transfer a staging buffer into device-local buffer
+    mVulkanGrid.setGraphicsQueue(mGraphicsQueue);
+
+    createSwapchain();
+    createImageViews();
+    createRenderPass();
 
     createDescriptorSetLayout();
     createUniformBuffer();

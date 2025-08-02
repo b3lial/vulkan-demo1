@@ -31,6 +31,8 @@ class VulkanDemoApplication
     void createSwapchain();
     /// Creates image views for swapchain images to access them in shaders
     void createImageViews();
+    /// Creates the render pass defining rendering operations and attachments
+    void createRenderPass();
 
     void recordCommandBuffer(uint32_t imageIndex, float time);
     void createUniformBuffer();
