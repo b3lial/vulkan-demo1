@@ -54,7 +54,7 @@ class VulkanDemoApplication
     VkInstance mInstance;
     VkSurfaceKHR mSurface;
     VkPhysicalDevice mPhysicalDevice;
-    VkDevice mDevice;
+    VkDevice mLogicalDevice;
     VkQueue mGraphicsQueue;
     uint32_t mQueueFamilyIndex;
     VkSwapchainKHR mSwapchain;

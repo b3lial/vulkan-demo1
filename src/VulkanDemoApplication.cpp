@@ -41,7 +41,7 @@ void VulkanDemoApplication::createUniformBuffer()
 {
     VkDeviceSize bufferSize = sizeof(UniformBufferObject);
 
-    createBuffer(mPhysicalDevice, mDevice, bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+    createBuffer(mPhysicalDevice, mLogicalDevice, bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
                  VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
                      VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
                  mUniformBuffer, mUniformBufferMemory);
@@ -62,9 +62,9 @@ void VulkanDemoApplication::updateUniformBuffer()
     ubo.lights[2].color = lights[2].color;
 
     void *data;
-    vkMapMemory(mDevice, mUniformBufferMemory, 0, sizeof(ubo), 0, &data);
+    vkMapMemory(mLogicalDevice, mUniformBufferMemory, 0, sizeof(ubo), 0, &data);
     memcpy(data, &ubo, sizeof(ubo));
-    vkUnmapMemory(mDevice, mUniformBufferMemory);
+    vkUnmapMemory(mLogicalDevice, mUniformBufferMemory);
 }
 
 //---------------------------------------------------
@@ -82,7 +82,7 @@ void VulkanDemoApplication::createDescriptorSetLayout()
     layoutInfo.bindingCount = 1;
     layoutInfo.pBindings = &uboLayoutBinding;
 
-    if (vkCreateDescriptorSetLayout(mDevice, &layoutInfo, nullptr,
+    if (vkCreateDescriptorSetLayout(mLogicalDevice, &layoutInfo, nullptr,
                                     &mDescriptorSetLayout) != VK_SUCCESS)
     {
         LOG_DEBUG("Failed to create descriptor set layout");
@@ -103,7 +103,7 @@ void VulkanDemoApplication::createDescriptorPool()
     poolInfo.pPoolSizes = &poolSize;
     poolInfo.maxSets = 1;
 
-    if (vkCreateDescriptorPool(mDevice, &poolInfo, nullptr, &mDescriptorPool) !=
+    if (vkCreateDescriptorPool(mLogicalDevice, &poolInfo, nullptr, &mDescriptorPool) !=
         VK_SUCCESS)
     {
         LOG_DEBUG("Failed to create descriptor pool");
@@ -120,7 +120,7 @@ void VulkanDemoApplication::createDescriptorSet()
     allocInfo.descriptorSetCount = 1;
     allocInfo.pSetLayouts = &mDescriptorSetLayout;
 
-    if (vkAllocateDescriptorSets(mDevice, &allocInfo, &mDescriptorSet) !=
+    if (vkAllocateDescriptorSets(mLogicalDevice, &allocInfo, &mDescriptorSet) !=
         VK_SUCCESS)
     {
         LOG_DEBUG("Failed to allocate descriptor set");
@@ -141,7 +141,7 @@ void VulkanDemoApplication::createDescriptorSet()
     descriptorWrite.descriptorCount = 1;
     descriptorWrite.pBufferInfo = &bufferInfo;
 
-    vkUpdateDescriptorSets(mDevice, 1, &descriptorWrite, 0, nullptr);
+    vkUpdateDescriptorSets(mLogicalDevice, 1, &descriptorWrite, 0, nullptr);
 }
 
 //---------------------------------------------------
@@ -210,12 +210,12 @@ void VulkanDemoApplication::createLogicalDevice()
     dinfo.enabledExtensionCount = 1;
     dinfo.ppEnabledExtensionNames = deviceExtensions;
 
-    if (vkCreateDevice(mPhysicalDevice, &dinfo, nullptr, &mDevice) != VK_SUCCESS)
+    if (vkCreateDevice(mPhysicalDevice, &dinfo, nullptr, &mLogicalDevice) != VK_SUCCESS)
     {
         LOG_DEBUG("Failed to create device");
         exit(EXIT_FAILURE);
     }
-    mVulkanGrid.setDevice(mDevice);
+    mVulkanGrid.setLogicalDevice(mLogicalDevice);
 }
 
 //---------------------------------------------------
@@ -256,7 +256,7 @@ void VulkanDemoApplication::createSwapchain()
     swapInfo.presentMode = VK_PRESENT_MODE_FIFO_KHR;
     swapInfo.clipped = VK_TRUE;
 
-    if (vkCreateSwapchainKHR(mDevice, &swapInfo, nullptr, &mSwapchain) !=
+    if (vkCreateSwapchainKHR(mLogicalDevice, &swapInfo, nullptr, &mSwapchain) !=
         VK_SUCCESS)
     {
         LOG_DEBUG("Failed to create swapchain");
@@ -270,9 +270,9 @@ void VulkanDemoApplication::createSwapchain()
 void VulkanDemoApplication::createImageViews()
 {
     uint32_t imageCount = 0;
-    vkGetSwapchainImagesKHR(mDevice, mSwapchain, &imageCount, nullptr);
+    vkGetSwapchainImagesKHR(mLogicalDevice, mSwapchain, &imageCount, nullptr);
     VkImage *swapchainImages = new VkImage[imageCount];
-    vkGetSwapchainImagesKHR(mDevice, mSwapchain, &imageCount, swapchainImages);
+    vkGetSwapchainImagesKHR(mLogicalDevice, mSwapchain, &imageCount, swapchainImages);
     LOG_DEBUG("Swap Chain Images: " + std::to_string(imageCount));
 
     mSwapchainImageViews = new VkImageView[imageCount];
@@ -294,7 +294,7 @@ void VulkanDemoApplication::createImageViews()
         viewInfo.subresourceRange.baseArrayLayer = 0;
         viewInfo.subresourceRange.layerCount = 1;
 
-        if (vkCreateImageView(mDevice, &viewInfo, nullptr,
+        if (vkCreateImageView(mLogicalDevice, &viewInfo, nullptr,
                               &mSwapchainImageViews[i]) != VK_SUCCESS)
         {
             LOG_DEBUG("Failed to create image views!");
@@ -348,7 +348,7 @@ void VulkanDemoApplication::createRenderPass()
     renderPassInfo.dependencyCount = 1;
     renderPassInfo.pDependencies = &dependency;
 
-    if (vkCreateRenderPass(mDevice, &renderPassInfo, nullptr, &mRenderPass) !=
+    if (vkCreateRenderPass(mLogicalDevice, &renderPassInfo, nullptr, &mRenderPass) !=
         VK_SUCCESS)
     {
         LOG_DEBUG("Failed to create render pass!");
@@ -385,7 +385,7 @@ void VulkanDemoApplication::initVulkan()
     // Queue families are categories of queues with same capabilities (graphics, compute, transfer).
     // We found a family that supports both graphics operations and presentation to screen.
     // This retrieves the actual queue handle to submit rendering commands to.
-    vkGetDeviceQueue(mDevice, mQueueFamilyIndex, 0, &mGraphicsQueue);
+    vkGetDeviceQueue(mLogicalDevice, mQueueFamilyIndex, 0, &mGraphicsQueue);
 
     createSwapchain();
     createImageViews();
@@ -413,7 +413,7 @@ void VulkanDemoApplication::initVulkan()
         framebufferInfo.height = mFbHeight;
         framebufferInfo.layers = 1;
 
-        if (vkCreateFramebuffer(mDevice, &framebufferInfo, nullptr,
+        if (vkCreateFramebuffer(mLogicalDevice, &framebufferInfo, nullptr,
                                 &mSwapchainFramebuffers[i]) != VK_SUCCESS)
         {
             LOG_DEBUG("Failed to create framebuffer!");
@@ -427,7 +427,7 @@ void VulkanDemoApplication::initVulkan()
     poolInfo.queueFamilyIndex =
         mQueueFamilyIndex; // dieselbe Queue wie beim Zeichnen
     poolInfo.flags = 0;
-    if (vkCreateCommandPool(mDevice, &poolInfo, nullptr, &mCommandPool) !=
+    if (vkCreateCommandPool(mLogicalDevice, &poolInfo, nullptr, &mCommandPool) !=
         VK_SUCCESS)
     {
         LOG_DEBUG("Failed to create command pool!");
@@ -442,7 +442,7 @@ void VulkanDemoApplication::initVulkan()
     allocInfo.commandPool = mCommandPool;
     allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
     allocInfo.commandBufferCount = static_cast<uint32_t>(mCommandBuffersSize);
-    if (vkAllocateCommandBuffers(mDevice, &allocInfo, mCommandBuffers) !=
+    if (vkAllocateCommandBuffers(mLogicalDevice, &allocInfo, mCommandBuffers) !=
         VK_SUCCESS)
     {
         LOG_DEBUG("Failed to allocate command buffers!");
@@ -454,25 +454,27 @@ void VulkanDemoApplication::initVulkan()
     // create semaphores
     VkSemaphoreCreateInfo semaphoreInfo{};
     semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-    if (vkCreateSemaphore(mDevice, &semaphoreInfo, nullptr,
+    if (vkCreateSemaphore(mLogicalDevice, &semaphoreInfo, nullptr,
                           &mImageAvailableSemaphore) != VK_SUCCESS ||
-        vkCreateSemaphore(mDevice, &semaphoreInfo, nullptr,
+        vkCreateSemaphore(mLogicalDevice, &semaphoreInfo, nullptr,
                           &mRenderFinishedSemaphore) != VK_SUCCESS)
     {
         LOG_DEBUG("Failed to create semaphores!");
         exit(EXIT_FAILURE);
     }
 
+    // init grid 
     mVulkanGrid.setGraphicsQueue(mGraphicsQueue);
     mVulkanGrid.setCommandPool(mCommandPool);
     mVulkanGrid.createGridVertexBuffer();
     mVulkanGrid.createGridPipeline(mRenderPass);
     
+    // init spheres
     mVulkanSpheres.setPhysicalDevice(mPhysicalDevice);
-    mVulkanSpheres.setDevice(mDevice);
+    mVulkanSpheres.setLogicalDevice(mLogicalDevice);
     mVulkanSpheres.createVertexBuffer();
     mVulkanSpheres.createIndexBuffer();
-    mVulkanSpheres.createPipeline(mDevice, mRenderPass, mDescriptorSetLayout, mFbWidth, mFbHeight);
+    mVulkanSpheres.createPipeline(mLogicalDevice, mRenderPass, mDescriptorSetLayout, mFbWidth, mFbHeight);
 }
 
 //---------------------------------------------------
@@ -587,7 +589,7 @@ void VulkanDemoApplication::mainLoop()
 
         // 1. Bild aus der Swapchain holen
         uint32_t imageIndex;
-        vkAcquireNextImageKHR(mDevice, mSwapchain, UINT64_MAX,
+        vkAcquireNextImageKHR(mLogicalDevice, mSwapchain, UINT64_MAX,
                               mImageAvailableSemaphore, VK_NULL_HANDLE,
                               &imageIndex);
 
@@ -638,38 +640,38 @@ void VulkanDemoApplication::mainLoop()
 void VulkanDemoApplication::cleanup()
 {
     LOG_DEBUG("Cleaning up");
-    vkDestroyDescriptorPool(mDevice, mDescriptorPool, nullptr);
-    vkDestroyDescriptorSetLayout(mDevice, mDescriptorSetLayout, nullptr);
-    vkDestroyBuffer(mDevice, mVulkanSpheres.getIndexBuffer(), nullptr);
-    vkFreeMemory(mDevice, mVulkanSpheres.getIndexBufferMemory(), nullptr);
-    vkDestroyBuffer(mDevice, mVulkanSpheres.getVertexBuffer(), nullptr);
-    vkFreeMemory(mDevice, mVulkanSpheres.getVertexBufferMemory(), nullptr);
-    vkDestroyBuffer(mDevice, mVulkanGrid.getVertexBuffer(), nullptr);
-    vkFreeMemory(mDevice, mVulkanGrid.getVertexBufferMemory(), nullptr);
-    vkDestroySemaphore(mDevice, mRenderFinishedSemaphore, nullptr);
-    vkDestroySemaphore(mDevice, mImageAvailableSemaphore, nullptr);
-    vkDestroyCommandPool(mDevice, mCommandPool, nullptr);
+    vkDestroyDescriptorPool(mLogicalDevice, mDescriptorPool, nullptr);
+    vkDestroyDescriptorSetLayout(mLogicalDevice, mDescriptorSetLayout, nullptr);
+    vkDestroyBuffer(mLogicalDevice, mVulkanSpheres.getIndexBuffer(), nullptr);
+    vkFreeMemory(mLogicalDevice, mVulkanSpheres.getIndexBufferMemory(), nullptr);
+    vkDestroyBuffer(mLogicalDevice, mVulkanSpheres.getVertexBuffer(), nullptr);
+    vkFreeMemory(mLogicalDevice, mVulkanSpheres.getVertexBufferMemory(), nullptr);
+    vkDestroyBuffer(mLogicalDevice, mVulkanGrid.getVertexBuffer(), nullptr);
+    vkFreeMemory(mLogicalDevice, mVulkanGrid.getVertexBufferMemory(), nullptr);
+    vkDestroySemaphore(mLogicalDevice, mRenderFinishedSemaphore, nullptr);
+    vkDestroySemaphore(mLogicalDevice, mImageAvailableSemaphore, nullptr);
+    vkDestroyCommandPool(mLogicalDevice, mCommandPool, nullptr);
     delete[] mCommandBuffers; // since we destroye the command buffers by
                              // destroying their pool, we can now free the array
     for (unsigned int i = 0; i < mSwapchainFramebuffersSize; i++)
     {
         VkFramebuffer &fb = mSwapchainFramebuffers[i];
-        vkDestroyFramebuffer(mDevice, fb, nullptr);
+        vkDestroyFramebuffer(mLogicalDevice, fb, nullptr);
     }
     delete[] mSwapchainFramebuffers;
-    vkDestroyPipeline(mDevice, mVulkanSpheres.getPipeline(), nullptr);
-    vkDestroyPipelineLayout(mDevice, mVulkanSpheres.getPipelineLayout(), nullptr);
-    vkDestroyPipeline(mDevice, mVulkanGrid.getPipeline(), nullptr);
-    vkDestroyPipelineLayout(mDevice, mVulkanGrid.getPipelineLayout(), nullptr);
+    vkDestroyPipeline(mLogicalDevice, mVulkanSpheres.getPipeline(), nullptr);
+    vkDestroyPipelineLayout(mLogicalDevice, mVulkanSpheres.getPipelineLayout(), nullptr);
+    vkDestroyPipeline(mLogicalDevice, mVulkanGrid.getPipeline(), nullptr);
+    vkDestroyPipelineLayout(mLogicalDevice, mVulkanGrid.getPipelineLayout(), nullptr);
     for (unsigned int i = 0; i < mSwapchainImageViewsSize; i++)
     {
         VkImageView &view = mSwapchainImageViews[i];
-        vkDestroyImageView(mDevice, view, nullptr);
+        vkDestroyImageView(mLogicalDevice, view, nullptr);
     }
     delete[] mSwapchainImageViews;
-    vkDestroyRenderPass(mDevice, mRenderPass, nullptr);
-    vkDestroySwapchainKHR(mDevice, mSwapchain, nullptr);
-    vkDestroyDevice(mDevice, nullptr);
+    vkDestroyRenderPass(mLogicalDevice, mRenderPass, nullptr);
+    vkDestroySwapchainKHR(mLogicalDevice, mSwapchain, nullptr);
+    vkDestroyDevice(mLogicalDevice, nullptr);
     vkDestroySurfaceKHR(mInstance, mSurface, nullptr);
     vkDestroyInstance(mInstance, nullptr);
     glfwDestroyWindow(mWindow);

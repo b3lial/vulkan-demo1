@@ -18,7 +18,7 @@ public:
         mPhysicalDevice = physicalDevice;
     }
     
-    void setDevice(VkDevice &device)
+    void setLogicalDevice(VkDevice &device)
     {
         mDevice = device;
     }
