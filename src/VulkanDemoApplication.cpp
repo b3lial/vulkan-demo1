@@ -29,10 +29,10 @@ void VulkanDemoApplication::initWindow()
     glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
     mWindow = glfwCreateWindow(WIDTH, HEIGHT, "Vulkan", nullptr, nullptr);
 
-    glfwGetFramebufferSize(mWindow, &fbWidth, &fbHeight);
-    LOG_DEBUG("fb width: " + std::to_string(fbWidth));
-    LOG_DEBUG("fb height: " + std::to_string(fbHeight));
-    mVulkanGrid.setFramebufferResolution(fbWidth, fbHeight);
+    glfwGetFramebufferSize(mWindow, &mFbWidth, &mFbHeight);
+    LOG_DEBUG("fb width: " + std::to_string(mFbWidth));
+    LOG_DEBUG("fb height: " + std::to_string(mFbHeight));
+    mVulkanGrid.setFramebufferResolution(mFbWidth, mFbHeight);
 }
 
 
@@ -246,7 +246,7 @@ void VulkanDemoApplication::createSwapchain()
     }
     else
     {
-        swapInfo.imageExtent = {static_cast<uint32_t>(fbWidth), static_cast<uint32_t>(fbHeight)}; // eigene Fenstergröße
+        swapInfo.imageExtent = {static_cast<uint32_t>(mFbWidth), static_cast<uint32_t>(mFbHeight)}; // eigene Fenstergröße
     }
     swapInfo.imageArrayLayers = 1;
     swapInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
@@ -409,8 +409,8 @@ void VulkanDemoApplication::initVulkan()
         framebufferInfo.renderPass = mRenderPass;
         framebufferInfo.attachmentCount = 1;
         framebufferInfo.pAttachments = attachments;
-        framebufferInfo.width = fbWidth;
-        framebufferInfo.height = fbHeight;
+        framebufferInfo.width = mFbWidth;
+        framebufferInfo.height = mFbHeight;
         framebufferInfo.layers = 1;
 
         if (vkCreateFramebuffer(mDevice, &framebufferInfo, nullptr,
@@ -472,7 +472,7 @@ void VulkanDemoApplication::initVulkan()
     mVulkanSpheres.setDevice(mDevice);
     mVulkanSpheres.createVertexBuffer();
     mVulkanSpheres.createIndexBuffer();
-    mVulkanSpheres.createPipeline(mDevice, mRenderPass, mDescriptorSetLayout, fbWidth, fbHeight);
+    mVulkanSpheres.createPipeline(mDevice, mRenderPass, mDescriptorSetLayout, mFbWidth, mFbHeight);
 }
 
 //---------------------------------------------------
@@ -495,7 +495,7 @@ void VulkanDemoApplication::recordCommandBuffer(uint32_t imageIndex, float time)
     renderPassInfo.renderPass = mRenderPass;
     renderPassInfo.framebuffer = mSwapchainFramebuffers[imageIndex];
     renderPassInfo.renderArea.offset = {0, 0};
-    renderPassInfo.renderArea.extent = {static_cast<uint32_t>(fbWidth), static_cast<uint32_t>(fbHeight)};
+    renderPassInfo.renderArea.extent = {static_cast<uint32_t>(mFbWidth), static_cast<uint32_t>(mFbHeight)};
     renderPassInfo.clearValueCount = 1;
     renderPassInfo.pClearValues = &clearColor;
 
@@ -577,7 +577,7 @@ void VulkanDemoApplication::mainLoop()
         float time = static_cast<float>(glfwGetTime());
 
         // Update camera animation
-        mVulkanCamera.updateCamera(time, fbWidth, fbHeight);
+        mVulkanCamera.updateCamera(time, mFbWidth, mFbHeight);
 
         for (int i = 0; i < 10; i++)
         {

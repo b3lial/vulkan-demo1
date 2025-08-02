@@ -42,7 +42,7 @@ class VulkanDemoApplication
     void createDescriptorSet();
 
     // framebuffer size, can differ from actual window size in pixels
-    int fbWidth = 0, fbHeight = 0;
+    int mFbWidth = 0, mFbHeight = 0;
 
     WorldCube &mWorldCube;
     VulkanSpheres mVulkanSpheres;
