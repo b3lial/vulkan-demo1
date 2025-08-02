@@ -470,8 +470,8 @@ void VulkanDemoApplication::initVulkan()
     // init grid 
     mVulkanGrid.setGraphicsQueue(mGraphicsQueue);
     mVulkanGrid.setCommandPool(mCommandPool);
-    mVulkanGrid.createGridVertexBuffer();
-    mVulkanGrid.createGridPipeline(mRenderPass);
+    mVulkanGrid.createVertexBuffer();
+    mVulkanGrid.createPipeline(mRenderPass);
     
     // init spheres
     mVulkanSpheres.setPhysicalDevice(mPhysicalDevice);

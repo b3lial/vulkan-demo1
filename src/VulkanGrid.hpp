@@ -10,8 +10,8 @@
 class VulkanGrid
 {
   public:
-    void createGridPipeline(VkRenderPass &renderPass);
-    void createGridVertexBuffer();
+    void createPipeline(VkRenderPass &renderPass);
+    void createVertexBuffer();
 
     // Setters
     void setPhysicalDevice(VkPhysicalDevice &physicalDevice)
@@ -21,7 +21,7 @@ class VulkanGrid
 
     void setLogicalDevice(VkDevice &device)
     {
-      mDevice = device;
+      mLogicalDevice = device;
     }
 
     void setCommandPool(VkCommandPool &commandPool)
@@ -29,7 +29,7 @@ class VulkanGrid
       mCommandPool = commandPool;
     }
 
-    /// VulkanGrid needs the graphica queue to transfer a staging buffer into device-local buffer
+    /// VulkanGrid needs the graphics queue to transfer a staging buffer into device-local buffer
     void setGraphicsQueue(VkQueue graphicsQueue)
     {
       mGraphicsQueue = graphicsQueue;
@@ -70,18 +70,20 @@ class VulkanGrid
   private:
     int generateLines(int halfExtent, float spacing, glm::vec3 lines[]);
     void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
+  
+    int mFbWidth = WIDTH;
+    int mFbHeight = HEIGHT;
 
     VkPhysicalDevice mPhysicalDevice;
-    VkDevice mDevice;
+    VkDevice mLogicalDevice;
+  
+    VkBuffer mVertexBuffer;
+    VkDeviceMemory mVertexBufferMemory;
+    uint32_t mVertexCount;
+
     VkCommandPool mCommandPool;
     VkQueue mGraphicsQueue;
 
     VkPipelineLayout mPipelineLayout;
     VkPipeline mPipeline;
-    VkBuffer mVertexBuffer;
-    VkDeviceMemory mVertexBufferMemory;
-    uint32_t mVertexCount;
-
-    int mFbWidth = WIDTH;
-    int mFbHeight = HEIGHT;
 };

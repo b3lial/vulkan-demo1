@@ -84,30 +84,30 @@ void VulkanSpheres::createVertexBuffer()
 {
     VkDeviceSize bufferSize = sizeof(mVertices[0]) * mVerticesSize;
 
-    createBuffer(mPhysicalDevice, mDevice, bufferSize, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+    createBuffer(mPhysicalDevice, mLogicalDevice, bufferSize, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
                  VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
                      VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
                  mVertexBuffer, mVertexBufferMemory);
 
     void *data;
-    vkMapMemory(mDevice, mVertexBufferMemory, 0, bufferSize, 0, &data);
+    vkMapMemory(mLogicalDevice, mVertexBufferMemory, 0, bufferSize, 0, &data);
     memcpy(data, mVertices, static_cast<size_t>(bufferSize));
-    vkUnmapMemory(mDevice, mVertexBufferMemory);
+    vkUnmapMemory(mLogicalDevice, mVertexBufferMemory);
 }
 
 void VulkanSpheres::createIndexBuffer()
 {
     VkDeviceSize bufferSize = sizeof(mIndices[0]) * mIndicesSize;
 
-    createBuffer(mPhysicalDevice, mDevice, bufferSize, VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
+    createBuffer(mPhysicalDevice, mLogicalDevice, bufferSize, VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
                  VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
                      VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
                  mIndexBuffer, mIndexBufferMemory);
 
     void *data;
-    vkMapMemory(mDevice, mIndexBufferMemory, 0, bufferSize, 0, &data);
+    vkMapMemory(mLogicalDevice, mIndexBufferMemory, 0, bufferSize, 0, &data);
     memcpy(data, mIndices, static_cast<size_t>(bufferSize));
-    vkUnmapMemory(mDevice, mIndexBufferMemory);
+    vkUnmapMemory(mLogicalDevice, mIndexBufferMemory);
 }
 
 void VulkanSpheres::createPipeline(VkDevice& device, VkRenderPass& renderPass, VkDescriptorSetLayout& descriptorSetLayout, int fbWidth, int fbHeight)

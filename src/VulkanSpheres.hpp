@@ -20,7 +20,7 @@ public:
     
     void setLogicalDevice(VkDevice &device)
     {
-        mDevice = device;
+        mLogicalDevice = device;
     }
     
     // Getters
@@ -36,7 +36,7 @@ private:
     int generateIndices(int sectors, int stacks, uint32_t indices[]);
 
     VkPhysicalDevice mPhysicalDevice;
-    VkDevice mDevice;
+    VkDevice mLogicalDevice;
     
     Vertex mVertices[SPHERE_VERTICES];
     int mVerticesSize;
@@ -47,6 +47,7 @@ private:
     VkDeviceMemory mVertexBufferMemory;
     VkBuffer mIndexBuffer;
     VkDeviceMemory mIndexBufferMemory;
+
     VkPipeline mPipeline;
     VkPipelineLayout mPipelineLayout;
 };
