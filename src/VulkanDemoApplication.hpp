@@ -33,6 +33,8 @@ class VulkanDemoApplication
     void createImageViews();
     /// Creates the render pass defining rendering operations and attachments
     void createRenderPass();
+    /// Creates framebuffers for each swapchain image view
+    void createFramebuffers();
 
     void recordCommandBuffer(uint32_t imageIndex, float time);
     void createUniformBuffer();

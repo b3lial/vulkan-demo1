@@ -357,6 +357,33 @@ void VulkanDemoApplication::createRenderPass()
 }
 
 //---------------------------------------------------
+void VulkanDemoApplication::createFramebuffers()
+{
+    mSwapchainFramebuffers = new VkFramebuffer[mSwapchainImageViewsSize];
+    mSwapchainFramebuffersSize = mSwapchainImageViewsSize;
+    for (size_t i = 0; i < mSwapchainImageViewsSize; i++)
+    {
+        VkImageView attachments[] = {mSwapchainImageViews[i]};
+
+        VkFramebufferCreateInfo framebufferInfo{};
+        framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+        framebufferInfo.renderPass = mRenderPass;
+        framebufferInfo.attachmentCount = 1;
+        framebufferInfo.pAttachments = attachments;
+        framebufferInfo.width = mFbWidth;
+        framebufferInfo.height = mFbHeight;
+        framebufferInfo.layers = 1;
+
+        if (vkCreateFramebuffer(mLogicalDevice, &framebufferInfo, nullptr,
+                                &mSwapchainFramebuffers[i]) != VK_SUCCESS)
+        {
+            LOG_DEBUG("Failed to create framebuffer!");
+            exit(EXIT_FAILURE);
+        }
+    }
+}
+
+//---------------------------------------------------
 void VulkanDemoApplication::initVulkan()
 {
     createInstance();
@@ -390,36 +417,13 @@ void VulkanDemoApplication::initVulkan()
     createSwapchain();
     createImageViews();
     createRenderPass();
+    createFramebuffers();
 
     createDescriptorSetLayout();
     createUniformBuffer();
     createDescriptorPool();
-    createDescriptorSet(); // ← Buffer wird hier eingebunden
-    updateUniformBuffer(); // ← jetzt kann er korrekt beschrieben werden
-
-    // create framebuffers
-    mSwapchainFramebuffers = new VkFramebuffer[mSwapchainImageViewsSize];
-    mSwapchainFramebuffersSize = mSwapchainImageViewsSize;
-    for (size_t i = 0; i < mSwapchainImageViewsSize; i++)
-    {
-        VkImageView attachments[] = {mSwapchainImageViews[i]};
-
-        VkFramebufferCreateInfo framebufferInfo{};
-        framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-        framebufferInfo.renderPass = mRenderPass;
-        framebufferInfo.attachmentCount = 1;
-        framebufferInfo.pAttachments = attachments;
-        framebufferInfo.width = mFbWidth;
-        framebufferInfo.height = mFbHeight;
-        framebufferInfo.layers = 1;
-
-        if (vkCreateFramebuffer(mLogicalDevice, &framebufferInfo, nullptr,
-                                &mSwapchainFramebuffers[i]) != VK_SUCCESS)
-        {
-            LOG_DEBUG("Failed to create framebuffer!");
-            exit(EXIT_FAILURE);
-        }
-    }
+    createDescriptorSet();
+    updateUniformBuffer();
 
     // create command pool
     VkCommandPoolCreateInfo poolInfo{};
