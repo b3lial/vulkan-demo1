@@ -36,7 +36,9 @@ class VulkanDemoApplication
     /// Creates framebuffers for each swapchain image view
     void createFramebuffers();
 
+    /// Draw Grid and Spheres
     void recordCommandBuffer(uint32_t imageIndex, float time);
+  
     void createUniformBuffer();
     void updateUniformBuffer();
     void createDescriptorSetLayout();

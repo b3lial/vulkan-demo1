@@ -508,7 +508,7 @@ void VulkanDemoApplication::recordCommandBuffer(uint32_t imageIndex, float time)
     vkCmdBeginRenderPass(mCommandBuffers[imageIndex], &renderPassInfo,
                          VK_SUBPASS_CONTENTS_INLINE);
 
-    // === GRID ZEICHNEN ===
+    // === Draw Grid ===
     GridPushConstants gpc{mVulkanCamera.getViewMatrix(), mVulkanCamera.getProjectionMatrix()};
 
     vkCmdBindPipeline(mCommandBuffers[imageIndex],
@@ -528,7 +528,7 @@ void VulkanDemoApplication::recordCommandBuffer(uint32_t imageIndex, float time)
                   mVulkanGrid.getVertexCount()), // Achtung: zählst du beim Erzeugen
               1, 0, 0);
 
-    // === KUGELN ZEICHNEN ===
+    // === Draw Spheres ===
     vkCmdBindPipeline(mCommandBuffers[imageIndex],
                       VK_PIPELINE_BIND_POINT_GRAPHICS, mVulkanSpheres.getPipeline());
 
