@@ -397,19 +397,6 @@ void VulkanDemoApplication::initVulkan()
     createDescriptorSet(); // ← Buffer wird hier eingebunden
     updateUniformBuffer(); // ← jetzt kann er korrekt beschrieben werden
 
-    mVulkanGrid.createGridPipeline(mRenderPass);
-    // VulkanGrid needs the graphica queue to transfer a staging buffer into device-local buffer
-    mVulkanGrid.setGraphicsQueue(mGraphicsQueue);
-    
-    // Configure VulkanSpheres object with required parameters
-    mVulkanSpheres.setPhysicalDevice(mPhysicalDevice);
-    mVulkanSpheres.setDevice(mDevice);
-    
-    // Create sphere buffers and pipeline
-    mVulkanSpheres.createVertexBuffer();
-    mVulkanSpheres.createIndexBuffer();
-    mVulkanSpheres.createPipeline(mDevice, mRenderPass, mDescriptorSetLayout, fbWidth, fbHeight);
-
     // create framebuffers
     mSwapchainFramebuffers = new VkFramebuffer[mSwapchainImageViewsSize];
     mSwapchainFramebuffersSize = mSwapchainImageViewsSize;
@@ -446,9 +433,6 @@ void VulkanDemoApplication::initVulkan()
         LOG_DEBUG("Failed to create command pool!");
         exit(EXIT_FAILURE);
     }
-    mVulkanGrid.setCommandPool(mCommandPool);
-
-    mVulkanGrid.createGridVertexBuffer();
 
     // allocate command buffers
     mCommandBuffers = new VkCommandBuffer[mSwapchainFramebuffersSize];
@@ -478,6 +462,17 @@ void VulkanDemoApplication::initVulkan()
         LOG_DEBUG("Failed to create semaphores!");
         exit(EXIT_FAILURE);
     }
+
+    mVulkanGrid.setGraphicsQueue(mGraphicsQueue);
+    mVulkanGrid.setCommandPool(mCommandPool);
+    mVulkanGrid.createGridVertexBuffer();
+    mVulkanGrid.createGridPipeline(mRenderPass);
+    
+    mVulkanSpheres.setPhysicalDevice(mPhysicalDevice);
+    mVulkanSpheres.setDevice(mDevice);
+    mVulkanSpheres.createVertexBuffer();
+    mVulkanSpheres.createIndexBuffer();
+    mVulkanSpheres.createPipeline(mDevice, mRenderPass, mDescriptorSetLayout, fbWidth, fbHeight);
 }
 
 //---------------------------------------------------

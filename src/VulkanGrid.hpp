@@ -29,6 +29,7 @@ class VulkanGrid
       mCommandPool = commandPool;
     }
 
+    /// VulkanGrid needs the graphica queue to transfer a staging buffer into device-local buffer
     void setGraphicsQueue(VkQueue graphicsQueue)
     {
       mGraphicsQueue = graphicsQueue;
