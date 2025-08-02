@@ -194,6 +194,31 @@ void VulkanDemoApplication::findQueueFamily()
 }
 
 //---------------------------------------------------
+void VulkanDemoApplication::createLogicalDevice()
+{
+    float priority = 1.0f;
+    VkDeviceQueueCreateInfo qinfo{VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO};
+    qinfo.queueFamilyIndex = mQueueFamilyIndex;
+    qinfo.queueCount = 1;
+    qinfo.pQueuePriorities = &priority;
+
+    const char *deviceExtensions[] = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
+
+    VkDeviceCreateInfo dinfo{VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO};
+    dinfo.queueCreateInfoCount = 1;
+    dinfo.pQueueCreateInfos = &qinfo;
+    dinfo.enabledExtensionCount = 1;
+    dinfo.ppEnabledExtensionNames = deviceExtensions;
+
+    if (vkCreateDevice(mPhysicalDevice, &dinfo, nullptr, &mDevice) != VK_SUCCESS)
+    {
+        LOG_DEBUG("Failed to create device");
+        exit(EXIT_FAILURE);
+    }
+    mVulkanGrid.setDevice(mDevice);
+}
+
+//---------------------------------------------------
 void VulkanDemoApplication::initVulkan()
 {
     createInstance();
@@ -216,28 +241,7 @@ void VulkanDemoApplication::initVulkan()
     mVulkanGrid.setPhysicalDevice(mPhysicalDevice);
 
     findQueueFamily();
-
-    // Create logical device based on previously verified queue familiy capabilities
-    float priority = 1.0f;
-    VkDeviceQueueCreateInfo qinfo{VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO};
-    qinfo.queueFamilyIndex = mQueueFamilyIndex;
-    qinfo.queueCount = 1;
-    qinfo.pQueuePriorities = &priority;
-
-    const char *deviceExtensions[] = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
-
-    VkDeviceCreateInfo dinfo{VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO};
-    dinfo.queueCreateInfoCount = 1;
-    dinfo.pQueueCreateInfos = &qinfo;
-    dinfo.enabledExtensionCount = 1;
-    dinfo.ppEnabledExtensionNames = deviceExtensions;
-
-    if (vkCreateDevice(mPhysicalDevice, &dinfo, nullptr, &mDevice) != VK_SUCCESS)
-    {
-        LOG_DEBUG("Failed to create device");
-        exit(EXIT_FAILURE);
-    }
-    mVulkanGrid.setDevice(mDevice);
+    createLogicalDevice();
 
     // Get first queue of the previously selected queue family
     // Queue families are categories of queues with same capabilities (graphics, compute, transfer).

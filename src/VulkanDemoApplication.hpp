@@ -29,9 +29,14 @@ class VulkanDemoApplication
     void mainLoop();
     void cleanup();
 
-    void recordCommandBuffer(uint32_t imageIndex, float time);
+    /// Creates the Vulkan instance with required GLFW extensions
     void createInstance();
+    /// Finds a queue family that supports both graphics operations and presentation
     void findQueueFamily();
+    /// Creates the logical device with swapchain extension and graphics queue
+    void createLogicalDevice();
+
+    void recordCommandBuffer(uint32_t imageIndex, float time);
     void createUniformBuffer();
     void updateUniformBuffer();
     void createDescriptorSetLayout();
