@@ -267,6 +267,44 @@ void VulkanDemoApplication::createSwapchain()
 }
 
 //---------------------------------------------------
+void VulkanDemoApplication::createImageViews()
+{
+    uint32_t imageCount = 0;
+    vkGetSwapchainImagesKHR(mDevice, mSwapchain, &imageCount, nullptr);
+    VkImage *swapchainImages = new VkImage[imageCount];
+    vkGetSwapchainImagesKHR(mDevice, mSwapchain, &imageCount, swapchainImages);
+    LOG_DEBUG("Swap Chain Images: " + std::to_string(imageCount));
+
+    mSwapchainImageViews = new VkImageView[imageCount];
+    mSwapchainImageViewsSize = imageCount;
+    for (size_t i = 0; i < imageCount; i++)
+    {
+        VkImageViewCreateInfo viewInfo{};
+        viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+        viewInfo.image = swapchainImages[i];
+        viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+        viewInfo.format = mSwapchainImageFormat;
+        viewInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+        viewInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+        viewInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+        viewInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
+        viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        viewInfo.subresourceRange.baseMipLevel = 0;
+        viewInfo.subresourceRange.levelCount = 1;
+        viewInfo.subresourceRange.baseArrayLayer = 0;
+        viewInfo.subresourceRange.layerCount = 1;
+
+        if (vkCreateImageView(mDevice, &viewInfo, nullptr,
+                              &mSwapchainImageViews[i]) != VK_SUCCESS)
+        {
+            LOG_DEBUG("Failed to create image views!");
+            exit(EXIT_FAILURE);
+        }
+    }
+    delete[] swapchainImages;
+}
+
+//---------------------------------------------------
 void VulkanDemoApplication::initVulkan()
 {
     createInstance();
@@ -301,45 +339,7 @@ void VulkanDemoApplication::initVulkan()
     mVulkanGrid.setGraphicsQueue(mGraphicsQueue);
 
     createSwapchain();
-
-    // Retrieves the actual image handles from the swapchain
-    uint32_t imageCount = 0;
-    vkGetSwapchainImagesKHR(mDevice, mSwapchain, &imageCount, nullptr);
-    VkImage *swapchainImages = new VkImage[imageCount];
-    vkGetSwapchainImagesKHR(mDevice, mSwapchain, &imageCount, swapchainImages);
-    LOG_DEBUG("Swap Chain Images: " + std::to_string(imageCount));
-
-    // This creates Image Views - wrappers that describe how to access the swapchain images
-    // What's an Image View?
-    // - A VkImage is raw image data
-    // - A VkImageView describes HOW to interpret that data (format, which parts to access, etc.)
-    mSwapchainImageViews = new VkImageView[imageCount];
-    mSwapchainImageViewsSize = imageCount;
-    for (size_t i = 0; i < imageCount; i++)
-    {
-        VkImageViewCreateInfo viewInfo{};
-        viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-        viewInfo.image = swapchainImages[i];
-        viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-        viewInfo.format = mSwapchainImageFormat;
-        viewInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
-        viewInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
-        viewInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
-        viewInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
-        viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-        viewInfo.subresourceRange.baseMipLevel = 0;
-        viewInfo.subresourceRange.levelCount = 1;
-        viewInfo.subresourceRange.baseArrayLayer = 0;
-        viewInfo.subresourceRange.layerCount = 1;
-
-        if (vkCreateImageView(mDevice, &viewInfo, nullptr,
-                              &mSwapchainImageViews[i]) != VK_SUCCESS)
-        {
-            LOG_DEBUG("Failed to create image views!");
-            exit(EXIT_FAILURE);
-        }
-    }
-    delete[] swapchainImages;
+    createImageViews();
 
     // Create render pass - a template describing what happens during rendering.
     // Defines render targets (attachments), how to clear/store them, and image layout transitions.

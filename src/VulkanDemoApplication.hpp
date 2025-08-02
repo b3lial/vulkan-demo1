@@ -16,14 +16,6 @@ class VulkanDemoApplication
     VulkanCamera& getCamera() { return mVulkanCamera; }
 
   private:
-    // framebuffer size, can differ from actual window size in pixels
-    int fbWidth = 0, fbHeight = 0;
-
-    WorldCube &mWorldCube;
-    VulkanSpheres mVulkanSpheres;
-    VulkanGrid mVulkanGrid;
-    VulkanCamera mVulkanCamera;
-
     void initWindow();
     void initVulkan();
     void mainLoop();
@@ -37,6 +29,8 @@ class VulkanDemoApplication
     void createLogicalDevice();
     /// Creates the swapchain for double/triple buffering presentation
     void createSwapchain();
+    /// Creates image views for swapchain images to access them in shaders
+    void createImageViews();
 
     void recordCommandBuffer(uint32_t imageIndex, float time);
     void createUniformBuffer();
@@ -44,6 +38,14 @@ class VulkanDemoApplication
     void createDescriptorSetLayout();
     void createDescriptorPool();
     void createDescriptorSet();
+
+    // framebuffer size, can differ from actual window size in pixels
+    int fbWidth = 0, fbHeight = 0;
+
+    WorldCube &mWorldCube;
+    VulkanSpheres mVulkanSpheres;
+    VulkanGrid mVulkanGrid;
+    VulkanCamera mVulkanCamera;
 
     // vulkan boilerplate init stuff
     GLFWwindow *mWindow;
