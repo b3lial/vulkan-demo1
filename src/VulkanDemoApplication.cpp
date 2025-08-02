@@ -478,7 +478,7 @@ void VulkanDemoApplication::initVulkan()
     mVulkanSpheres.setLogicalDevice(mLogicalDevice);
     mVulkanSpheres.createVertexBuffer();
     mVulkanSpheres.createIndexBuffer();
-    mVulkanSpheres.createPipeline(mLogicalDevice, mRenderPass, mDescriptorSetLayout, mFbWidth, mFbHeight);
+    mVulkanSpheres.createPipeline(mRenderPass, mDescriptorSetLayout, mFbWidth, mFbHeight);
 }
 
 //---------------------------------------------------

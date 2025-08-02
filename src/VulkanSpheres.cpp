@@ -110,15 +110,15 @@ void VulkanSpheres::createIndexBuffer()
     vkUnmapMemory(mLogicalDevice, mIndexBufferMemory);
 }
 
-void VulkanSpheres::createPipeline(VkDevice& device, VkRenderPass& renderPass, VkDescriptorSetLayout& descriptorSetLayout, int fbWidth, int fbHeight)
+void VulkanSpheres::createPipeline(VkRenderPass& renderPass, VkDescriptorSetLayout& descriptorSetLayout, int fbWidth, int fbHeight)
 {
     ShaderData vertShaderData = getShaderVertData();
     ShaderData fragShaderData = getShaderFragData();
 
     VkShaderModule vertModule =
-        createShaderModule(device, reinterpret_cast<const char*>(vertShaderData.data), vertShaderData.size);
+        createShaderModule(mLogicalDevice, reinterpret_cast<const char*>(vertShaderData.data), vertShaderData.size);
     VkShaderModule fragModule =
-        createShaderModule(device, reinterpret_cast<const char*>(fragShaderData.data), fragShaderData.size);
+        createShaderModule(mLogicalDevice, reinterpret_cast<const char*>(fragShaderData.data), fragShaderData.size);
 
     VkPipelineShaderStageCreateInfo vertStageInfo{};
     vertStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -210,7 +210,7 @@ void VulkanSpheres::createPipeline(VkDevice& device, VkRenderPass& renderPass, V
     pipelineLayoutInfo.pushConstantRangeCount = 1;
     pipelineLayoutInfo.pPushConstantRanges = &pushConstantRange;
 
-    if (vkCreatePipelineLayout(device, &pipelineLayoutInfo, nullptr,
+    if (vkCreatePipelineLayout(mLogicalDevice, &pipelineLayoutInfo, nullptr,
                                &mPipelineLayout) != VK_SUCCESS)
     {
         LOG_DEBUG("Failed to create pipeline layout!");
@@ -231,13 +231,13 @@ void VulkanSpheres::createPipeline(VkDevice& device, VkRenderPass& renderPass, V
     pipelineInfo.renderPass = renderPass;
     pipelineInfo.subpass = 0;
 
-    if (vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo,
+    if (vkCreateGraphicsPipelines(mLogicalDevice, VK_NULL_HANDLE, 1, &pipelineInfo,
                                   nullptr, &mPipeline) != VK_SUCCESS)
     {
         LOG_DEBUG("Failed to create graphics pipeline!");
         exit(EXIT_FAILURE);
     }
 
-    vkDestroyShaderModule(device, vertModule, nullptr);
-    vkDestroyShaderModule(device, fragModule, nullptr);
+    vkDestroyShaderModule(mLogicalDevice, vertModule, nullptr);
+    vkDestroyShaderModule(mLogicalDevice, fragModule, nullptr);
 }
