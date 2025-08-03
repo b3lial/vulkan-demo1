@@ -1,5 +1,7 @@
 #include "WorldCube.hpp"
 
+const uint16_t WorldCube::Side::quadIndices[6] = {0, 1, 2, 0, 2, 3};
+
 WorldCube::WorldCube()
     : sideSize(2.0), sides{Side(glm::dvec3(1, 0, 0) * sideSize / 2.0,
                                 -glm::dvec3(1, 0, 0)),
@@ -230,4 +232,22 @@ void WorldCube::stepWorld()
     checkSphereSphereCollisions();
 
     updateObjects();
+}
+
+void WorldCube::Side::getCorners(glm::dvec3 corners[4], double edgeLength) const {
+    glm::dvec3 tangent, bitangent;
+    
+    if (abs(normal_vec.x) < 0.9) {
+        tangent = normalize(cross(normal_vec, glm::dvec3(1, 0, 0)));
+    } else {
+        tangent = normalize(cross(normal_vec, glm::dvec3(0, 1, 0)));
+    }
+    bitangent = cross(normal_vec, tangent);
+    
+    double halfSize = edgeLength * 0.5;
+    
+    corners[0] = point + (-tangent - bitangent) * halfSize;
+    corners[1] = point + (tangent - bitangent) * halfSize;
+    corners[2] = point + (tangent + bitangent) * halfSize;
+    corners[3] = point + (-tangent + bitangent) * halfSize;
 }

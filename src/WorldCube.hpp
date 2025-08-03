@@ -31,6 +31,10 @@ class WorldCube
         }
         
         glm::dvec3 normal() const { return normal_vec; }
+        
+        void getCorners(glm::dvec3 corners[4], double edgeLength) const;
+        
+        static const uint16_t quadIndices[6];
     };
     const Side *getSides() const { return sides; }
     const double getEdgeLength() const { return sideSize; }
