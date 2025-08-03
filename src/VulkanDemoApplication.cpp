@@ -512,42 +512,10 @@ void VulkanDemoApplication::recordCommandBuffer(uint32_t imageIndex, float time)
     mVulkanGrid.draw(mCommandBuffers[imageIndex], mVulkanCamera.getViewMatrix(), mVulkanCamera.getProjectionMatrix());
 
     // === Draw Spheres ===
-    vkCmdBindPipeline(mCommandBuffers[imageIndex],
-                      VK_PIPELINE_BIND_POINT_GRAPHICS, mVulkanSpheres.getPipeline());
-
-    vkCmdBindDescriptorSets(mCommandBuffers[imageIndex],
-                            VK_PIPELINE_BIND_POINT_GRAPHICS, mVulkanSpheres.getPipelineLayout(), 0,
-                            1, &mDescriptorSet, 0, nullptr);
-
-    VkBuffer vertexBuffers[] = {mVulkanSpheres.getVertexBuffer()}; // dein VkBuffer-Handle
-    VkDeviceSize offsets[] = {0};
-    vkCmdBindVertexBuffers(mCommandBuffers[imageIndex], 0, 1, vertexBuffers,
-                           offsets);
-
-    vkCmdBindIndexBuffer(mCommandBuffers[imageIndex], mVulkanSpheres.getIndexBuffer(), 0,
-                         VK_INDEX_TYPE_UINT32);
-
-    // calculate positions of spheres
-    unsigned int spheresSize = mWorldCube.getSpheresSize();
-    const WorldSphere *spheres = mWorldCube.getSpheres();
-    for (unsigned int j = 0; j < spheresSize; j++)
-    {
-        WorldSphere sphere = spheres[j];
-        glm::mat4 model =
-            glm::translate(glm::mat4(1.0f),
-                           glm::vec3(sphere.getPos().x, sphere.getPos().y,
-                                     sphere.getPos().z)) *
-            glm::scale(glm::mat4(1.0f), glm::vec3(sphere.getDiameter()));
-
-        SpheresPushConstants pc{model, mVulkanCamera.getViewMatrix(), mVulkanCamera.getProjectionMatrix()};
-
-        vkCmdPushConstants(mCommandBuffers[imageIndex], mVulkanSpheres.getPipelineLayout(),
-                           VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(SpheresPushConstants),
-                           &pc);
-
-        vkCmdDrawIndexed(mCommandBuffers[imageIndex],
-                         static_cast<uint32_t>(SPHERE_INDICES), 1, 0, 0, 0);
-    }
+    mVulkanSpheres.draw(mCommandBuffers[imageIndex], mDescriptorSet, 
+        mVulkanCamera.getViewMatrix(), mVulkanCamera.getProjectionMatrix(), 
+        mWorldCube.getSpheres(), mWorldCube.getSpheresSize()
+    );
 
     vkCmdEndRenderPass(mCommandBuffers[imageIndex]);
 

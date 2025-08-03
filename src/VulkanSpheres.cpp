@@ -240,3 +240,30 @@ void VulkanSpheres::createPipeline(VkRenderPass& renderPass, VkDescriptorSetLayo
     vkDestroyShaderModule(mLogicalDevice, vertModule, nullptr);
     vkDestroyShaderModule(mLogicalDevice, fragModule, nullptr);
 }
+
+//---------------------------------------------------
+void VulkanSpheres::draw(VkCommandBuffer commandBuffer, VkDescriptorSet descriptorSet, const glm::mat4& viewMatrix, const glm::mat4& projMatrix, const WorldSphere* spheres, unsigned int spheresSize)
+{
+    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, mPipeline);
+
+    vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, mPipelineLayout, 0, 1, &descriptorSet, 0, nullptr);
+
+    VkBuffer vertexBuffers[] = {mVertexBuffer};
+    VkDeviceSize offsets[] = {0};
+    vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
+
+    vkCmdBindIndexBuffer(commandBuffer, mIndexBuffer, 0, VK_INDEX_TYPE_UINT32);
+
+    for (unsigned int j = 0; j < spheresSize; j++)
+    {
+        WorldSphere sphere = spheres[j];
+        glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(sphere.getPos().x, sphere.getPos().y, sphere.getPos().z)) *
+                          glm::scale(glm::mat4(1.0f), glm::vec3(sphere.getDiameter()));
+
+        SpheresPushConstants pc{model, viewMatrix, projMatrix};
+
+        vkCmdPushConstants(commandBuffer, mPipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(SpheresPushConstants), &pc);
+
+        vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(SPHERE_INDICES), 1, 0, 0, 0);
+    }
+}
