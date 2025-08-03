@@ -18,6 +18,7 @@ class VulkanGrid
   public:
     void createPipeline(VkRenderPass &renderPass);
     void createVertexBuffer();
+    void draw(VkCommandBuffer commandBuffer, const glm::mat4& viewMatrix, const glm::mat4& projMatrix);
 
     // Setters
     void setPhysicalDevice(VkPhysicalDevice &physicalDevice){ mPhysicalDevice = physicalDevice; }
@@ -31,7 +32,6 @@ class VulkanGrid
     VkPipelineLayout& getPipelineLayout(){ return mPipelineLayout; }
     VkPipeline& getPipeline(){ return mPipeline; }
     VkBuffer& getVertexBuffer(){ return mVertexBuffer; }
-    uint32_t getVertexCount(){ return mVertexCount; }
     VkDeviceMemory& getVertexBufferMemory(){ return mVertexBufferMemory; }
 
   private:

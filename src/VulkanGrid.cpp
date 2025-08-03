@@ -243,3 +243,21 @@ void VulkanGrid::copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer,
 
     vkFreeCommandBuffers(mLogicalDevice, mCommandPool, 1, &commandBuffer);
 }
+
+//---------------------------------------------------
+void VulkanGrid::draw(VkCommandBuffer commandBuffer, const glm::mat4& viewMatrix, const glm::mat4& projMatrix)
+{
+    GridPushConstants gpc{viewMatrix, projMatrix};
+
+    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, mPipeline);
+
+    vkCmdPushConstants(commandBuffer, mPipelineLayout,
+                       VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(GridPushConstants),
+                       &gpc);
+
+    VkBuffer gridBuffers[] = {mVertexBuffer};
+    VkDeviceSize gridOffsets[] = {0};
+    vkCmdBindVertexBuffers(commandBuffer, 0, 1, gridBuffers, gridOffsets);
+
+    vkCmdDraw(commandBuffer, static_cast<uint32_t>(mVertexCount), 1, 0, 0);
+}

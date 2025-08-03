@@ -509,24 +509,7 @@ void VulkanDemoApplication::recordCommandBuffer(uint32_t imageIndex, float time)
                          VK_SUBPASS_CONTENTS_INLINE);
 
     // === Draw Grid ===
-    GridPushConstants gpc{mVulkanCamera.getViewMatrix(), mVulkanCamera.getProjectionMatrix()};
-
-    vkCmdBindPipeline(mCommandBuffers[imageIndex],
-                      VK_PIPELINE_BIND_POINT_GRAPHICS, mVulkanGrid.getPipeline());
-
-    vkCmdPushConstants(mCommandBuffers[imageIndex], mVulkanGrid.getPipelineLayout(),
-                       VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(GridPushConstants),
-                       &gpc);
-
-    VkBuffer gridBuffers[] = {mVulkanGrid.getVertexBuffer()};
-    VkDeviceSize gridOffsets[] = {0};
-    vkCmdBindVertexBuffers(mCommandBuffers[imageIndex], 0, 1, gridBuffers,
-                           gridOffsets);
-
-    vkCmdDraw(mCommandBuffers[imageIndex],
-              static_cast<uint32_t>(
-                  mVulkanGrid.getVertexCount()), // Achtung: zählst du beim Erzeugen
-              1, 0, 0);
+    mVulkanGrid.draw(mCommandBuffers[imageIndex], mVulkanCamera.getViewMatrix(), mVulkanCamera.getProjectionMatrix());
 
     // === Draw Spheres ===
     vkCmdBindPipeline(mCommandBuffers[imageIndex],
