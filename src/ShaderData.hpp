@@ -5,19 +5,6 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/constants.hpp>
 
-struct GridPushConstants
-{
-    glm::mat4 view;
-    glm::mat4 proj;
-};
-
-struct PushConstants
-{
-    glm::mat4 model;
-    glm::mat4 view;
-    glm::mat4 proj;
-};
-
 struct Light
 {
     alignas(16) glm::vec3 position;

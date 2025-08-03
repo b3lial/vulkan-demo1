@@ -1,7 +1,19 @@
 #pragma once
 
+#define GLFW_INCLUDE_VULKAN
+#include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/constants.hpp>
+
 #include "ShaderData.hpp"
 #include "Config.hpp"
+
+struct SpheresPushConstants
+{
+    glm::mat4 model;
+    glm::mat4 view;
+    glm::mat4 proj;
+};
 
 class VulkanSpheres
 {

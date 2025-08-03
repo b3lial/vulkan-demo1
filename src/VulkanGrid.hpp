@@ -7,6 +7,12 @@
 
 #include "Config.hpp"
 
+struct GridPushConstants
+{
+    glm::mat4 view;
+    glm::mat4 proj;
+};
+
 class VulkanGrid
 {
   public:

@@ -556,10 +556,10 @@ void VulkanDemoApplication::recordCommandBuffer(uint32_t imageIndex, float time)
                                      sphere.getPos().z)) *
             glm::scale(glm::mat4(1.0f), glm::vec3(sphere.getDiameter()));
 
-        PushConstants pc{model, mVulkanCamera.getViewMatrix(), mVulkanCamera.getProjectionMatrix()};
+        SpheresPushConstants pc{model, mVulkanCamera.getViewMatrix(), mVulkanCamera.getProjectionMatrix()};
 
         vkCmdPushConstants(mCommandBuffers[imageIndex], mVulkanSpheres.getPipelineLayout(),
-                           VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(PushConstants),
+                           VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(SpheresPushConstants),
                            &pc);
 
         vkCmdDrawIndexed(mCommandBuffers[imageIndex],
