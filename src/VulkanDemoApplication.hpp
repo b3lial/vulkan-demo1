@@ -4,6 +4,7 @@
 #include "WorldCube.hpp"
 #include "VulkanGrid.hpp"
 #include "VulkanCamera.hpp"
+#include "VulkanCube.hpp"
 
 class VulkanDemoApplication
 {
@@ -52,6 +53,7 @@ class VulkanDemoApplication
     VulkanSpheres mVulkanSpheres;
     VulkanGrid mVulkanGrid;
     VulkanCamera mVulkanCamera;
+    VulkanCube mVulkanCube;
 
     // vulkan boilerplate init stuff
     GLFWwindow *mWindow;

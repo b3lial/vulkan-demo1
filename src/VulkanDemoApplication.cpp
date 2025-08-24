@@ -508,6 +508,9 @@ void VulkanDemoApplication::recordCommandBuffer(uint32_t imageIndex, float time)
     vkCmdBeginRenderPass(mCommandBuffers[imageIndex], &renderPassInfo,
                          VK_SUBPASS_CONTENTS_INLINE);
 
+    // === Draw Cube ===
+    mVulkanCube.draw(mCommandBuffers[imageIndex], mDescriptorSet, mVulkanCamera.getViewMatrix(), mVulkanCamera.getProjectionMatrix());
+
     // === Draw Grid ===
     mVulkanGrid.draw(mCommandBuffers[imageIndex], mVulkanCamera.getViewMatrix(), mVulkanCamera.getProjectionMatrix());
 
