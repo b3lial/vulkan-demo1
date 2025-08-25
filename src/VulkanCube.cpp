@@ -62,7 +62,16 @@ void VulkanCube::createVertexBuffer(const WorldCube::Side* sides, double edgeLen
 
 void VulkanCube::createIndexBuffer()
 {
+    VkDeviceSize bufferSize = sizeof(mIndices[0]) * mIndicesSize;
 
+    createBuffer(mPhysicalDevice, mLogicalDevice, bufferSize, VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
+                 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                 mIndexBuffer, mIndexBufferMemory);
+
+    void *data;
+    vkMapMemory(mLogicalDevice, mIndexBufferMemory, 0, bufferSize, 0, &data);
+    memcpy(data, mIndices, static_cast<size_t>(bufferSize));
+    vkUnmapMemory(mLogicalDevice, mIndexBufferMemory);
 }
 
 /**
