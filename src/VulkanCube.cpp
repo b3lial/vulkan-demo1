@@ -43,9 +43,21 @@ void VulkanCube::generateVerticesFromSides(const WorldCube::Side* sides, double 
     }
 }
 
-void VulkanCube::createVertexBuffer()
+void VulkanCube::createVertexBuffer(const WorldCube::Side* sides, double edgeLength)
 {
+    // Generate vertices from the cube sides
+    generateVerticesFromSides(sides, edgeLength);
+    
+    VkDeviceSize bufferSize = sizeof(mVertices[0]) * mVerticesSize;
 
+    createBuffer(mPhysicalDevice, mLogicalDevice, bufferSize, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+                 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                 mVertexBuffer, mVertexBufferMemory);
+
+    void *data;
+    vkMapMemory(mLogicalDevice, mVertexBufferMemory, 0, bufferSize, 0, &data);
+    memcpy(data, mVertices, static_cast<size_t>(bufferSize));
+    vkUnmapMemory(mLogicalDevice, mVertexBufferMemory);
 }
 
 void VulkanCube::createIndexBuffer()

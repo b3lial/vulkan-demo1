@@ -483,7 +483,7 @@ void VulkanDemoApplication::initVulkan()
     // init cube
     mVulkanCube.setPhysicalDevice(mPhysicalDevice);
     mVulkanCube.setLogicalDevice(mLogicalDevice);
-    mVulkanCube.createIndexBuffer();
+    mVulkanCube.createVertexBuffer(mWorldCube.getSides(), mWorldCube.getEdgeLength());
     mVulkanCube.createIndexBuffer();
     mVulkanCube.createPipeline(mRenderPass, mDescriptorSetLayout, mFbWidth, mFbHeight);
 }
