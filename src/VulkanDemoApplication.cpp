@@ -479,6 +479,13 @@ void VulkanDemoApplication::initVulkan()
     mVulkanSpheres.createVertexBuffer();
     mVulkanSpheres.createIndexBuffer();
     mVulkanSpheres.createPipeline(mRenderPass, mDescriptorSetLayout, mFbWidth, mFbHeight);
+
+    // init cube
+    mVulkanCube.setPhysicalDevice(mPhysicalDevice);
+    mVulkanCube.setLogicalDevice(mLogicalDevice);
+    mVulkanCube.createIndexBuffer();
+    mVulkanCube.createIndexBuffer();
+    mVulkanCube.createPipeline(mRenderPass, mDescriptorSetLayout, mFbWidth, mFbHeight);
 }
 
 //---------------------------------------------------
@@ -509,7 +516,9 @@ void VulkanDemoApplication::recordCommandBuffer(uint32_t imageIndex, float time)
                          VK_SUBPASS_CONTENTS_INLINE);
 
     // === Draw Cube ===
-    mVulkanCube.draw(mCommandBuffers[imageIndex], mDescriptorSet, mVulkanCamera.getViewMatrix(), mVulkanCamera.getProjectionMatrix());
+    mVulkanCube.draw(mCommandBuffers[imageIndex], mDescriptorSet, mVulkanCamera.getViewMatrix(), mVulkanCamera.getProjectionMatrix(), 
+        mWorldCube.getSides(), mWorldCube.getEdgeLength()
+    );
 
     // === Draw Grid ===
     mVulkanGrid.draw(mCommandBuffers[imageIndex], mVulkanCamera.getViewMatrix(), mVulkanCamera.getProjectionMatrix());

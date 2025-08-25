@@ -6,7 +6,6 @@
 #include <glm/gtc/constants.hpp>
 
 #include "ShaderData.hpp"
-#include "Config.hpp"
 #include "WorldCube.hpp"
 
 struct CubePushConstants
