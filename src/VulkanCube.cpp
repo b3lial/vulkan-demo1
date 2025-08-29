@@ -216,5 +216,21 @@ void VulkanCube::createPipeline(VkRenderPass& renderPass, VkDescriptorSetLayout&
 
 void VulkanCube::draw(VkCommandBuffer commandBuffer, VkDescriptorSet descriptorSet, const glm::mat4& viewMatrix, const glm::mat4& projMatrix, const WorldCube::Side* sides, double edgeLength)
 {
+    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, mPipeline);
 
+    vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, mPipelineLayout, 0, 1, &descriptorSet, 0, nullptr);
+
+    VkBuffer vertexBuffers[] = {mVertexBuffer};
+    VkDeviceSize offsets[] = {0};
+    vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
+
+    vkCmdBindIndexBuffer(commandBuffer, mIndexBuffer, 0, VK_INDEX_TYPE_UINT32);
+
+    glm::mat4 model = glm::mat4(1.0f); // Identity matrix - cube is already positioned via sides
+
+    CubePushConstants pc{model, viewMatrix, projMatrix};
+
+    vkCmdPushConstants(commandBuffer, mPipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(CubePushConstants), &pc);
+
+    vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(mIndicesSize), 1, 0, 0, 0);
 }
