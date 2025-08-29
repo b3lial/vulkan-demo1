@@ -1,7 +1,6 @@
 #include "VulkanDemoApplication.hpp"
 #include "WorldCube.hpp"
 #include "Logger.hpp"
-#include <string>
 
 int main()
 {
