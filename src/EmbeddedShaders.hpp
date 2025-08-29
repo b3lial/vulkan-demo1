@@ -21,6 +21,10 @@ extern const unsigned int grid_vert_spv_len;
 extern const unsigned char grid_frag_spv[];
 extern const unsigned int grid_frag_spv_len;
 
+// Cube fragment
+extern const unsigned char cube_frag_spv[];
+extern const unsigned int cube_frag_spv_len;
+
 // Convenience struct for shader data
 struct ShaderData {
     const unsigned char* data;
@@ -42,4 +46,8 @@ inline ShaderData getGridVertData() {
 
 inline ShaderData getGridFragData() {
     return {grid_frag_spv, grid_frag_spv_len};
+}
+
+inline ShaderData getCubeFragData() {
+    return {cube_frag_spv, cube_frag_spv_len};
 }

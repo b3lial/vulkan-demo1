@@ -86,7 +86,7 @@ void VulkanCube::createIndexBuffer()
 void VulkanCube::createPipeline(VkRenderPass& renderPass, VkDescriptorSetLayout& descriptorSetLayout, int fbWidth, int fbHeight)
 {
     ShaderData vertShaderData = getShaderVertData();
-    ShaderData fragShaderData = getShaderFragData();
+    ShaderData fragShaderData = getCubeFragData();
 
     VkShaderModule vertModule =
         createShaderModule(mLogicalDevice, reinterpret_cast<const char*>(vertShaderData.data), vertShaderData.size);
