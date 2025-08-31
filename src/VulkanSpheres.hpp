@@ -26,10 +26,6 @@ public:
     void createPipeline(VkRenderPass& renderPass, VkDescriptorSetLayout& descriptorSetLayout);
     void draw(VkCommandBuffer commandBuffer, VkDescriptorSet descriptorSet, const glm::mat4& viewMatrix, const glm::mat4& projMatrix, const WorldSphere* spheres, unsigned int spheresSize);
     
-    // Getters
-    VkBuffer& getIndexBuffer() { return mIndexBuffer; }
-    VkDeviceMemory& getIndexBufferMemory() { return mIndexBufferMemory; }
-
 private:
     int generateVertices(float radius, int sectors, int stacks);
     int generateIndices(int sectors, int stacks);
@@ -38,7 +34,4 @@ private:
     int mVerticesSize;
     uint32_t mIndices[SPHERE_INDICES];
     int mIndicesSize;
-    
-    VkBuffer mIndexBuffer;
-    VkDeviceMemory mIndexBufferMemory;
 };

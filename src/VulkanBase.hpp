@@ -17,6 +17,8 @@ public:
     // Getters
     VkBuffer& getVertexBuffer() { return mVertexBuffer; }
     VkDeviceMemory& getVertexBufferMemory() { return mVertexBufferMemory; }
+    VkBuffer& getIndexBuffer() { return mIndexBuffer; }
+    VkDeviceMemory& getIndexBufferMemory() { return mIndexBufferMemory; }
     VkPipeline& getPipeline() { return mPipeline; }
     VkPipelineLayout& getPipelineLayout() { return mPipelineLayout; }
 
@@ -28,6 +30,8 @@ protected:
     
     VkBuffer mVertexBuffer;
     VkDeviceMemory mVertexBufferMemory;
+    VkBuffer mIndexBuffer;
+    VkDeviceMemory mIndexBufferMemory;
     VkPipeline mPipeline;
     VkPipelineLayout mPipelineLayout;
     

@@ -25,10 +25,6 @@ public:
     void createPipeline(VkRenderPass& renderPass, VkDescriptorSetLayout& descriptorSetLayout);
     void draw(VkCommandBuffer commandBuffer, VkDescriptorSet descriptorSet, const glm::mat4& viewMatrix, const glm::mat4& projMatrix, const WorldCube::Side* sides, double edgeLength);
     
-    // Getters
-    VkBuffer& getIndexBuffer() { return mIndexBuffer; }
-    VkDeviceMemory& getIndexBufferMemory() { return mIndexBufferMemory; }
-
 private:
     void generateVerticesFromSides(const WorldCube::Side* sides, double edgeLength);
     
@@ -39,7 +35,4 @@ private:
     int mVerticesSize;
     uint32_t mIndices[MAX_INDICES];
     int mIndicesSize;
-    
-    VkBuffer mIndexBuffer;
-    VkDeviceMemory mIndexBufferMemory;
 };
