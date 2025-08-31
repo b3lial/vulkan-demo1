@@ -83,7 +83,7 @@ void VulkanCube::createIndexBuffer()
  * - Uses the same push constants structure as VulkanSpheres for model/view/projection matrices
  * - Same vertex input layout using the Vertex struct from ShaderData.hpp
  */
-void VulkanCube::createPipeline(VkRenderPass& renderPass, VkDescriptorSetLayout& descriptorSetLayout, int fbWidth, int fbHeight)
+void VulkanCube::createPipeline(VkRenderPass& renderPass, VkDescriptorSetLayout& descriptorSetLayout)
 {
     ShaderData vertShaderData = getShaderVertData();
     ShaderData fragShaderData = getCubeFragData();
@@ -131,14 +131,14 @@ void VulkanCube::createPipeline(VkRenderPass& renderPass, VkDescriptorSetLayout&
     VkViewport viewport{};
     viewport.x = 0.0f;
     viewport.y = 0.0f;
-    viewport.width = static_cast<float>(fbWidth);
-    viewport.height = static_cast<float>(fbHeight);
+    viewport.width = static_cast<float>(mFbWidth);
+    viewport.height = static_cast<float>(mFbHeight);
     viewport.minDepth = 0.0f;
     viewport.maxDepth = 1.0f;
 
     VkRect2D scissor{};
     scissor.offset = {0, 0};
-    scissor.extent = {static_cast<uint32_t>(fbWidth), static_cast<uint32_t>(fbHeight)};
+    scissor.extent = {static_cast<uint32_t>(mFbWidth), static_cast<uint32_t>(mFbHeight)};
 
     VkPipelineViewportStateCreateInfo viewportState{};
     viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;

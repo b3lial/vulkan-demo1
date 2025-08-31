@@ -476,16 +476,18 @@ void VulkanDemoApplication::initVulkan()
     // init spheres
     mVulkanSpheres.setPhysicalDevice(mPhysicalDevice);
     mVulkanSpheres.setLogicalDevice(mLogicalDevice);
+    mVulkanSpheres.setFramebufferResolution(mFbWidth, mFbHeight);
     mVulkanSpheres.createVertexBuffer();
     mVulkanSpheres.createIndexBuffer();
-    mVulkanSpheres.createPipeline(mRenderPass, mDescriptorSetLayout, mFbWidth, mFbHeight);
+    mVulkanSpheres.createPipeline(mRenderPass, mDescriptorSetLayout);
 
     // init cube
     mVulkanCube.setPhysicalDevice(mPhysicalDevice);
     mVulkanCube.setLogicalDevice(mLogicalDevice);
+    mVulkanCube.setFramebufferResolution(mFbWidth, mFbHeight);
     mVulkanCube.createVertexBuffer(mWorldCube.getSides(), mWorldCube.getEdgeLength());
     mVulkanCube.createIndexBuffer();
-    mVulkanCube.createPipeline(mRenderPass, mDescriptorSetLayout, mFbWidth, mFbHeight);
+    mVulkanCube.createPipeline(mRenderPass, mDescriptorSetLayout);
 }
 
 //---------------------------------------------------

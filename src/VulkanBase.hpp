@@ -2,6 +2,7 @@
 
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
+#include "Config.hpp"
 
 class VulkanBase
 {
@@ -11,6 +12,7 @@ public:
     void setLogicalDevice(VkDevice &device) { mLogicalDevice = device; }
     void setCommandPool(VkCommandPool &commandPool) { mCommandPool = commandPool; }
     void setGraphicsQueue(VkQueue graphicsQueue) { mGraphicsQueue = graphicsQueue; }
+    void setFramebufferResolution(int fbWidth, int fbHeight) { mFbWidth = fbWidth; mFbHeight = fbHeight; }
 
     // Getters
     VkBuffer& getVertexBuffer() { return mVertexBuffer; }
@@ -28,4 +30,7 @@ protected:
     VkDeviceMemory mVertexBufferMemory;
     VkPipeline mPipeline;
     VkPipelineLayout mPipelineLayout;
+    
+    int mFbWidth = WIDTH;
+    int mFbHeight = HEIGHT;
 };

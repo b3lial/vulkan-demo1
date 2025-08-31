@@ -109,7 +109,7 @@ void VulkanSpheres::createIndexBuffer()
     vkUnmapMemory(mLogicalDevice, mIndexBufferMemory);
 }
 
-void VulkanSpheres::createPipeline(VkRenderPass& renderPass, VkDescriptorSetLayout& descriptorSetLayout, int fbWidth, int fbHeight)
+void VulkanSpheres::createPipeline(VkRenderPass& renderPass, VkDescriptorSetLayout& descriptorSetLayout)
 {
     ShaderData vertShaderData = getShaderVertData();
     ShaderData fragShaderData = getShaderFragData();
@@ -160,14 +160,14 @@ void VulkanSpheres::createPipeline(VkRenderPass& renderPass, VkDescriptorSetLayo
     VkViewport viewport{};
     viewport.x = 0.0f;
     viewport.y = 0.0f;
-    viewport.width = static_cast<float>(fbWidth);
-    viewport.height = static_cast<float>(fbHeight);
+    viewport.width = static_cast<float>(mFbWidth);
+    viewport.height = static_cast<float>(mFbHeight);
     viewport.minDepth = 0.0f;
     viewport.maxDepth = 1.0f;
 
     VkRect2D scissor{};
     scissor.offset = {0, 0};
-    scissor.extent = {static_cast<uint32_t>(fbWidth), static_cast<uint32_t>(fbHeight)};
+    scissor.extent = {static_cast<uint32_t>(mFbWidth), static_cast<uint32_t>(mFbHeight)};
 
     VkPipelineViewportStateCreateInfo viewportState{};
     viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;

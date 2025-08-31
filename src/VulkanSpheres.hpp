@@ -23,7 +23,7 @@ public:
     VulkanSpheres(float radius = 0.5f, int sectors = SPHERE_VERTICE_SECTORS, int stacks = SPHERE_VERTICE_STACKS);
     void createVertexBuffer();
     void createIndexBuffer();
-    void createPipeline(VkRenderPass& renderPass, VkDescriptorSetLayout& descriptorSetLayout, int fbWidth, int fbHeight);
+    void createPipeline(VkRenderPass& renderPass, VkDescriptorSetLayout& descriptorSetLayout);
     void draw(VkCommandBuffer commandBuffer, VkDescriptorSet descriptorSet, const glm::mat4& viewMatrix, const glm::mat4& projMatrix, const WorldSphere* spheres, unsigned int spheresSize);
     
     // Getters
