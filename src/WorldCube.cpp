@@ -1,7 +1,5 @@
 #include "WorldCube.hpp"
 
-const uint16_t WorldCube::Side::quadIndices[6] = {0, 1, 2, 0, 2, 3};
-
 WorldCube::WorldCube()
     : sideSize(2.0), sides{Side(glm::dvec3(1, 0, 0) * sideSize / 2.0,
                                 -glm::dvec3(1, 0, 0)),
