@@ -6,6 +6,7 @@
 #include <glm/gtc/constants.hpp>
 
 #include "Config.hpp"
+#include "VulkanBase.hpp"
 
 struct GridPushConstants
 {
@@ -13,7 +14,7 @@ struct GridPushConstants
     glm::mat4 proj;
 };
 
-class VulkanGrid
+class VulkanGrid : public VulkanBase
 {
   public:
     void createPipeline(VkRenderPass &renderPass);
@@ -21,18 +22,7 @@ class VulkanGrid
     void draw(VkCommandBuffer commandBuffer, const glm::mat4& viewMatrix, const glm::mat4& projMatrix);
 
     // Setters
-    void setPhysicalDevice(VkPhysicalDevice &physicalDevice){ mPhysicalDevice = physicalDevice; }
-    void setLogicalDevice(VkDevice &device){ mLogicalDevice = device; }
-    void setCommandPool(VkCommandPool &commandPool){ mCommandPool = commandPool; }
-    /// VulkanGrid needs the graphics queue to transfer a staging buffer into device-local buffer
-    void setGraphicsQueue(VkQueue graphicsQueue){ mGraphicsQueue = graphicsQueue; }
     void setFramebufferResolution(int fbWidth, int fbHeight){ mFbWidth = fbWidth; mFbHeight = fbHeight; }
-
-    // Getters
-    VkPipelineLayout& getPipelineLayout(){ return mPipelineLayout; }
-    VkPipeline& getPipeline(){ return mPipeline; }
-    VkBuffer& getVertexBuffer(){ return mVertexBuffer; }
-    VkDeviceMemory& getVertexBufferMemory(){ return mVertexBufferMemory; }
 
   private:
     int generateLines(int halfExtent, float spacing, glm::vec3 lines[]);
@@ -41,16 +31,5 @@ class VulkanGrid
     int mFbWidth = WIDTH;
     int mFbHeight = HEIGHT;
 
-    VkPhysicalDevice mPhysicalDevice;
-    VkDevice mLogicalDevice;
-  
-    VkBuffer mVertexBuffer;
-    VkDeviceMemory mVertexBufferMemory;
     uint32_t mVertexCount;
-
-    VkCommandPool mCommandPool;
-    VkQueue mGraphicsQueue;
-
-    VkPipelineLayout mPipelineLayout;
-    VkPipeline mPipeline;
 };
