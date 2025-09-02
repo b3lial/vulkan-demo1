@@ -228,7 +228,7 @@ void VulkanCube::draw(VkCommandBuffer commandBuffer, VkDescriptorSet descriptorS
 
     glm::mat4 model = glm::mat4(1.0f); // Identity matrix - cube is already positioned via sides
 
-    CubePushConstants pc{model, viewMatrix, projMatrix, 0.3f};
+    CubePushConstants pc{model, viewMatrix, projMatrix, 0.2f};
 
     vkCmdPushConstants(commandBuffer, mPipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(CubePushConstants), &pc);
 
