@@ -40,11 +40,10 @@ class VulkanDemoApplication
     /// Draw Grid and Spheres
     void recordCommandBuffer(uint32_t imageIndex, float time);
   
-    void createUniformBuffer();
+    /// Create uniform buffer and descriptor set
+    void setupLightingSystem();
+    /// Update lighting data (color and position)
     void updateUniformBuffer();
-    void createDescriptorSetLayout();
-    void createDescriptorPool();
-    void createDescriptorSet();
 
     // framebuffer size, can differ from actual window size in pixels
     int mFbWidth = 0, mFbHeight = 0;

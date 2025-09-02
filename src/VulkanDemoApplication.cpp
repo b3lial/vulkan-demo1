@@ -37,14 +37,86 @@ void VulkanDemoApplication::initWindow()
 
 
 //---------------------------------------------------
-void VulkanDemoApplication::createUniformBuffer()
+void VulkanDemoApplication::setupLightingSystem()
 {
-    VkDeviceSize bufferSize = sizeof(UniformBufferObject);
+    // 1. Create descriptor set layout
+    VkDescriptorSetLayoutBinding uboLayoutBinding{};
+    uboLayoutBinding.binding = 0;
+    uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    uboLayoutBinding.descriptorCount = 1;
+    uboLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+    uboLayoutBinding.pImmutableSamplers = nullptr;
 
+    VkDescriptorSetLayoutCreateInfo layoutInfo{};
+    layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+    layoutInfo.bindingCount = 1;
+    layoutInfo.pBindings = &uboLayoutBinding;
+
+    if (vkCreateDescriptorSetLayout(mLogicalDevice, &layoutInfo, nullptr,
+                                    &mDescriptorSetLayout) != VK_SUCCESS)
+    {
+        LOG_DEBUG("Failed to create descriptor set layout");
+        exit(EXIT_FAILURE);
+    }
+
+    // 2. Create uniform buffer
+    VkDeviceSize bufferSize = sizeof(UniformBufferObject);
     createBuffer(mPhysicalDevice, mLogicalDevice, bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
                  VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
                      VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
                  mUniformBuffer, mUniformBufferMemory);
+
+    // 3. Create descriptor pool
+    VkDescriptorPoolSize poolSize{};
+    poolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    poolSize.descriptorCount = 1;
+
+    VkDescriptorPoolCreateInfo poolInfo{};
+    poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+    poolInfo.poolSizeCount = 1;
+    poolInfo.pPoolSizes = &poolSize;
+    poolInfo.maxSets = 1;
+
+    if (vkCreateDescriptorPool(mLogicalDevice, &poolInfo, nullptr, &mDescriptorPool) !=
+        VK_SUCCESS)
+    {
+        LOG_DEBUG("Failed to create descriptor pool");
+        exit(EXIT_FAILURE);
+    }
+
+    // 4. Create descriptor set
+    VkDescriptorSetAllocateInfo allocInfo{};
+    allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+    allocInfo.descriptorPool = mDescriptorPool;
+    allocInfo.descriptorSetCount = 1;
+    allocInfo.pSetLayouts = &mDescriptorSetLayout;
+
+    if (vkAllocateDescriptorSets(mLogicalDevice, &allocInfo, &mDescriptorSet) !=
+        VK_SUCCESS)
+    {
+        LOG_DEBUG("Failed to allocate descriptor set");
+        exit(EXIT_FAILURE);
+    }
+
+    // 5. Connect uniform buffer to descriptor set
+    VkDescriptorBufferInfo bufferInfo{};
+    bufferInfo.buffer = mUniformBuffer;
+    bufferInfo.offset = 0;
+    bufferInfo.range = sizeof(UniformBufferObject);
+
+    VkWriteDescriptorSet descriptorWrite{};
+    descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+    descriptorWrite.dstSet = mDescriptorSet;
+    descriptorWrite.dstBinding = 0;
+    descriptorWrite.dstArrayElement = 0;
+    descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    descriptorWrite.descriptorCount = 1;
+    descriptorWrite.pBufferInfo = &bufferInfo;
+
+    vkUpdateDescriptorSets(mLogicalDevice, 1, &descriptorWrite, 0, nullptr);
+
+    // 6. Initialize uniform buffer with lighting data
+    updateUniformBuffer();
 }
 
 //---------------------------------------------------
@@ -65,83 +137,6 @@ void VulkanDemoApplication::updateUniformBuffer()
     vkMapMemory(mLogicalDevice, mUniformBufferMemory, 0, sizeof(ubo), 0, &data);
     memcpy(data, &ubo, sizeof(ubo));
     vkUnmapMemory(mLogicalDevice, mUniformBufferMemory);
-}
-
-//---------------------------------------------------
-void VulkanDemoApplication::createDescriptorSetLayout()
-{
-    VkDescriptorSetLayoutBinding uboLayoutBinding{};
-    uboLayoutBinding.binding = 0;
-    uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    uboLayoutBinding.descriptorCount = 1;
-    uboLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
-    uboLayoutBinding.pImmutableSamplers = nullptr;
-
-    VkDescriptorSetLayoutCreateInfo layoutInfo{};
-    layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-    layoutInfo.bindingCount = 1;
-    layoutInfo.pBindings = &uboLayoutBinding;
-
-    if (vkCreateDescriptorSetLayout(mLogicalDevice, &layoutInfo, nullptr,
-                                    &mDescriptorSetLayout) != VK_SUCCESS)
-    {
-        LOG_DEBUG("Failed to create descriptor set layout");
-        exit(EXIT_FAILURE);
-    }
-}
-
-//---------------------------------------------------
-void VulkanDemoApplication::createDescriptorPool()
-{
-    VkDescriptorPoolSize poolSize{};
-    poolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    poolSize.descriptorCount = 1;
-
-    VkDescriptorPoolCreateInfo poolInfo{};
-    poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-    poolInfo.poolSizeCount = 1;
-    poolInfo.pPoolSizes = &poolSize;
-    poolInfo.maxSets = 1;
-
-    if (vkCreateDescriptorPool(mLogicalDevice, &poolInfo, nullptr, &mDescriptorPool) !=
-        VK_SUCCESS)
-    {
-        LOG_DEBUG("Failed to create descriptor pool");
-        exit(EXIT_FAILURE);
-    }
-}
-
-//---------------------------------------------------
-void VulkanDemoApplication::createDescriptorSet()
-{
-    VkDescriptorSetAllocateInfo allocInfo{};
-    allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-    allocInfo.descriptorPool = mDescriptorPool;
-    allocInfo.descriptorSetCount = 1;
-    allocInfo.pSetLayouts = &mDescriptorSetLayout;
-
-    if (vkAllocateDescriptorSets(mLogicalDevice, &allocInfo, &mDescriptorSet) !=
-        VK_SUCCESS)
-    {
-        LOG_DEBUG("Failed to allocate descriptor set");
-        exit(EXIT_FAILURE);
-    }
-
-    VkDescriptorBufferInfo bufferInfo{};
-    bufferInfo.buffer = mUniformBuffer;
-    bufferInfo.offset = 0;
-    bufferInfo.range = sizeof(UniformBufferObject);
-
-    VkWriteDescriptorSet descriptorWrite{};
-    descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-    descriptorWrite.dstSet = mDescriptorSet;
-    descriptorWrite.dstBinding = 0;
-    descriptorWrite.dstArrayElement = 0;
-    descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    descriptorWrite.descriptorCount = 1;
-    descriptorWrite.pBufferInfo = &bufferInfo;
-
-    vkUpdateDescriptorSets(mLogicalDevice, 1, &descriptorWrite, 0, nullptr);
 }
 
 //---------------------------------------------------
@@ -419,11 +414,7 @@ void VulkanDemoApplication::initVulkan()
     createRenderPass();
     createFramebuffers();
 
-    createDescriptorSetLayout();
-    createUniformBuffer();
-    createDescriptorPool();
-    createDescriptorSet();
-    updateUniformBuffer();
+    setupLightingSystem();
 
     // create command pool
     VkCommandPoolCreateInfo poolInfo{};
