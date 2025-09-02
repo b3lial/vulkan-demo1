@@ -136,9 +136,9 @@ void VulkanSpheres::createPipeline(VkRenderPass& renderPass, VkDescriptorSetLayo
 
     // configure push constants
     VkPushConstantRange pushConstantRange{};
-    pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT; // Shader-Stufe
+    pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT; // Both vertex and fragment stages
     pushConstantRange.offset = 0;
-    pushConstantRange.size = sizeof(glm::mat4) * 3; // model + view + proj
+    pushConstantRange.size = sizeof(SpheresPushConstants); // model + view + proj + alpha
 
     // Erzeuge Vertexdaten
     auto bindingDescription = Vertex::getBindingDescription();
@@ -260,9 +260,9 @@ void VulkanSpheres::draw(VkCommandBuffer commandBuffer, VkDescriptorSet descript
         glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(sphere.getPos().x, sphere.getPos().y, sphere.getPos().z)) *
                           glm::scale(glm::mat4(1.0f), glm::vec3(sphere.getDiameter()));
 
-        SpheresPushConstants pc{model, viewMatrix, projMatrix};
+        SpheresPushConstants pc{model, viewMatrix, projMatrix, 1.0f};
 
-        vkCmdPushConstants(commandBuffer, mPipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(SpheresPushConstants), &pc);
+        vkCmdPushConstants(commandBuffer, mPipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(SpheresPushConstants), &pc);
 
         vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(SPHERE_INDICES), 1, 0, 0, 0);
     }

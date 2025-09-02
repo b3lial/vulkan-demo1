@@ -86,7 +86,7 @@ void VulkanCube::createIndexBuffer()
 void VulkanCube::createPipeline(VkRenderPass& renderPass, VkDescriptorSetLayout& descriptorSetLayout)
 {
     ShaderData vertShaderData = getShaderVertData();
-    ShaderData fragShaderData = getCubeFragData();
+    ShaderData fragShaderData = getShaderFragData();
 
     VkShaderModule vertModule =
         createShaderModule(mLogicalDevice, reinterpret_cast<const char*>(vertShaderData.data), vertShaderData.size);
@@ -109,9 +109,9 @@ void VulkanCube::createPipeline(VkRenderPass& renderPass, VkDescriptorSetLayout&
 
     // configure push constants
     VkPushConstantRange pushConstantRange{};
-    pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+    pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
     pushConstantRange.offset = 0;
-    pushConstantRange.size = sizeof(glm::mat4) * 3; // model + view + proj
+    pushConstantRange.size = sizeof(CubePushConstants); // model + view + proj + alpha
 
     // Vertex input description
     auto bindingDescription = Vertex::getBindingDescription();
@@ -228,9 +228,9 @@ void VulkanCube::draw(VkCommandBuffer commandBuffer, VkDescriptorSet descriptorS
 
     glm::mat4 model = glm::mat4(1.0f); // Identity matrix - cube is already positioned via sides
 
-    CubePushConstants pc{model, viewMatrix, projMatrix};
+    CubePushConstants pc{model, viewMatrix, projMatrix, 0.3f};
 
-    vkCmdPushConstants(commandBuffer, mPipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(CubePushConstants), &pc);
+    vkCmdPushConstants(commandBuffer, mPipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(CubePushConstants), &pc);
 
     vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(mIndicesSize), 1, 0, 0, 0);
 }

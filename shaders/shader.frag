@@ -18,6 +18,14 @@ layout(binding = 0, std140) uniform Lights {
     Light lights[3];
 };
 
+// Push constants for fragment shader
+layout(push_constant) uniform PushConstants {
+    mat4 model;
+    mat4 view;
+    mat4 proj;
+    float alpha;
+} pc;
+
 void main() {
     vec3 normal = normalize(fragNormal);  // Normale interpoliert von Vertices
     vec3 result = vec3(0.0);              // Startfarbe schwarz
@@ -38,5 +46,5 @@ void main() {
         result += fragColor * lightColor * diff;
     }
 
-    outColor = vec4(result, 1.0); // finaler RGBA-Ausgabewert
+    outColor = vec4(result, pc.alpha); // Use alpha from push constants
 }

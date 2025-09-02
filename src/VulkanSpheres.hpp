@@ -15,6 +15,7 @@ struct SpheresPushConstants
     glm::mat4 model;
     glm::mat4 view;
     glm::mat4 proj;
+    float alpha;
 };
 
 class VulkanSpheres : public VulkanBase

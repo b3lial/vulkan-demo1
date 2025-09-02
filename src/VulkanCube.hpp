@@ -14,6 +14,7 @@ struct CubePushConstants
     glm::mat4 model;
     glm::mat4 view;
     glm::mat4 proj;
+    float alpha;
 };
 
 class VulkanCube : public VulkanBase

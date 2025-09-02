@@ -86,7 +86,6 @@ set(SHADERS
     shader.frag
     grid.vert
     grid.frag
-    cube.frag
 )
 
 foreach(SHADER ${SHADERS})
