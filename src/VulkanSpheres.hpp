@@ -6,9 +6,13 @@
 #include <glm/gtc/constants.hpp>
 
 #include "ShaderData.hpp"
-#include "Config.hpp"
 #include "WorldSphere.hpp"
 #include "VulkanBase.hpp"
+
+constexpr uint32_t SPHERE_VERTICE_SECTORS = 48;
+constexpr uint32_t SPHERE_VERTICE_STACKS = 32;
+constexpr uint32_t SPHERE_VERTICES = (SPHERE_VERTICE_SECTORS + 1) * (SPHERE_VERTICE_STACKS + 1);
+constexpr uint32_t SPHERE_INDICES = SPHERE_VERTICE_SECTORS * SPHERE_VERTICE_STACKS * 6;
 
 struct SpheresPushConstants
 {

@@ -6,6 +6,9 @@
 #include "VulkanCamera.hpp"
 #include "VulkanCube.hpp"
 
+constexpr uint32_t WIDTH = 1200;
+constexpr uint32_t HEIGHT = 1200;
+
 class VulkanDemoApplication
 {
   public:

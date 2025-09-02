@@ -4,7 +4,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/constants.hpp>
 #include "ShaderData.hpp"
-#include "Config.hpp"
+
+constexpr uint32_t LIGHTS_AMOUNT = 3;
 
 class VulkanCamera
 {

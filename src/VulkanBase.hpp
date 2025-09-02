@@ -2,7 +2,6 @@
 
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
-#include "Config.hpp"
 
 class VulkanBase
 {
@@ -35,6 +34,6 @@ protected:
     VkPipeline mPipeline;
     VkPipelineLayout mPipelineLayout;
     
-    int mFbWidth = WIDTH;
-    int mFbHeight = HEIGHT;
+    int mFbWidth = -1;
+    int mFbHeight = -1;
 };

@@ -7,6 +7,9 @@
 
 #include "VulkanBase.hpp"
 
+constexpr uint32_t GRID_HALF_EXTEND = 10;
+constexpr uint32_t GRID_VERTEX_COUNT = (GRID_HALF_EXTEND * 2 + 1) * 4;
+
 struct GridPushConstants
 {
     glm::mat4 view;

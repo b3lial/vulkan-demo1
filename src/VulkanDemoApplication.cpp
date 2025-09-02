@@ -1,7 +1,6 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include "Logger.hpp"
 #include "VulkanDemoApplication.hpp"
-#include "Config.hpp"
 
 #include <memory.h>
 
