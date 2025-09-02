@@ -1,5 +1,5 @@
-# vulkan-demo1
-Coding Session 2025
+# Vulkan-Demo-1
+Coding Session 2025 by Malfunction, Scotch and Belial
 
 ---
 ## Build
@@ -8,13 +8,10 @@ Coding Session 2025
 * Debug: `cmake -DCMAKE_BUILD_TYPE=Debug ..`
 
 ---
-## Execution
 
-Must be executed in the `build` folder because that’s where the compiled shaders are located.
-
----
-
-## Architecture
+## Vulkan Cheat Sheet
+In case you are not familiar with the vulkan API, the following sections describe the most
+important components.
 
 ### 🧱 Instance & Surface
 
