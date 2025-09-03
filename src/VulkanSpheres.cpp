@@ -83,7 +83,7 @@ void VulkanSpheres::createVertexBuffer()
 {
     VkDeviceSize bufferSize = sizeof(mVertices[0]) * mVerticesSize;
 
-    createBuffer(mPhysicalDevice, mLogicalDevice, bufferSize, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+    VulkanBase::createBuffer(mPhysicalDevice, mLogicalDevice, bufferSize, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
                  VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
                      VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
                  mVertexBuffer, mVertexBufferMemory);
@@ -98,7 +98,7 @@ void VulkanSpheres::createIndexBuffer()
 {
     VkDeviceSize bufferSize = sizeof(mIndices[0]) * mIndicesSize;
 
-    createBuffer(mPhysicalDevice, mLogicalDevice, bufferSize, VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
+    VulkanBase::createBuffer(mPhysicalDevice, mLogicalDevice, bufferSize, VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
                  VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
                      VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
                  mIndexBuffer, mIndexBufferMemory);
@@ -115,9 +115,9 @@ void VulkanSpheres::createPipeline(VkRenderPass& renderPass, VkDescriptorSetLayo
     ShaderData fragShaderData = getShaderFragData();
 
     VkShaderModule vertModule =
-        createShaderModule(mLogicalDevice, reinterpret_cast<const char*>(vertShaderData.data), vertShaderData.size);
+        VulkanBase::createShaderModule(mLogicalDevice, reinterpret_cast<const char*>(vertShaderData.data), vertShaderData.size);
     VkShaderModule fragModule =
-        createShaderModule(mLogicalDevice, reinterpret_cast<const char*>(fragShaderData.data), fragShaderData.size);
+        VulkanBase::createShaderModule(mLogicalDevice, reinterpret_cast<const char*>(fragShaderData.data), fragShaderData.size);
 
     VkPipelineShaderStageCreateInfo vertStageInfo{};
     vertStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;

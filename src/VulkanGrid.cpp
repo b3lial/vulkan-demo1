@@ -1,6 +1,5 @@
 #include "VulkanGrid.hpp"
 #include "Logger.hpp"
-#include "ShaderData.hpp"
 #include "EmbeddedShaders.hpp"
 
 #include <memory.h>
@@ -12,9 +11,9 @@ void VulkanGrid::createPipeline(VkRenderPass &renderPass)
     ShaderData fragShaderData = getGridFragData();
 
     VkShaderModule vertModule =
-        createShaderModule(mLogicalDevice, reinterpret_cast<const char*>(vertShaderData.data), vertShaderData.size);
+        VulkanBase::createShaderModule(mLogicalDevice, reinterpret_cast<const char*>(vertShaderData.data), vertShaderData.size);
     VkShaderModule fragModule =
-        createShaderModule(mLogicalDevice, reinterpret_cast<const char*>(fragShaderData.data), fragShaderData.size);
+        VulkanBase::createShaderModule(mLogicalDevice, reinterpret_cast<const char*>(fragShaderData.data), fragShaderData.size);
 
     VkPipelineShaderStageCreateInfo vertStageInfo{};
     vertStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -157,7 +156,7 @@ void VulkanGrid::createVertexBuffer()
     // Create staging buffer
     VkBuffer stagingBuffer;
     VkDeviceMemory stagingBufferMemory;
-    createBuffer(mPhysicalDevice , mLogicalDevice, bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+    VulkanBase::createBuffer(mPhysicalDevice , mLogicalDevice, bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
                  VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
                      VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
                  stagingBuffer, stagingBufferMemory);
@@ -169,7 +168,7 @@ void VulkanGrid::createVertexBuffer()
     vkUnmapMemory(mLogicalDevice, stagingBufferMemory);
 
     // Create final vertex buffer
-    createBuffer(mPhysicalDevice, mLogicalDevice, bufferSize,
+    VulkanBase::createBuffer(mPhysicalDevice, mLogicalDevice, bufferSize,
                  VK_BUFFER_USAGE_VERTEX_BUFFER_BIT |
                      VK_BUFFER_USAGE_TRANSFER_DST_BIT,
                  VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, mVertexBuffer,

@@ -5,7 +5,6 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/constants.hpp>
 
-#include "ShaderData.hpp"
 #include "WorldCube.hpp"
 #include "VulkanBase.hpp"
 

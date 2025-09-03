@@ -1,8 +1,7 @@
-#include "ShaderData.hpp"
+#include "VulkanBase.hpp"
 #include "Logger.hpp"
 
-//---------------------------------------------------
-VkShaderModule createShaderModule(VkDevice &device, const char *code, size_t size)
+VkShaderModule VulkanBase::createShaderModule(VkDevice &device, const char *code, size_t size)
 {
     VkShaderModuleCreateInfo createInfo{};
     createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
@@ -19,13 +18,12 @@ VkShaderModule createShaderModule(VkDevice &device, const char *code, size_t siz
     return shaderModule;
 }
 
-
 //---------------------------------------------------
-void createBuffer(VkPhysicalDevice &physicalDevice, VkDevice &device, VkDeviceSize size,
-                                         VkBufferUsageFlags usage,
-                                         VkMemoryPropertyFlags properties,
-                                         VkBuffer &buffer,
-                                         VkDeviceMemory &bufferMemory)
+void VulkanBase::createBuffer(VkPhysicalDevice &physicalDevice, VkDevice &device, VkDeviceSize size,
+                             VkBufferUsageFlags usage,
+                             VkMemoryPropertyFlags properties,
+                             VkBuffer &buffer,
+                             VkDeviceMemory &bufferMemory)
 {
     VkBufferCreateInfo bufferInfo{};
     bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
@@ -46,7 +44,7 @@ void createBuffer(VkPhysicalDevice &physicalDevice, VkDevice &device, VkDeviceSi
     allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
     allocInfo.allocationSize = memRequirements.size;
     allocInfo.memoryTypeIndex =
-        findMemoryType(physicalDevice, memRequirements.memoryTypeBits, properties);
+        VulkanBase::findMemoryType(physicalDevice, memRequirements.memoryTypeBits, properties);
 
     if (vkAllocateMemory(device, &allocInfo, nullptr, &bufferMemory) !=
         VK_SUCCESS)
@@ -59,8 +57,8 @@ void createBuffer(VkPhysicalDevice &physicalDevice, VkDevice &device, VkDeviceSi
 }
 
 //---------------------------------------------------
-uint32_t findMemoryType(VkPhysicalDevice &physicalDevice, uint32_t typeFilter,
-                                               VkMemoryPropertyFlags properties)
+uint32_t VulkanBase::findMemoryType(VkPhysicalDevice &physicalDevice, uint32_t typeFilter,
+                                   VkMemoryPropertyFlags properties)
 {
     VkPhysicalDeviceMemoryProperties memProperties;
     vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memProperties);

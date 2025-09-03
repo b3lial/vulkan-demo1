@@ -50,7 +50,7 @@ ADD_EXECUTABLE(vulkan_demo1
     src/VulkanDemoApplication.cpp
     src/VulkanSpheres.cpp
     src/VulkanGrid.cpp
-    src/ShaderData.cpp
+    src/VulkanBase.cpp
     src/EmbeddedShaders.cpp
     src/VulkanCamera.cpp
     src/VulkanCube.cpp

@@ -60,7 +60,7 @@ void VulkanDemoApplication::setupLightingSystem()
 
     // 2. Create uniform buffer
     VkDeviceSize bufferSize = sizeof(UniformBufferObject);
-    createBuffer(mPhysicalDevice, mLogicalDevice, bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+    VulkanBase::createBuffer(mPhysicalDevice, mLogicalDevice, bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
                  VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
                      VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
                  mUniformBuffer, mUniformBufferMemory);

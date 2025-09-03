@@ -3,9 +3,14 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/constants.hpp>
-#include "ShaderData.hpp"
 
 constexpr uint32_t LIGHTS_AMOUNT = 3;
+
+struct Light
+{
+    alignas(16) glm::vec3 position;
+    alignas(16) glm::vec3 color;
+};
 
 class VulkanCamera
 {
