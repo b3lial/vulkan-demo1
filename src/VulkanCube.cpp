@@ -75,7 +75,7 @@ void VulkanCube::createIndexBuffer()
 }
 
 /**
- * - Uses the same shaders as VulkanSpheres (shader_vert_spv and shader_frag_spv)
+ * - Uses the same shaders as VulkanSpheres (object_vert_spv and object_frag_spv)
  * - Disabled face culling (VK_CULL_MODE_NONE) so both front and back faces are rendered for proper transparency
  * - Enabled alpha blending with standard transparency blend factors:
  *   - srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA
@@ -85,8 +85,8 @@ void VulkanCube::createIndexBuffer()
  */
 void VulkanCube::createPipeline(VkRenderPass& renderPass, VkDescriptorSetLayout& descriptorSetLayout)
 {
-    ShaderData vertShaderData = getShaderVertData();
-    ShaderData fragShaderData = getShaderFragData();
+    ShaderData vertShaderData = getObjectVertData();
+    ShaderData fragShaderData = getObjectFragData();
 
     VkShaderModule vertModule =
         VulkanBase::createShaderModule(mLogicalDevice, reinterpret_cast<const char*>(vertShaderData.data), vertShaderData.size);

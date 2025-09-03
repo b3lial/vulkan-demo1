@@ -111,8 +111,8 @@ void VulkanSpheres::createIndexBuffer()
 
 void VulkanSpheres::createPipeline(VkRenderPass& renderPass, VkDescriptorSetLayout& descriptorSetLayout)
 {
-    ShaderData vertShaderData = getShaderVertData();
-    ShaderData fragShaderData = getShaderFragData();
+    ShaderData vertShaderData = getObjectVertData();
+    ShaderData fragShaderData = getObjectFragData();
 
     VkShaderModule vertModule =
         VulkanBase::createShaderModule(mLogicalDevice, reinterpret_cast<const char*>(vertShaderData.data), vertShaderData.size);

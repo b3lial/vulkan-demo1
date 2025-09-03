@@ -82,8 +82,8 @@ if(NOT XXD_COMMAND)
 endif()
 
 set(SHADERS
-    shader.vert
-    shader.frag
+    object.vert
+    object.frag
     grid.vert
     grid.frag
 )

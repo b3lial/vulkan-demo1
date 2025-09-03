@@ -5,13 +5,13 @@
 // Forward declarations for embedded shader data
 // These will be defined in the generated header files
 
-// Shader vertex
-extern const unsigned char shader_vert_spv[];
-extern const unsigned int shader_vert_spv_len;
+// Object vertex
+extern const unsigned char object_vert_spv[];
+extern const unsigned int object_vert_spv_len;
 
-// Shader fragment  
-extern const unsigned char shader_frag_spv[];
-extern const unsigned int shader_frag_spv_len;
+// Object fragment  
+extern const unsigned char object_frag_spv[];
+extern const unsigned int object_frag_spv_len;
 
 // Grid vertex
 extern const unsigned char grid_vert_spv[];
@@ -29,12 +29,12 @@ struct ShaderData {
 };
 
 // Accessor functions for getting shader data
-inline ShaderData getShaderVertData() {
-    return {shader_vert_spv, shader_vert_spv_len};
+inline ShaderData getObjectVertData() {
+    return {object_vert_spv, object_vert_spv_len};
 }
 
-inline ShaderData getShaderFragData() {
-    return {shader_frag_spv, shader_frag_spv_len};
+inline ShaderData getObjectFragData() {
+    return {object_frag_spv, object_frag_spv_len};
 }
 
 inline ShaderData getGridVertData() {
