@@ -193,15 +193,15 @@ int VulkanGrid::generateLines(int halfExtent, float spacing,
         float v = i * spacing;
 
         // Linie entlang X
-        lines[index] = glm::vec3(-halfExtent * spacing, 0.0f, v);
+        lines[index] = glm::vec3(-halfExtent * spacing, -3.0f, v);
         index++;
-        lines[index] = glm::vec3(halfExtent * spacing, 0.0f, v);
+        lines[index] = glm::vec3(halfExtent * spacing, -3.0f, v);
         index++;
 
         // Linie entlang Z
-        lines[index] = glm::vec3(v, 0.0f, -halfExtent * spacing);
+        lines[index] = glm::vec3(v, -3.0f, -halfExtent * spacing);
         index++;
-        lines[index] = glm::vec3(v, 0.0f, halfExtent * spacing);
+        lines[index] = glm::vec3(v, -3.0f, halfExtent * spacing);
         index++;
     }
 
